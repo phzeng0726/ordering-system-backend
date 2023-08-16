@@ -1,15 +1,16 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"ordering-system-backend/db"
 	"ordering-system-backend/models"
 )
 
-func GetStores() []models.Store {
-	// 執行 SELECT 查詢
-	rows, err := db.DB.Query("SELECT * FROM store")
+func GetStores() ([]models.Store, error) {
+	sql := "SELECT * FROM store"
+	rows, err := db.DB.Query(sql)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,5 +34,41 @@ func GetStores() []models.Store {
 	}
 	fmt.Println(stores)
 
-	return stores
+	return stores, err
+}
+
+func GetStoreById(storeId string) (models.Store, error) {
+	sql := "SELECT *" +
+		" FROM store" +
+		" WHERE id = ?" +
+		" LIMIT 1"
+	rows, err := db.DB.Query(sql, storeId)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var store models.Store
+
+	found := false // 用於標記是否找到符合條件的資料行
+	for rows.Next() {
+		found = true // 找到資料行
+		err := rows.Scan(
+			&store.Id,
+			&store.Name,
+			&store.Description,
+			&store.Email,
+			&store.Phone,
+			&store.IsOpen,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if !found {
+		err = errors.New("store not found")
+	}
+
+	return store, err
 }

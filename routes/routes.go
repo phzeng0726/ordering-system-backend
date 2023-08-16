@@ -8,5 +8,6 @@ import (
 
 func SetUpRoutes(router *gin.Engine) {
 	router.GET("/stores", c.GetStores)
+	router.GET("/store/:id", c.GetStoreById)
 
 }
