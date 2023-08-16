@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ordering-system-backend/config"
 	"ordering-system-backend/db"
 	"ordering-system-backend/routes"
 
@@ -8,12 +9,13 @@ import (
 )
 
 func main() {
+	config.InitConfig()
+
 	db.Connect()
 
 	router := gin.Default()
 	routes.SetUpRoutes(router)
 
-	port := "8080"
-	router.Run("localhost:" + port)
+	router.Run("localhost:" + config.Env.Port)
 
 }

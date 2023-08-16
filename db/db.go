@@ -15,11 +15,7 @@ var (
 )
 
 func GetDBConnection() string {
-	appConfig := config.AppConfig{
-		UserName: "root",
-		Password: "0000",
-		DBName:   "ordering_db",
-	}
+	appConfig := config.Env
 
 	// 設定資料庫連線字串
 	dsn := fmt.Sprintf("%s:%s@/%s", appConfig.UserName, appConfig.Password, appConfig.DBName)
