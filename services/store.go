@@ -7,7 +7,7 @@ import (
 	"ordering-system-backend/models"
 )
 
-func GetStores() {
+func GetStores() []models.Store {
 	// 執行 SELECT 查詢
 	rows, err := db.DB.Query("SELECT * FROM store")
 	if err != nil {
@@ -32,4 +32,6 @@ func GetStores() {
 		stores = append(stores, store)
 	}
 	fmt.Println(stores)
+
+	return stores
 }

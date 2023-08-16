@@ -2,30 +2,18 @@ package main
 
 import (
 	"ordering-system-backend/db"
-	"ordering-system-backend/services"
+	"ordering-system-backend/routes"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	db.Connect()
 
-	services.GetStores()
+	router := gin.Default()
+	routes.SetUpRoutes(router)
+
+	port := "8080"
+	router.Run("localhost:" + port)
 
 }
-
-// router := gin.Default()
-
-// menuItem := models.MenuItem{
-// 	Id:             1,
-// 	StoreId:        1,
-// 	MenuCategoryId: 1,
-// 	Name:           "",
-// 	Description:    "",
-// 	Price:          0,
-// }
-
-// jsonData, err := json.MarshalIndent(menuItem, "", "  ")
-// if err != nil {
-// 	fmt.Println(err)
-// }
-
-// fmt.Println(jsonData)
