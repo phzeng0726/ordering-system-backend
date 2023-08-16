@@ -72,3 +72,16 @@ func GetStoreById(storeId string) (models.Store, error) {
 
 	return store, err
 }
+
+func CreateStore(s models.Store) error {
+	sql := "INSERT INTO store (id, name, description, email, phone, is_open)" +
+		" VALUES (?, ?, ?, ?, ?, ?)"
+
+	_, err := db.DB.Exec(sql, s.Id, s.Name, s.Description, s.Email, s.Phone, s.IsOpen)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
