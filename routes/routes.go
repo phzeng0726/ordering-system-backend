@@ -16,5 +16,5 @@ func SetUpRoutes(router *gin.Engine) {
 
 	// Menu
 	router.GET("/stores/:id/menus", c.GetMenus)
-
+	router.POST("/stores/:id/menus", c.CreateMenus)
 }
