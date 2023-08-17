@@ -48,69 +48,69 @@ func GetMenus(storeId string) ([]models.Menu, error) {
 	return menus, err
 }
 
-func CreateMenus(m models.Menu) error {
-
-	// 開始 SQL Transaction
-	var res sql.Result
-	var menuId int64
-	var menuItemId int64
-
-	tx, err := db.DB.Begin()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	res, err = tx.Exec(
+func insertMenu(tx *sql.Tx, m models.Menu) (int64, error) {
+	res, err := tx.Exec(
 		"INSERT INTO menu (store_id, title, `description`, is_hide, create_at)"+
 			"VALUE (?, ?, ?, ?, ?)", m.StoreId, m.Title, m.Description, m.IsHide, m.CreateAt,
 	)
-
 	if err != nil {
-		// 發生錯誤，回滾事務
-		tx.Rollback()
-		log.Fatal(err)
+		return 0, err
 	}
+	return res.LastInsertId()
+}
 
-	menuId, err = res.LastInsertId()
-
+func insertMenuItem(tx *sql.Tx, m models.MenuItem) (int64, error) {
+	res, err := tx.Exec(
+		"INSERT INTO menu_item (store_id, menu_category_id, title, `description`, quantity, price)"+
+			"VALUE (?, ?, ?, ?, ?, ?)", m.StoreId, m.MenuCategoryId, m.Title, m.Description, m.Quantity, m.Price,
+	)
 	if err != nil {
-		panic(err.Error())
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func insertMenuItemMapping(tx *sql.Tx, menuId, menuItemId int64) error {
+	_, err := tx.Exec(
+		"INSERT INTO menu_item_mapping (menu_id, menu_item_id)"+
+			"VALUE (?, ?)", menuId, menuItemId,
+	)
+	return err
+}
+
+func CreateMenus(m models.Menu) error {
+	// 開始 SQL Transaction
+	tx, err := db.DB.Begin()
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	defer tx.Rollback()
+
+	menuId, err := insertMenu(tx, m)
+	if err != nil {
+		log.Fatal(err)
+		return err
 	}
 
 	for _, mi := range m.MenuItems {
-		res, err = tx.Exec(
-			"INSERT INTO menu_item (store_id, menu_category_id, title, `description`, quantity, price)"+
-				"VALUE (?, ?, ?, ?, ?, ?)", m.StoreId, mi.MenuCategoryId, mi.Title, mi.Description, mi.Quantity, mi.Price,
-		)
-
+		menuItemId, err := insertMenuItem(tx, mi)
 		if err != nil {
-			// 發生錯誤，回滾事務
-			tx.Rollback()
 			log.Fatal(err)
+			return err
 		}
 
-		menuItemId, err = res.LastInsertId()
-
+		err = insertMenuItemMapping(tx, menuId, menuItemId)
 		if err != nil {
-			panic(err.Error())
-		}
-
-		_, err = tx.Exec(
-			"INSERT INTO menu_item_mapping (menu_id, menu_item_id)"+
-				"VALUE (?, ?)", menuId, menuItemId,
-		)
-
-		if err != nil {
-			// 發生錯誤，回滾事務
-			tx.Rollback()
 			log.Fatal(err)
+			return err
 		}
 	}
 
 	// 提交事務
 	if err := tx.Commit(); err != nil {
 		log.Fatal(err)
+		return err
 	}
 
 	return nil
