@@ -55,9 +55,9 @@ func GetMenuById(storeId string, menuId int) (models.Menu, error) {
 
 	sql := "SELECT m.id menu_id, m.store_id, m.title, m.`description`, m.is_hide, mi.id , mi.title, mi.`description`, mi.quantity, mi.price, mc.id, mc.title" +
 		" FROM menu m" +
-		" JOIN menu_item_mapping mim ON  m.id = mim.menu_id" +
-		" JOIN menu_item mi ON  mi.id = mim.menu_item_id" +
-		" JOIN menu_category mc ON  mi.menu_category_id = mc.id" +
+		" JOIN menu_item_mapping mim ON m.id = mim.menu_id" +
+		" JOIN menu_item mi ON mi.id = mim.menu_item_id" +
+		" JOIN menu_category mc ON mi.menu_category_id = mc.id" +
 		" WHERE m.store_id = ?" +
 		" AND m.id = ?"
 
