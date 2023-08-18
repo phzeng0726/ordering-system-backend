@@ -8,9 +8,38 @@ import (
 	"ordering-system-backend/utils"
 )
 
+func scanMenusRow(rows *sql.Rows) ([]models.Menu, error) {
+	var menus []models.Menu
+	var err error
+
+	for rows.Next() {
+		var menu models.Menu
+		var createAtStr string // 創建一個字串來暫存日期時間字串
+
+		err = rows.Scan(
+			&menu.Id,
+			&menu.StoreId,
+			&menu.Title,
+			&menu.Description,
+			&menu.IsHide,
+			&createAtStr, // 接收日期時間字串
+		)
+		if err != nil {
+			return menus, err
+		}
+
+		menu.CreateAt, err = utils.DateTimeConverter(createAtStr)
+		if err != nil {
+			return menus, err
+		}
+		menus = append(menus, menu)
+	}
+
+	return menus, err
+}
+
 func GetMenus(storeId string) ([]models.Menu, error) {
 	var menus []models.Menu
-	var createAtStr string // 創建一個字串來暫存日期時間字串
 
 	sql := "SELECT *" +
 		" FROM menu" +
@@ -23,31 +52,47 @@ func GetMenus(storeId string) ([]models.Menu, error) {
 	}
 	defer rows.Close()
 
-	for rows.Next() {
+	menus, err = scanMenusRow(rows)
 
-		var menu models.Menu
-		err := rows.Scan(
+	if err != nil {
+		return menus, err
+	}
+
+	return menus, err
+}
+
+func scanMenuByIdRow(rows *sql.Rows) (models.Menu, error) {
+	var menu models.Menu
+	var menuItems []models.MenuItem
+	var err error
+
+	for rows.Next() {
+		var menuItem models.MenuItem
+		var menuCategory models.MenuCategory
+
+		err = rows.Scan(
 			&menu.Id,
 			&menu.StoreId,
 			&menu.Title,
 			&menu.Description,
 			&menu.IsHide,
-			&createAtStr, // 接收日期時間字串
+			&menuItem.Id,
+			&menuItem.Title,
+			&menuItem.Description,
+			&menuItem.Quantity,
+			&menuItem.Price,
+			&menuCategory.Id,
+			&menuCategory.Title,
 		)
 		if err != nil {
-			fmt.Println(err)
-			return menus, err
+			return menu, err
 		}
-
-		menu.CreateAt, err = utils.DateTimeConverter(createAtStr)
-		if err != nil {
-			fmt.Println(err)
-			return menus, err
-		}
-		menus = append(menus, menu)
+		menuItem.MenuCategory = menuCategory
+		menuItems = append(menuItems, menuItem)
 	}
 
-	return menus, err
+	menu.MenuItems = menuItems
+	return menu, err
 }
 
 func GetMenuById(storeId string, menuId int) (models.Menu, error) {
@@ -69,13 +114,12 @@ func GetMenuById(storeId string, menuId int) (models.Menu, error) {
 
 	defer rows.Close()
 
-	menuDTO, err := models.ScanMenuRow(rows)
+	menu, err = scanMenuByIdRow(rows)
 
 	if err != nil {
 		return menu, err
 	}
 
-	menu = menuDTO.ToDomain()
 	return menu, err
 }
 
@@ -113,35 +157,29 @@ func CreateMenus(m models.Menu) error {
 	// 開始 SQL Transaction
 	tx, err := db.DB.Begin()
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	defer tx.Rollback()
 
 	menuId, err := insertMenu(tx, m)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	fmt.Println(menuId)
+
 	for _, mi := range m.MenuItems {
 		menuItemId, err := insertMenuItem(tx, mi)
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
-		fmt.Println(menuItemId)
 
 		err = insertMenuItemMapping(tx, menuId, menuItemId)
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
 
-	// 提交事務
+	// 提交
 	if err := tx.Commit(); err != nil {
-		fmt.Println(err)
 		return err
 	}
 
