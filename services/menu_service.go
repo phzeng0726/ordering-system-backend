@@ -3,25 +3,25 @@ package services
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"ordering-system-backend/db"
 	"ordering-system-backend/models"
 	"ordering-system-backend/utils"
 )
 
 func GetMenus(storeId string) ([]models.Menu, error) {
+	var menus []models.Menu
+	var createAtStr string // 創建一個字串來暫存日期時間字串
+
 	sql := "SELECT *" +
 		" FROM menu" +
 		" WHERE store_id = ?"
 	rows, err := db.DB.Query(sql, storeId)
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return menus, err
 	}
 	defer rows.Close()
-
-	var menus []models.Menu
-	var createAtStr string // 創建一個字串來暫存日期時間字串
 
 	for rows.Next() {
 		var menu models.Menu
@@ -34,16 +34,17 @@ func GetMenus(storeId string) ([]models.Menu, error) {
 			&createAtStr, // 接收日期時間字串
 		)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			return menus, err
 		}
 
 		menu.CreateAt, err = utils.DateTimeConverter(createAtStr)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			return menus, err
 		}
 		menus = append(menus, menu)
 	}
-	fmt.Println(menus)
 
 	return menus, err
 }
@@ -59,10 +60,10 @@ func insertMenu(tx *sql.Tx, m models.Menu) (int64, error) {
 	return res.LastInsertId()
 }
 
-func insertMenuItem(tx *sql.Tx, m models.MenuItem) (int64, error) {
+func insertMenuItem(tx *sql.Tx, mi models.MenuItem) (int64, error) {
 	res, err := tx.Exec(
-		"INSERT INTO menu_item (store_id, menu_category_id, title, `description`, quantity, price)"+
-			"VALUE (?, ?, ?, ?, ?, ?)", m.StoreId, m.MenuCategoryId, m.Title, m.Description, m.Quantity, m.Price,
+		"INSERT INTO menu_item (menu_category_id, title, `description`, quantity, price)"+
+			"VALUE (?, ?, ?, ?, ?)", mi.MenuCategoryId, mi.Title, mi.Description, mi.Quantity, mi.Price,
 	)
 	if err != nil {
 		return 0, err
@@ -82,34 +83,35 @@ func CreateMenus(m models.Menu) error {
 	// 開始 SQL Transaction
 	tx, err := db.DB.Begin()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		return err
 	}
 	defer tx.Rollback()
 
 	menuId, err := insertMenu(tx, m)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		return err
 	}
-
+	fmt.Println(menuId)
 	for _, mi := range m.MenuItems {
 		menuItemId, err := insertMenuItem(tx, mi)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 			return err
 		}
+		fmt.Println(menuItemId)
 
 		err = insertMenuItemMapping(tx, menuId, menuItemId)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 			return err
 		}
 	}
 
 	// 提交事務
 	if err := tx.Commit(); err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		return err
 	}
 

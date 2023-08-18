@@ -14,7 +14,6 @@ type Menu struct {
 
 type MenuItem struct {
 	Id             int    `json:"id"`
-	StoreId        string `json:"store_id"`
 	MenuCategoryId int    `json:"menu_category_id"`
 	Title          string `json:"name"`
 	Description    string `json:"description"`
