@@ -19,7 +19,7 @@ func GetStores(c *gin.Context) {
 }
 
 func GetStoreById(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("store_id")
 	stores, err := s.GetStoreById(id)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})

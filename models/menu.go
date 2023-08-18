@@ -13,10 +13,15 @@ type Menu struct {
 }
 
 type MenuItem struct {
-	Id             int    `json:"id"`
-	MenuCategoryId int    `json:"menu_category_id"`
-	Title          string `json:"name"`
-	Description    string `json:"description"`
-	Quantity       int    `json:"quantity"`
-	Price          int    `json:"price"`
+	Id           int          `json:"id"`
+	MenuCategory MenuCategory `json:"menu_category"`
+	Title        string       `json:"title"`
+	Description  string       `json:"description"`
+	Quantity     int          `json:"quantity"`
+	Price        int          `json:"price"`
+}
+
+type MenuCategory struct {
+	Id    int    `json:"id"`
+	Title string `json:"title"`
 }

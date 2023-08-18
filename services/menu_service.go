@@ -49,6 +49,56 @@ func GetMenus(storeId string) ([]models.Menu, error) {
 	return menus, err
 }
 
+func GetMenuById(storeId string, menuId int) (models.Menu, error) {
+	var menu models.Menu
+	var menuItems []models.MenuItem
+
+	sql := "SELECT m.id menu_id, m.store_id, m.title, m.`description`, m.is_hide, mi.id , mi.title, mi.`description`, mi.quantity, mi.price, mc.id, mc.title" +
+		" FROM menu m" +
+		" JOIN menu_item_mapping mim ON  m.id = mim.menu_id" +
+		" JOIN menu_item mi ON  mi.id = mim.menu_item_id" +
+		" JOIN menu_category mc ON  mi.menu_category_id = mc.id" +
+		" WHERE m.store_id = ?" +
+		" AND m.id = ?"
+
+	rows, err := db.DB.Query(sql, storeId, menuId)
+	if err != nil {
+		fmt.Println(err)
+		return menu, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var menuItem models.MenuItem
+		var menuCategory models.MenuCategory
+
+		err := rows.Scan(
+			&menu.Id,
+			&menu.StoreId,
+			&menu.Title,
+			&menu.Description,
+			&menu.IsHide,
+			&menuItem.Id,
+			&menuItem.Title,
+			&menuItem.Description,
+			&menuItem.Quantity,
+			&menuItem.Price,
+			&menuCategory.Id,
+			&menuCategory.Title,
+		)
+		if err != nil {
+			fmt.Println(err)
+			return menu, err
+		}
+		menuItem.MenuCategory = menuCategory
+		menuItems = append(menuItems, menuItem)
+	}
+
+	menu.MenuItems = menuItems
+	return menu, err
+}
+
 func insertMenu(tx *sql.Tx, m models.Menu) (int64, error) {
 	res, err := tx.Exec(
 		"INSERT INTO menu (store_id, title, `description`, is_hide, create_at)"+
@@ -63,7 +113,7 @@ func insertMenu(tx *sql.Tx, m models.Menu) (int64, error) {
 func insertMenuItem(tx *sql.Tx, mi models.MenuItem) (int64, error) {
 	res, err := tx.Exec(
 		"INSERT INTO menu_item (menu_category_id, title, `description`, quantity, price)"+
-			"VALUE (?, ?, ?, ?, ?)", mi.MenuCategoryId, mi.Title, mi.Description, mi.Quantity, mi.Price,
+			"VALUE (?, ?, ?, ?, ?)", mi.MenuCategory.Id, mi.Title, mi.Description, mi.Quantity, mi.Price,
 	)
 	if err != nil {
 		return 0, err

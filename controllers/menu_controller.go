@@ -4,13 +4,31 @@ import (
 	"net/http"
 	"ordering-system-backend/models"
 	s "ordering-system-backend/services"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetMenus(c *gin.Context) {
-	id := c.Param("id")
-	menus, err := s.GetMenus(id)
+	storeId := c.Param("store_id")
+	menus, err := s.GetMenus(storeId)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, menus)
+}
+
+func GetMenuById(c *gin.Context) {
+	storeId := c.Param("store_id")
+	menuIdStr := c.Param("menu_id")
+	menuId, err := strconv.Atoi(menuIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
+		return
+	}
+
+	menus, err := s.GetMenuById(storeId, menuId)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
