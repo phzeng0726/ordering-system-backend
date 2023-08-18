@@ -24,6 +24,7 @@ func GetMenus(storeId string) ([]models.Menu, error) {
 	defer rows.Close()
 
 	for rows.Next() {
+
 		var menu models.Menu
 		err := rows.Scan(
 			&menu.Id,
@@ -51,7 +52,6 @@ func GetMenus(storeId string) ([]models.Menu, error) {
 
 func GetMenuById(storeId string, menuId int) (models.Menu, error) {
 	var menu models.Menu
-	var menuItems []models.MenuItem
 
 	sql := "SELECT m.id menu_id, m.store_id, m.title, m.`description`, m.is_hide, mi.id , mi.title, mi.`description`, mi.quantity, mi.price, mc.id, mc.title" +
 		" FROM menu m" +
@@ -69,33 +69,13 @@ func GetMenuById(storeId string, menuId int) (models.Menu, error) {
 
 	defer rows.Close()
 
-	for rows.Next() {
-		var menuItem models.MenuItem
-		var menuCategory models.MenuCategory
+	menuDTO, err := models.ScanMenuRow(rows)
 
-		err := rows.Scan(
-			&menu.Id,
-			&menu.StoreId,
-			&menu.Title,
-			&menu.Description,
-			&menu.IsHide,
-			&menuItem.Id,
-			&menuItem.Title,
-			&menuItem.Description,
-			&menuItem.Quantity,
-			&menuItem.Price,
-			&menuCategory.Id,
-			&menuCategory.Title,
-		)
-		if err != nil {
-			fmt.Println(err)
-			return menu, err
-		}
-		menuItem.MenuCategory = menuCategory
-		menuItems = append(menuItems, menuItem)
+	if err != nil {
+		return menu, err
 	}
 
-	menu.MenuItems = menuItems
+	menu = menuDTO.ToDomain()
 	return menu, err
 }
 
