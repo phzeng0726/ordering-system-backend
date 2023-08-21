@@ -124,32 +124,32 @@ func GetMenuById(storeId string, menuId int) (models.Menu, error) {
 }
 
 func insertMenu(tx *sql.Tx, m models.Menu) (int64, error) {
-	res, err := tx.Exec(
-		"INSERT INTO menu (store_id, title, `description`, is_hide, create_at)"+
-			"VALUE (?, ?, ?, ?, ?)", m.StoreId, m.Title, m.Description, m.IsHide, m.CreateAt,
-	)
+	sql := "INSERT INTO menu (store_id, title, `description`, is_hide, create_at)" +
+		"VALUE (?, ?, ?, ?, ?)"
+	res, err := tx.Exec(sql, m.StoreId, m.Title, m.Description, m.IsHide, m.CreateAt)
 	if err != nil {
 		return 0, err
 	}
+
 	return res.LastInsertId()
 }
 
 func insertMenuItem(tx *sql.Tx, mi models.MenuItem) (int64, error) {
-	res, err := tx.Exec(
-		"INSERT INTO menu_item (menu_category_id, title, `description`, quantity, price)"+
-			"VALUE (?, ?, ?, ?, ?)", mi.MenuCategory.Id, mi.Title, mi.Description, mi.Quantity, mi.Price,
-	)
+	sql := "INSERT INTO menu_item (menu_category_id, title, `description`, quantity, price)" +
+		"VALUE (?, ?, ?, ?, ?)"
+	res, err := tx.Exec(sql, mi.MenuCategory.Id, mi.Title, mi.Description, mi.Quantity, mi.Price)
 	if err != nil {
 		return 0, err
 	}
+
 	return res.LastInsertId()
 }
 
 func insertMenuItemMapping(tx *sql.Tx, menuId, menuItemId int64) error {
-	_, err := tx.Exec(
-		"INSERT INTO menu_item_mapping (menu_id, menu_item_id)"+
-			"VALUE (?, ?)", menuId, menuItemId,
-	)
+	sql := "INSERT INTO menu_item_mapping (menu_id, menu_item_id)" +
+		"VALUE (?, ?)"
+	_, err := tx.Exec(sql, menuId, menuItemId)
+
 	return err
 }
 
@@ -173,6 +173,52 @@ func CreateMenus(m models.Menu) error {
 		}
 
 		err = insertMenuItemMapping(tx, menuId, menuItemId)
+		if err != nil {
+			return err
+		}
+	}
+
+	// 提交
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateMenus(tx *sql.Tx, m models.Menu) error {
+	sql := "UPDATE menu" +
+		" SET title=?, `description`=?, is_hide=?" +
+		" WHERE id=?"
+	_, err := tx.Exec(sql, m.Title, m.Description, m.IsHide, m.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateMenus(m models.Menu) error {
+	// 開始 SQL Transaction
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = updateMenus(tx, m)
+	if err != nil {
+		return err
+	}
+	// TODO Query menu_id in menu_item_mapping and get menu_item_id
+	// TODO delete menu_id in menu_item_mapping and menu_item_id in menu_item
+	for _, mi := range m.MenuItems {
+		menuItemId, err := insertMenuItem(tx, mi)
+		if err != nil {
+			return err
+		}
+
+		err = insertMenuItemMapping(tx, int64(m.Id), menuItemId)
 		if err != nil {
 			return err
 		}

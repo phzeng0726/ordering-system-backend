@@ -16,6 +16,7 @@ func GetMenus(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+
 	c.IndentedJSON(http.StatusOK, menus)
 }
 
@@ -33,7 +34,23 @@ func GetMenuById(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+
 	c.IndentedJSON(http.StatusOK, menus)
+}
+
+func UpdateMenus(c *gin.Context) {
+	var newMenu models.Menu
+	if err := c.BindJSON(&newMenu); err != nil {
+		return
+	}
+
+	err := s.UpdateMenus(newMenu)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, nil)
 }
 
 func CreateMenus(c *gin.Context) {

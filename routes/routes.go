@@ -18,4 +18,6 @@ func SetUpRoutes(router *gin.Engine) {
 	router.GET("/stores/:store_id/menus", c.GetMenus)             // 得到menu列表
 	router.GET("/stores/:store_id/menus/:menu_id", c.GetMenuById) // 得到詳細menu資訊
 	router.POST("/stores/:store_id/menus", c.CreateMenus)         // 創建menu
+	router.PATCH("/stores/:store_id/menus", c.UpdateMenus)        // 修改menu資訊
+
 }
