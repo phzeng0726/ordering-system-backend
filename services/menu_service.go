@@ -135,6 +135,7 @@ func insertMenu(tx *sql.Tx, m models.Menu) (int64, error) {
 }
 
 func insertMenuItem(tx *sql.Tx, mi models.MenuItem) (int64, error) {
+	fmt.Println(mi)
 	sql := "INSERT INTO menu_item (menu_category_id, title, `description`, quantity, price)" +
 		"VALUE (?, ?, ?, ?, ?)"
 	res, err := tx.Exec(sql, mi.MenuCategory.Id, mi.Title, mi.Description, mi.Quantity, mi.Price)
@@ -198,6 +199,63 @@ func updateMenus(tx *sql.Tx, m models.Menu) error {
 	return nil
 }
 
+func getMappingMenuItemId(menuId int) ([]int, error) {
+	var menuItemIds []int
+
+	sql := "SELECT menu_item_id" +
+		" FROM menu_item_mapping" +
+		" WHERE menu_id = ?"
+
+	rows, err := db.DB.Query(sql, menuId)
+	if err != nil {
+		fmt.Println(err)
+		return menuItemIds, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var menuItemId int
+
+		err = rows.Scan(
+			&menuItemId,
+		)
+		if err != nil {
+			return menuItemIds, err
+		}
+		menuItemIds = append(menuItemIds, menuItemId)
+	}
+
+	if err != nil {
+		return menuItemIds, err
+	}
+
+	return menuItemIds, err
+}
+
+// TODO delete menu_id in menu_item_mapping and menu_item_id in menu_item
+func deleteMenuItemId(menuId int) error {
+	menuItemIds, err := getMappingMenuItemId(menuId)
+	if err != nil {
+		return err
+	}
+
+	sql := "DELETE FROM menu_item_mapping WHERE menu_id = ?"
+	_, err = db.DB.Exec(sql, menuId)
+	if err != nil {
+		return err
+	}
+
+	for _, mId := range menuItemIds {
+		sql = "DELETE FROM menu_item WHERE id = ?"
+		_, err = db.DB.Exec(sql, mId)
+		if err != nil {
+			return err
+		}
+	}
+
+	return err
+}
 func UpdateMenus(m models.Menu) error {
 	// 開始 SQL Transaction
 	tx, err := db.DB.Begin()
@@ -210,8 +268,12 @@ func UpdateMenus(m models.Menu) error {
 	if err != nil {
 		return err
 	}
-	// TODO Query menu_id in menu_item_mapping and get menu_item_id
-	// TODO delete menu_id in menu_item_mapping and menu_item_id in menu_item
+
+	err = deleteMenuItemId(m.Id)
+	if err != nil {
+		return err
+	}
+
 	for _, mi := range m.MenuItems {
 		menuItemId, err := insertMenuItem(tx, mi)
 		if err != nil {

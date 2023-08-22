@@ -50,7 +50,7 @@ func UpdateMenus(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, newMenu)
 }
 
 func CreateMenus(c *gin.Context) {
@@ -67,5 +67,5 @@ func CreateMenus(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, newMenu)
 }
