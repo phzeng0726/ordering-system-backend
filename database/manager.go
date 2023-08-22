@@ -10,43 +10,28 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Manager struct {
-	db *sql.DB
-}
-
-var DB *sql.DB
-
-func GetDBConnection() string {
+func Connect() *sql.DB {
 	appConfig := config.Env
-
 	// 設定資料庫連線字串
 	dsn := fmt.Sprintf("%s:%s@/%s", appConfig.UserName, appConfig.Password, appConfig.DBName)
 
-	return dsn
-}
-
-func Connect() {
-	dsn := GetDBConnection()
-
-	// 連線資料庫
-	var err error
-	DB, err = sql.Open("mysql", dsn)
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = DB.Ping()
+	err = db.Ping()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	DB.SetConnMaxLifetime(time.Duration(10) * time.Second)
-	DB.SetMaxIdleConns(5)
-	DB.SetMaxOpenConns(2)
+	db.SetConnMaxLifetime(time.Duration(10) * time.Second)
+	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(2)
 
 	fmt.Println("Connected to MySQL database!")
+	return db
 }
-
 
 // func Open() (*Manager, error) {
 // 	appConfig := config.Env
