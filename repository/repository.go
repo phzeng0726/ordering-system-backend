@@ -7,6 +7,9 @@ import (
 
 type Menus interface {
 	GetMenus(storeId string) ([]models.Menu, error)
+	GetMenuById(storeId string, menuId int) (models.Menu, error)
+	Create(m models.Menu) error
+	Update(m models.Menu) error
 }
 
 type Repositories struct {

@@ -8,6 +8,9 @@ import (
 
 type Menus interface {
 	GetMenus(c *gin.Context)
+	GetMenuById(c *gin.Context)
+	Create(c *gin.Context)
+	Update(c *gin.Context)
 }
 
 type Services struct {
