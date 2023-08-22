@@ -1,17 +1,25 @@
-package controllers
+package service
 
 import (
 	"net/http"
 	"ordering-system-backend/models"
-	s "ordering-system-backend/services"
+	"ordering-system-backend/repository"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetMenus(c *gin.Context) {
+type MenusService struct {
+	repo repository.Menus
+}
+
+func NewMenusService(repo repository.Menus) *MenusService {
+	return &MenusService{repo: repo}
+}
+
+func (s *MenusService) GetMenus(c *gin.Context) {
 	storeId := c.Param("store_id")
-	menus, err := s.GetMenus(storeId)
+	menus, err := s.repo.GetMenus(storeId)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -20,7 +28,7 @@ func GetMenus(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menus)
 }
 
-func GetMenuById(c *gin.Context) {
+func (s *MenusService) GetMenuById(c *gin.Context) {
 	storeId := c.Param("store_id")
 	menuIdStr := c.Param("menu_id")
 	menuId, err := strconv.Atoi(menuIdStr)
@@ -29,7 +37,7 @@ func GetMenuById(c *gin.Context) {
 		return
 	}
 
-	menus, err := s.GetMenuById(storeId, menuId)
+	menus, err := s.repo.GetMenuById(storeId, menuId)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -38,13 +46,15 @@ func GetMenuById(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menus)
 }
 
-func UpdateMenus(c *gin.Context) {
+func (s *MenusService) Create(c *gin.Context) {
 	var newMenu models.Menu
+
 	if err := c.BindJSON(&newMenu); err != nil {
 		return
 	}
 
-	err := s.UpdateMenus(newMenu)
+	err := s.repo.Create(newMenu)
+
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -53,15 +63,13 @@ func UpdateMenus(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, newMenu)
 }
 
-func CreateMenus(c *gin.Context) {
+func (s *MenusService) Update(c *gin.Context) {
 	var newMenu models.Menu
-
 	if err := c.BindJSON(&newMenu); err != nil {
 		return
 	}
 
-	err := s.CreateMenus(newMenu)
-
+	err := s.repo.Update(newMenu)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

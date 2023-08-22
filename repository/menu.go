@@ -1,12 +1,21 @@
-package services
+package repository
 
 import (
 	"database/sql"
 	"fmt"
-	db "ordering-system-backend/database"
 	"ordering-system-backend/models"
 	"ordering-system-backend/utils"
 )
+
+type MenusRepo struct {
+	db *sql.DB
+}
+
+func NewMenusRepo(db *sql.DB) *MenusRepo {
+	return &MenusRepo{
+		db: db,
+	}
+}
 
 func scanMenusRow(rows *sql.Rows) ([]models.Menu, error) {
 	var menus []models.Menu
@@ -38,13 +47,13 @@ func scanMenusRow(rows *sql.Rows) ([]models.Menu, error) {
 	return menus, err
 }
 
-func GetMenus(storeId string) ([]models.Menu, error) {
+func (r *MenusRepo) GetMenus(storeId string) ([]models.Menu, error) {
 	var menus []models.Menu
 
 	sql := "SELECT *" +
 		" FROM menu" +
 		" WHERE store_id = ?"
-	rows, err := db.DB.Query(sql, storeId)
+	rows, err := r.db.Query(sql, storeId)
 
 	if err != nil {
 		fmt.Println(err)
@@ -95,7 +104,7 @@ func scanMenuByIdRow(rows *sql.Rows) (models.Menu, error) {
 	return menu, err
 }
 
-func GetMenuById(storeId string, menuId int) (models.Menu, error) {
+func (r *MenusRepo) GetMenuById(storeId string, menuId int) (models.Menu, error) {
 	var menu models.Menu
 
 	sql := "SELECT m.id menu_id, m.store_id, m.title, m.`description`, m.is_hide, mi.id , mi.title, mi.`description`, mi.quantity, mi.price, mc.id, mc.title" +
@@ -106,7 +115,7 @@ func GetMenuById(storeId string, menuId int) (models.Menu, error) {
 		" WHERE m.store_id = ?" +
 		" AND m.id = ?"
 
-	rows, err := db.DB.Query(sql, storeId, menuId)
+	rows, err := r.db.Query(sql, storeId, menuId)
 	if err != nil {
 		fmt.Println(err)
 		return menu, err
@@ -154,9 +163,9 @@ func insertMenuItemMapping(tx *sql.Tx, menuId, menuItemId int64) error {
 	return err
 }
 
-func CreateMenus(m models.Menu) error {
+func (r *MenusRepo) Create(m models.Menu) error {
 	// 開始 SQL Transaction
-	tx, err := db.DB.Begin()
+	tx, err := r.db.Begin()
 	if err != nil {
 		return err
 	}
@@ -199,14 +208,14 @@ func updateMenus(tx *sql.Tx, m models.Menu) error {
 	return nil
 }
 
-func getMappingMenuItemId(menuId int) ([]int, error) {
+func getMappingMenuItemId(r *MenusRepo, menuId int) ([]int, error) {
 	var menuItemIds []int
 
 	sql := "SELECT menu_item_id" +
 		" FROM menu_item_mapping" +
 		" WHERE menu_id = ?"
 
-	rows, err := db.DB.Query(sql, menuId)
+	rows, err := r.db.Query(sql, menuId)
 	if err != nil {
 		fmt.Println(err)
 		return menuItemIds, err
@@ -233,22 +242,21 @@ func getMappingMenuItemId(menuId int) ([]int, error) {
 	return menuItemIds, err
 }
 
-// TODO delete menu_id in menu_item_mapping and menu_item_id in menu_item
-func deleteMenuItemId(menuId int) error {
-	menuItemIds, err := getMappingMenuItemId(menuId)
+func deleteMenuItemId(r *MenusRepo, menuId int) error {
+	menuItemIds, err := getMappingMenuItemId(r, menuId)
 	if err != nil {
 		return err
 	}
 
 	sql := "DELETE FROM menu_item_mapping WHERE menu_id = ?"
-	_, err = db.DB.Exec(sql, menuId)
+	_, err = r.db.Exec(sql, menuId)
 	if err != nil {
 		return err
 	}
 
 	for _, mId := range menuItemIds {
 		sql = "DELETE FROM menu_item WHERE id = ?"
-		_, err = db.DB.Exec(sql, mId)
+		_, err = r.db.Exec(sql, mId)
 		if err != nil {
 			return err
 		}
@@ -256,9 +264,10 @@ func deleteMenuItemId(menuId int) error {
 
 	return err
 }
-func UpdateMenus(m models.Menu) error {
+
+func (r *MenusRepo) Update(m models.Menu) error {
 	// 開始 SQL Transaction
-	tx, err := db.DB.Begin()
+	tx, err := r.db.Begin()
 	if err != nil {
 		return err
 	}
@@ -269,7 +278,7 @@ func UpdateMenus(m models.Menu) error {
 		return err
 	}
 
-	err = deleteMenuItemId(m.Id)
+	err = deleteMenuItemId(r, m.Id)
 	if err != nil {
 		return err
 	}

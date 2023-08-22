@@ -1,16 +1,26 @@
-package services
+package repository
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
-	db "ordering-system-backend/database"
 	"ordering-system-backend/models"
 )
 
-func GetStores() ([]models.Store, error) {
+type StoresRepo struct {
+	db *sql.DB
+}
+
+func NewStoresRepo(db *sql.DB) *StoresRepo {
+	return &StoresRepo{
+		db: db,
+	}
+}
+
+func (r *StoresRepo) GetStores() ([]models.Store, error) {
 	sql := "SELECT * FROM store"
-	rows, err := db.DB.Query(sql)
+	rows, err := r.db.Query(sql)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,12 +47,12 @@ func GetStores() ([]models.Store, error) {
 	return stores, err
 }
 
-func GetStoreById(storeId string) (models.Store, error) {
+func (r *StoresRepo) GetStoreById(storeId string) (models.Store, error) {
 	sql := "SELECT *" +
 		" FROM store" +
 		" WHERE id = ?" +
 		" LIMIT 1"
-	rows, err := db.DB.Query(sql, storeId)
+	rows, err := r.db.Query(sql, storeId)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,11 +83,11 @@ func GetStoreById(storeId string) (models.Store, error) {
 	return store, err
 }
 
-func CreateStore(s models.Store) error {
+func (r *StoresRepo) Create(s models.Store) error {
 	sql := "INSERT INTO store (id, name, description, email, phone, is_open)" +
 		" VALUES (?, ?, ?, ?, ?, ?)"
 
-	_, err := db.DB.Exec(sql, s.Id, s.Name, s.Description, s.Email, s.Phone, s.IsOpen)
+	_, err := r.db.Exec(sql, s.Id, s.Name, s.Description, s.Email, s.Phone, s.IsOpen)
 
 	if err != nil {
 		return err

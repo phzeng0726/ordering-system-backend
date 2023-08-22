@@ -1,16 +1,24 @@
-package controllers
+package service
 
 import (
 	"net/http"
 	"ordering-system-backend/models"
-	s "ordering-system-backend/services"
+	"ordering-system-backend/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
+type StoresService struct {
+	repo repository.Stores
+}
+
+func NewStoresService(repo repository.Stores) *StoresService {
+	return &StoresService{repo: repo}
+}
+
 // CRUD
-func GetStores(c *gin.Context) {
-	stores, err := s.GetStores()
+func (s *StoresService) GetStores(c *gin.Context) {
+	stores, err := s.repo.GetStores()
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -18,9 +26,9 @@ func GetStores(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, stores)
 }
 
-func GetStoreById(c *gin.Context) {
+func (s *StoresService) GetStoreById(c *gin.Context) {
 	id := c.Param("store_id")
-	stores, err := s.GetStoreById(id)
+	stores, err := s.repo.GetStoreById(id)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
@@ -28,13 +36,13 @@ func GetStoreById(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, stores)
 }
 
-func CreateStore(c *gin.Context) {
+func (s *StoresService) Create(c *gin.Context) {
 	var newStore models.Store
 
 	if err := c.BindJSON(&newStore); err != nil {
 		return
 	}
-	err := s.CreateStore(newStore)
+	err := s.repo.Create(newStore)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -43,5 +51,5 @@ func CreateStore(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, nil)
 }
 
-func UpdateStore(c *gin.Context) {}
-func DeleteStore(c *gin.Context) {}
+func (s *StoresService) Update(c *gin.Context) {}
+func (s *StoresService) Delete(c *gin.Context) {}
