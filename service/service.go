@@ -6,6 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Stores interface {
+	GetStores(c *gin.Context)
+	GetStoreById(c *gin.Context)
+	Create(c *gin.Context)
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
+}
 type Menus interface {
 	GetMenus(c *gin.Context)
 	GetMenuById(c *gin.Context)
@@ -14,7 +21,8 @@ type Menus interface {
 }
 
 type Services struct {
-	Menus Menus
+	Menus  Menus
+	Stores Stores
 }
 
 type Deps struct {
@@ -23,8 +31,10 @@ type Deps struct {
 
 func NewServices(deps Deps) *Services {
 	menusService := NewMenusService(deps.Repos.Menus)
+	storesService := NewStoresService(deps.Repos.Stores)
 
 	return &Services{
-		Menus: menusService,
+		Menus:  menusService,
+		Stores: storesService,
 	}
 }

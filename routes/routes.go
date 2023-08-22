@@ -7,12 +7,12 @@ import (
 )
 
 func SetUpRoutes(router *gin.Engine, s *service.Services) {
-	// // Store
-	// router.GET("/stores", c.GetStores)
-	// router.POST("/stores", c.CreateStore)
-	// router.PATCH("/stores", c.UpdateStore)
-	// router.GET("/stores/:store_id", c.GetStoreById)
-	// router.DELETE("/stores/:store_id", c.DeleteStore)
+	// Store
+	router.GET("/stores", s.Stores.GetStores)
+	router.GET("/stores/:store_id", s.Stores.GetStoreById)
+	router.POST("/stores", s.Stores.Create)
+	router.PATCH("/stores", s.Stores.Update)
+	router.DELETE("/stores/:store_id", s.Stores.Delete)
 
 	// Menu
 	router.GET("/stores/:store_id/menus", s.Menus.GetMenus)             // 得到menu列表
