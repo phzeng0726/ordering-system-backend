@@ -2,7 +2,7 @@ package main
 
 import (
 	"ordering-system-backend/config"
-	"ordering-system-backend/db"
+	db "ordering-system-backend/database"
 	"ordering-system-backend/routes"
 
 	"github.com/gin-gonic/gin"

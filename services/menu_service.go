@@ -3,7 +3,7 @@ package services
 import (
 	"database/sql"
 	"fmt"
-	"ordering-system-backend/db"
+	db "ordering-system-backend/database"
 	"ordering-system-backend/models"
 	"ordering-system-backend/utils"
 )

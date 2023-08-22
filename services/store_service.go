@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"ordering-system-backend/db"
+	db "ordering-system-backend/database"
 	"ordering-system-backend/models"
 )
 
