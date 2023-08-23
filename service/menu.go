@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"net/http"
 	"ordering-system-backend/domain"
 	"ordering-system-backend/repository"
@@ -18,9 +19,16 @@ func NewMenusService(repo repository.Menus) *MenusService {
 }
 
 func (s *MenusService) Create(c *gin.Context) {
+	storeId := c.Param("store_id")
 	var newMenu domain.Menu
 
 	if err := c.BindJSON(&newMenu); err != nil {
+		return
+	}
+
+	if storeId != newMenu.StoreId {
+		err := domain.ErrIDMismatch
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -35,12 +43,36 @@ func (s *MenusService) Create(c *gin.Context) {
 }
 
 func (s *MenusService) Update(c *gin.Context) {
+	storeId := c.Param("store_id")
+	menuIdStr := c.Param("menu_id")
+	menuId, err := strconv.Atoi(menuIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
+		return
+	}
+
 	var newMenu domain.Menu
 	if err := c.BindJSON(&newMenu); err != nil {
 		return
 	}
 
-	err := s.repo.Update(newMenu)
+	if storeId != newMenu.StoreId {
+		err := domain.ErrIDMismatch
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	// 確認是否store有該menu，有的話才會做下一步，避免別人把她的menu刪掉
+	menus, err := s.repo.GetById(storeId, menuId)
+	if err != nil || menus.Id == 0 {
+		if menus.Id == 0 {
+			err = errors.New("menu not found for this store")
+		}
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	err = s.repo.Update(newMenu)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -55,6 +87,16 @@ func (s *MenusService) Delete(c *gin.Context) {
 	menuId, err := strconv.Atoi(menuIdStr)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
+		return
+	}
+
+	// 確認是否store有該menu，有的話才會做下一步，避免別人把她的menu刪掉
+	menus, err := s.repo.GetById(storeId, menuId)
+	if err != nil || menus.Id == 0 {
+		if menus.Id == 0 {
+			err = errors.New("menu not found for this store")
+		}
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
