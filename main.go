@@ -20,6 +20,7 @@ func main() {
 	})
 
 	router := gin.Default()
-	routes.SetUpRoutes(router, services)
+	routesSetup := routes.NewRoutesSetup(router, services)
+	routes.SetUpRoutes(routesSetup)
 	router.Run("localhost:" + config.Env.Port)
 }

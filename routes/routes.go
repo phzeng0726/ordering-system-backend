@@ -18,7 +18,7 @@ func NewRoutesSetup(router *gin.Engine, service *service.Services) *RoutesSetup 
 	}
 }
 
-func (rs *RoutesSetup) setupStoreRoutes() {
+func (rs *RoutesSetup) storeRoutes() {
 	rs.Router.POST("/stores", rs.Service.Stores.Create)
 	rs.Router.PATCH("/stores/:store_id", rs.Service.Stores.Update)
 	rs.Router.DELETE("/stores/:store_id", rs.Service.Stores.Delete)
@@ -26,7 +26,7 @@ func (rs *RoutesSetup) setupStoreRoutes() {
 	rs.Router.GET("/stores/:store_id", rs.Service.Stores.GetById)
 }
 
-func (rs *RoutesSetup) setupMenuRoutes() {
+func (rs *RoutesSetup) menuRoutes() {
 	rs.Router.POST("/stores/:store_id/menus", rs.Service.Menus.Create)
 	rs.Router.PATCH("/stores/:store_id/menus/:menu_id", rs.Service.Menus.Update)
 	rs.Router.DELETE("/stores/:store_id/menus/:menu_id", rs.Service.Menus.Delete)
@@ -34,8 +34,7 @@ func (rs *RoutesSetup) setupMenuRoutes() {
 	rs.Router.GET("/stores/:store_id/menus/:menu_id", rs.Service.Menus.GetById)
 }
 
-func SetUpRoutes(router *gin.Engine, s *service.Services) {
-	routesSetup := NewRoutesSetup(router, s)
-	routesSetup.setupMenuRoutes()
-	routesSetup.setupStoreRoutes()
+func SetUpRoutes(rs *RoutesSetup) {
+	rs.storeRoutes()
+	rs.menuRoutes()
 }
