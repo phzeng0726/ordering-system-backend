@@ -14,6 +14,7 @@ type Stores interface {
 type Menus interface {
 	Create(m domain.Menu) error
 	Update(m domain.Menu) error
+	Delete(storeId string, menuId int) error
 	GetAll(storeId string) ([]domain.Menu, error)
 	GetById(storeId string, menuId int) (domain.Menu, error)
 }

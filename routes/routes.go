@@ -29,6 +29,7 @@ func (rs *RoutesSetup) setupStoreRoutes() {
 func (rs *RoutesSetup) setupMenuRoutes() {
 	rs.Router.POST("/stores/:store_id/menus", rs.Service.Menus.Create)
 	rs.Router.PATCH("/stores/:store_id/menus", rs.Service.Menus.Update)
+	rs.Router.DELETE("/stores/:store_id/menus/:menu_id", rs.Service.Menus.Delete)
 	rs.Router.GET("/stores/:store_id/menus", rs.Service.Menus.GetAll)
 	rs.Router.GET("/stores/:store_id/menus/:menu_id", rs.Service.Menus.GetById)
 }

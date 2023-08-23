@@ -16,6 +16,7 @@ type Stores interface {
 type Menus interface {
 	Create(c *gin.Context)
 	Update(c *gin.Context)
+	Delete(c *gin.Context)
 	GetAll(c *gin.Context)
 	GetById(c *gin.Context)
 }

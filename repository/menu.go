@@ -44,30 +44,7 @@ func scanMenusRow(rows *sql.Rows) ([]domain.Menu, error) {
 		menus = append(menus, menu)
 	}
 
-	return menus, err
-}
-
-func (r *MenusRepo) GetAll(storeId string) ([]domain.Menu, error) {
-	var menus []domain.Menu
-
-	sql := "SELECT *" +
-		" FROM menu" +
-		" WHERE store_id = ?"
-	rows, err := r.db.Query(sql, storeId)
-
-	if err != nil {
-		fmt.Println(err)
-		return menus, err
-	}
-	defer rows.Close()
-
-	menus, err = scanMenusRow(rows)
-
-	if err != nil {
-		return menus, err
-	}
-
-	return menus, err
+	return menus, nil
 }
 
 func scanMenuByIdRow(rows *sql.Rows) (domain.Menu, error) {
@@ -101,35 +78,7 @@ func scanMenuByIdRow(rows *sql.Rows) (domain.Menu, error) {
 	}
 
 	menu.MenuItems = menuItems
-	return menu, err
-}
-
-func (r *MenusRepo) GetById(storeId string, menuId int) (domain.Menu, error) {
-	var menu domain.Menu
-
-	sql := "SELECT m.id menu_id, m.store_id, m.title, m.`description`, m.is_hide, mi.id , mi.title, mi.`description`, mi.quantity, mi.price, mc.id, mc.title" +
-		" FROM menu m" +
-		" JOIN menu_item_mapping mim ON m.id = mim.menu_id" +
-		" JOIN menu_item mi ON mi.id = mim.menu_item_id" +
-		" JOIN menu_category mc ON mi.menu_category_id = mc.id" +
-		" WHERE m.store_id = ?" +
-		" AND m.id = ?"
-
-	rows, err := r.db.Query(sql, storeId, menuId)
-	if err != nil {
-		fmt.Println(err)
-		return menu, err
-	}
-
-	defer rows.Close()
-
-	menu, err = scanMenuByIdRow(rows)
-
-	if err != nil {
-		return menu, err
-	}
-
-	return menu, err
+	return menu, nil
 }
 
 func insertMenu(tx *sql.Tx, m domain.Menu) (int64, error) {
@@ -159,37 +108,7 @@ func insertMenuItemMapping(tx *sql.Tx, menuId, menuItemId int64) error {
 	sql := "INSERT INTO menu_item_mapping (menu_id, menu_item_id)" +
 		"VALUE (?, ?)"
 	_, err := tx.Exec(sql, menuId, menuItemId)
-
-	return err
-}
-
-func (r *MenusRepo) Create(m domain.Menu) error {
-	// 開始 SQL Transaction
-	tx, err := r.db.Begin()
 	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	menuId, err := insertMenu(tx, m)
-	if err != nil {
-		return err
-	}
-
-	for _, mi := range m.MenuItems {
-		menuItemId, err := insertMenuItem(tx, mi)
-		if err != nil {
-			return err
-		}
-
-		err = insertMenuItemMapping(tx, menuId, menuItemId)
-		if err != nil {
-			return err
-		}
-	}
-
-	// 提交
-	if err := tx.Commit(); err != nil {
 		return err
 	}
 
@@ -239,30 +158,80 @@ func getMappingMenuItemId(r *MenusRepo, menuId int) ([]int, error) {
 		return menuItemIds, err
 	}
 
-	return menuItemIds, err
+	return menuItemIds, nil
 }
 
-func deleteMenuItemId(r *MenusRepo, menuId int) error {
+func deleteMenu(tx *sql.Tx, menuId int) error {
+	sql := "DELETE FROM menu_item_mapping WHERE menu_id = ?"
+	_, err := tx.Exec(sql, menuId)
+	if err != nil {
+		return err
+	}
+
+	sql = "DELETE FROM menu WHERE id = ?"
+
+	_, err = tx.Exec(sql, menuId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func deleteMenuItemId(tx *sql.Tx, r *MenusRepo, menuId int) error {
 	menuItemIds, err := getMappingMenuItemId(r, menuId)
 	if err != nil {
 		return err
 	}
 
 	sql := "DELETE FROM menu_item_mapping WHERE menu_id = ?"
-	_, err = r.db.Exec(sql, menuId)
+	_, err = tx.Exec(sql, menuId)
 	if err != nil {
 		return err
 	}
 
 	for _, mId := range menuItemIds {
 		sql = "DELETE FROM menu_item WHERE id = ?"
-		_, err = r.db.Exec(sql, mId)
+		_, err = tx.Exec(sql, mId)
 		if err != nil {
 			return err
 		}
 	}
 
-	return err
+	return nil
+}
+
+func (r *MenusRepo) Create(m domain.Menu) error {
+	// 開始 SQL Transaction
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	menuId, err := insertMenu(tx, m)
+	if err != nil {
+		return err
+	}
+
+	for _, mi := range m.MenuItems {
+		menuItemId, err := insertMenuItem(tx, mi)
+		if err != nil {
+			return err
+		}
+
+		err = insertMenuItemMapping(tx, menuId, menuItemId)
+		if err != nil {
+			return err
+		}
+	}
+
+	// 提交
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *MenusRepo) Update(m domain.Menu) error {
@@ -278,7 +247,7 @@ func (r *MenusRepo) Update(m domain.Menu) error {
 		return err
 	}
 
-	err = deleteMenuItemId(r, m.Id)
+	err = deleteMenuItemId(tx, r, m.Id)
 	if err != nil {
 		return err
 	}
@@ -301,4 +270,75 @@ func (r *MenusRepo) Update(m domain.Menu) error {
 	}
 
 	return nil
+}
+
+func (r *MenusRepo) Delete(storeId string, menuId int) error {
+	// 開始 SQL Transaction
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	// TODO 要先確定菜單所有人是storeId
+	err = deleteMenu(tx, menuId)
+	if err != nil {
+		return err
+	}
+
+	// 提交
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *MenusRepo) GetAll(storeId string) ([]domain.Menu, error) {
+	var menus []domain.Menu
+
+	sql := "SELECT *" +
+		" FROM menu" +
+		" WHERE store_id = ?"
+	rows, err := r.db.Query(sql, storeId)
+
+	if err != nil {
+		fmt.Println(err)
+		return menus, err
+	}
+	defer rows.Close()
+
+	menus, err = scanMenusRow(rows)
+
+	if err != nil {
+		return menus, err
+	}
+
+	return menus, nil
+}
+
+func (r *MenusRepo) GetById(storeId string, menuId int) (domain.Menu, error) {
+	var menu domain.Menu
+
+	sql := "SELECT m.id menu_id, m.store_id, m.title, m.`description`, m.is_hide, mi.id , mi.title, mi.`description`, mi.quantity, mi.price, mc.id, mc.title" +
+		" FROM menu m" +
+		" JOIN menu_item_mapping mim ON m.id = mim.menu_id" +
+		" JOIN menu_item mi ON mi.id = mim.menu_item_id" +
+		" JOIN menu_category mc ON mi.menu_category_id = mc.id" +
+		" WHERE m.store_id = ?" +
+		" AND m.id = ?"
+
+	rows, err := r.db.Query(sql, storeId, menuId)
+	if err != nil {
+		fmt.Println(err)
+		return menu, err
+	}
+
+	defer rows.Close()
+
+	menu, err = scanMenuByIdRow(rows)
+
+	if err != nil {
+		return menu, err
+	}
+
+	return menu, nil
 }
