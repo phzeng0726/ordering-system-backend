@@ -6,18 +6,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type RoutesSetup struct {
+	Router  *gin.Engine
+	Service *service.Services
+}
+
+func NewRoutesSetup(router *gin.Engine, service *service.Services) *RoutesSetup {
+	return &RoutesSetup{
+		Router:  router,
+		Service: service,
+	}
+}
+
+func (rs *RoutesSetup) setupStoreRoutes() {
+	rs.Router.POST("/stores", rs.Service.Stores.Create)
+	rs.Router.PATCH("/stores", rs.Service.Stores.Update)
+	rs.Router.DELETE("/stores/:store_id", rs.Service.Stores.Delete)
+	rs.Router.GET("/stores", rs.Service.Stores.GetAll)
+	rs.Router.GET("/stores/:store_id", rs.Service.Stores.GetById)
+}
+
+func (rs *RoutesSetup) setupMenuRoutes() {
+	rs.Router.POST("/stores/:store_id/menus", rs.Service.Menus.Create)
+	rs.Router.PATCH("/stores/:store_id/menus", rs.Service.Menus.Update)
+	rs.Router.GET("/stores/:store_id/menus", rs.Service.Menus.GetAll)
+	rs.Router.GET("/stores/:store_id/menus/:menu_id", rs.Service.Menus.GetById)
+}
+
 func SetUpRoutes(router *gin.Engine, s *service.Services) {
-	// Store
-	router.GET("/stores", s.Stores.GetStores)
-	router.GET("/stores/:store_id", s.Stores.GetStoreById)
-	router.POST("/stores", s.Stores.Create)
-	router.PATCH("/stores", s.Stores.Update)
-	router.DELETE("/stores/:store_id", s.Stores.Delete)
-
-	// Menu
-	router.GET("/stores/:store_id/menus", s.Menus.GetMenus)             // 得到menu列表
-	router.GET("/stores/:store_id/menus/:menu_id", s.Menus.GetMenuById) // 得到詳細menu資訊
-	router.POST("/stores/:store_id/menus", s.Menus.Create)              // 創建menu
-	router.PATCH("/stores/:store_id/menus", s.Menus.Update)             // 修改menu資訊
-
+	routesSetup := NewRoutesSetup(router, s)
+	routesSetup.setupMenuRoutes()
+	routesSetup.setupStoreRoutes()
 }

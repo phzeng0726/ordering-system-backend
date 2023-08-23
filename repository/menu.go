@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"ordering-system-backend/models"
+	"ordering-system-backend/domain"
 	"ordering-system-backend/utils"
 )
 
@@ -17,12 +17,12 @@ func NewMenusRepo(db *sql.DB) *MenusRepo {
 	}
 }
 
-func scanMenusRow(rows *sql.Rows) ([]models.Menu, error) {
-	var menus []models.Menu
+func scanMenusRow(rows *sql.Rows) ([]domain.Menu, error) {
+	var menus []domain.Menu
 	var err error
 
 	for rows.Next() {
-		var menu models.Menu
+		var menu domain.Menu
 		var createAtStr string // 創建一個字串來暫存日期時間字串
 
 		err = rows.Scan(
@@ -47,8 +47,8 @@ func scanMenusRow(rows *sql.Rows) ([]models.Menu, error) {
 	return menus, err
 }
 
-func (r *MenusRepo) GetMenus(storeId string) ([]models.Menu, error) {
-	var menus []models.Menu
+func (r *MenusRepo) GetAll(storeId string) ([]domain.Menu, error) {
+	var menus []domain.Menu
 
 	sql := "SELECT *" +
 		" FROM menu" +
@@ -70,14 +70,14 @@ func (r *MenusRepo) GetMenus(storeId string) ([]models.Menu, error) {
 	return menus, err
 }
 
-func scanMenuByIdRow(rows *sql.Rows) (models.Menu, error) {
-	var menu models.Menu
-	var menuItems []models.MenuItem
+func scanMenuByIdRow(rows *sql.Rows) (domain.Menu, error) {
+	var menu domain.Menu
+	var menuItems []domain.MenuItem
 	var err error
 
 	for rows.Next() {
-		var menuItem models.MenuItem
-		var menuCategory models.MenuCategory
+		var menuItem domain.MenuItem
+		var menuCategory domain.MenuCategory
 
 		err = rows.Scan(
 			&menu.Id,
@@ -104,8 +104,8 @@ func scanMenuByIdRow(rows *sql.Rows) (models.Menu, error) {
 	return menu, err
 }
 
-func (r *MenusRepo) GetMenuById(storeId string, menuId int) (models.Menu, error) {
-	var menu models.Menu
+func (r *MenusRepo) GetById(storeId string, menuId int) (domain.Menu, error) {
+	var menu domain.Menu
 
 	sql := "SELECT m.id menu_id, m.store_id, m.title, m.`description`, m.is_hide, mi.id , mi.title, mi.`description`, mi.quantity, mi.price, mc.id, mc.title" +
 		" FROM menu m" +
@@ -132,7 +132,7 @@ func (r *MenusRepo) GetMenuById(storeId string, menuId int) (models.Menu, error)
 	return menu, err
 }
 
-func insertMenu(tx *sql.Tx, m models.Menu) (int64, error) {
+func insertMenu(tx *sql.Tx, m domain.Menu) (int64, error) {
 	sql := "INSERT INTO menu (store_id, title, `description`, is_hide, create_at)" +
 		"VALUE (?, ?, ?, ?, ?)"
 	res, err := tx.Exec(sql, m.StoreId, m.Title, m.Description, m.IsHide, m.CreateAt)
@@ -143,7 +143,7 @@ func insertMenu(tx *sql.Tx, m models.Menu) (int64, error) {
 	return res.LastInsertId()
 }
 
-func insertMenuItem(tx *sql.Tx, mi models.MenuItem) (int64, error) {
+func insertMenuItem(tx *sql.Tx, mi domain.MenuItem) (int64, error) {
 	fmt.Println(mi)
 	sql := "INSERT INTO menu_item (menu_category_id, title, `description`, quantity, price)" +
 		"VALUE (?, ?, ?, ?, ?)"
@@ -163,7 +163,7 @@ func insertMenuItemMapping(tx *sql.Tx, menuId, menuItemId int64) error {
 	return err
 }
 
-func (r *MenusRepo) Create(m models.Menu) error {
+func (r *MenusRepo) Create(m domain.Menu) error {
 	// 開始 SQL Transaction
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -196,7 +196,7 @@ func (r *MenusRepo) Create(m models.Menu) error {
 	return nil
 }
 
-func updateMenus(tx *sql.Tx, m models.Menu) error {
+func updateMenus(tx *sql.Tx, m domain.Menu) error {
 	sql := "UPDATE menu" +
 		" SET title=?, `description`=?, is_hide=?" +
 		" WHERE id=?"
@@ -265,7 +265,7 @@ func deleteMenuItemId(r *MenusRepo, menuId int) error {
 	return err
 }
 
-func (r *MenusRepo) Update(m models.Menu) error {
+func (r *MenusRepo) Update(m domain.Menu) error {
 	// 開始 SQL Transaction
 	tx, err := r.db.Begin()
 	if err != nil {

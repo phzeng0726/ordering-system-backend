@@ -7,17 +7,17 @@ import (
 )
 
 type Stores interface {
-	GetStores(c *gin.Context)
-	GetStoreById(c *gin.Context)
 	Create(c *gin.Context)
 	Update(c *gin.Context)
 	Delete(c *gin.Context)
+	GetAll(c *gin.Context)
+	GetById(c *gin.Context)
 }
 type Menus interface {
-	GetMenus(c *gin.Context)
-	GetMenuById(c *gin.Context)
 	Create(c *gin.Context)
 	Update(c *gin.Context)
+	GetAll(c *gin.Context)
+	GetById(c *gin.Context)
 }
 
 type Services struct {

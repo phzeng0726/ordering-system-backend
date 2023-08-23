@@ -1,4 +1,4 @@
-package models
+package domain
 
 type Store struct {
 	Id          string `json:"id"`
