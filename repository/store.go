@@ -18,7 +18,7 @@ func NewStoresRepo(db *sql.DB) *StoresRepo {
 	}
 }
 
-func (r *StoresRepo) GetStores() ([]models.Store, error) {
+func (r *StoresRepo) GetAll() ([]models.Store, error) {
 	sql := "SELECT * FROM store"
 	rows, err := r.db.Query(sql)
 	if err != nil {
@@ -47,7 +47,7 @@ func (r *StoresRepo) GetStores() ([]models.Store, error) {
 	return stores, err
 }
 
-func (r *StoresRepo) GetStoreById(storeId string) (models.Store, error) {
+func (r *StoresRepo) GetById(storeId string) (models.Store, error) {
 	sql := "SELECT *" +
 		" FROM store" +
 		" WHERE id = ?" +

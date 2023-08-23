@@ -47,7 +47,7 @@ func scanMenusRow(rows *sql.Rows) ([]models.Menu, error) {
 	return menus, err
 }
 
-func (r *MenusRepo) GetMenus(storeId string) ([]models.Menu, error) {
+func (r *MenusRepo) GetAll(storeId string) ([]models.Menu, error) {
 	var menus []models.Menu
 
 	sql := "SELECT *" +
@@ -104,7 +104,7 @@ func scanMenuByIdRow(rows *sql.Rows) (models.Menu, error) {
 	return menu, err
 }
 
-func (r *MenusRepo) GetMenuById(storeId string, menuId int) (models.Menu, error) {
+func (r *MenusRepo) GetById(storeId string, menuId int) (models.Menu, error) {
 	var menu models.Menu
 
 	sql := "SELECT m.id menu_id, m.store_id, m.title, m.`description`, m.is_hide, mi.id , mi.title, mi.`description`, mi.quantity, mi.price, mc.id, mc.title" +

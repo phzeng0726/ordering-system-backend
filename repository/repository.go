@@ -6,16 +6,16 @@ import (
 )
 
 type Stores interface {
-	GetStores() ([]models.Store, error)
-	GetStoreById(storeId string) (models.Store, error)
 	Create(s models.Store) error
+	GetAll() ([]models.Store, error)
+	GetById(storeId string) (models.Store, error)
 }
 
 type Menus interface {
-	GetMenus(storeId string) ([]models.Menu, error)
-	GetMenuById(storeId string, menuId int) (models.Menu, error)
 	Create(m models.Menu) error
 	Update(m models.Menu) error
+	GetAll(storeId string) ([]models.Menu, error)
+	GetById(storeId string, menuId int) (models.Menu, error)
 }
 
 type Repositories struct {
