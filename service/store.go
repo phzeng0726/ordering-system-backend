@@ -2,7 +2,7 @@ package service
 
 import (
 	"net/http"
-	"ordering-system-backend/models"
+	"ordering-system-backend/domain"
 	"ordering-system-backend/repository"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ func NewStoresService(repo repository.Stores) *StoresService {
 }
 
 func (s *StoresService) Create(c *gin.Context) {
-	var newStore models.Store
+	var newStore domain.Store
 
 	if err := c.BindJSON(&newStore); err != nil {
 		return

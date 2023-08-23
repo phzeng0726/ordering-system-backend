@@ -2,7 +2,7 @@ package service
 
 import (
 	"net/http"
-	"ordering-system-backend/models"
+	"ordering-system-backend/domain"
 	"ordering-system-backend/repository"
 	"strconv"
 
@@ -18,7 +18,7 @@ func NewMenusService(repo repository.Menus) *MenusService {
 }
 
 func (s *MenusService) Create(c *gin.Context) {
-	var newMenu models.Menu
+	var newMenu domain.Menu
 
 	if err := c.BindJSON(&newMenu); err != nil {
 		return
@@ -35,7 +35,7 @@ func (s *MenusService) Create(c *gin.Context) {
 }
 
 func (s *MenusService) Update(c *gin.Context) {
-	var newMenu models.Menu
+	var newMenu domain.Menu
 	if err := c.BindJSON(&newMenu); err != nil {
 		return
 	}

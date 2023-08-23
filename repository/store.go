@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"ordering-system-backend/models"
+	"ordering-system-backend/domain"
 )
 
 type StoresRepo struct {
@@ -18,7 +18,7 @@ func NewStoresRepo(db *sql.DB) *StoresRepo {
 	}
 }
 
-func (r *StoresRepo) GetAll() ([]models.Store, error) {
+func (r *StoresRepo) GetAll() ([]domain.Store, error) {
 	sql := "SELECT * FROM store"
 	rows, err := r.db.Query(sql)
 	if err != nil {
@@ -26,9 +26,9 @@ func (r *StoresRepo) GetAll() ([]models.Store, error) {
 	}
 	defer rows.Close()
 
-	var stores []models.Store
+	var stores []domain.Store
 	for rows.Next() {
-		var store models.Store
+		var store domain.Store
 		err := rows.Scan(
 			&store.Id,
 			&store.Name,
@@ -47,7 +47,7 @@ func (r *StoresRepo) GetAll() ([]models.Store, error) {
 	return stores, err
 }
 
-func (r *StoresRepo) GetById(storeId string) (models.Store, error) {
+func (r *StoresRepo) GetById(storeId string) (domain.Store, error) {
 	sql := "SELECT *" +
 		" FROM store" +
 		" WHERE id = ?" +
@@ -58,7 +58,7 @@ func (r *StoresRepo) GetById(storeId string) (models.Store, error) {
 	}
 	defer rows.Close()
 
-	var store models.Store
+	var store domain.Store
 
 	found := false // 用於標記是否找到符合條件的資料行
 	for rows.Next() {
@@ -83,7 +83,7 @@ func (r *StoresRepo) GetById(storeId string) (models.Store, error) {
 	return store, err
 }
 
-func (r *StoresRepo) Create(s models.Store) error {
+func (r *StoresRepo) Create(s domain.Store) error {
 	sql := "INSERT INTO store (id, name, description, email, phone, is_open)" +
 		" VALUES (?, ?, ?, ?, ?, ?)"
 

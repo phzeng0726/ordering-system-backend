@@ -2,20 +2,20 @@ package repository
 
 import (
 	"database/sql"
-	"ordering-system-backend/models"
+	"ordering-system-backend/domain"
 )
 
 type Stores interface {
-	Create(s models.Store) error
-	GetAll() ([]models.Store, error)
-	GetById(storeId string) (models.Store, error)
+	Create(s domain.Store) error
+	GetAll() ([]domain.Store, error)
+	GetById(storeId string) (domain.Store, error)
 }
 
 type Menus interface {
-	Create(m models.Menu) error
-	Update(m models.Menu) error
-	GetAll(storeId string) ([]models.Menu, error)
-	GetById(storeId string, menuId int) (models.Menu, error)
+	Create(m domain.Menu) error
+	Update(m domain.Menu) error
+	GetAll(storeId string) ([]domain.Menu, error)
+	GetById(storeId string, menuId int) (domain.Menu, error)
 }
 
 type Repositories struct {
