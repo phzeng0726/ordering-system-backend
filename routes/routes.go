@@ -20,7 +20,7 @@ func NewRoutesSetup(router *gin.Engine, service *service.Services) *RoutesSetup 
 
 func (rs *RoutesSetup) setupStoreRoutes() {
 	rs.Router.POST("/stores", rs.Service.Stores.Create)
-	rs.Router.PATCH("/stores", rs.Service.Stores.Update)
+	rs.Router.PATCH("/stores/:store_id", rs.Service.Stores.Update)
 	rs.Router.DELETE("/stores/:store_id", rs.Service.Stores.Delete)
 	rs.Router.GET("/stores", rs.Service.Stores.GetAll)
 	rs.Router.GET("/stores/:store_id", rs.Service.Stores.GetById)
@@ -28,7 +28,7 @@ func (rs *RoutesSetup) setupStoreRoutes() {
 
 func (rs *RoutesSetup) setupMenuRoutes() {
 	rs.Router.POST("/stores/:store_id/menus", rs.Service.Menus.Create)
-	rs.Router.PATCH("/stores/:store_id/menus", rs.Service.Menus.Update)
+	rs.Router.PATCH("/stores/:store_id/menus/:menu_id", rs.Service.Menus.Update)
 	rs.Router.DELETE("/stores/:store_id/menus/:menu_id", rs.Service.Menus.Delete)
 	rs.Router.GET("/stores/:store_id/menus", rs.Service.Menus.GetAll)
 	rs.Router.GET("/stores/:store_id/menus/:menu_id", rs.Service.Menus.GetById)

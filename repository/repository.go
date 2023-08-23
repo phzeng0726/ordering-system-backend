@@ -7,6 +7,8 @@ import (
 
 type Stores interface {
 	Create(s domain.Store) error
+	Update(s domain.Store) error
+	Delete(storeId string) error
 	GetAll() ([]domain.Store, error)
 	GetById(storeId string) (domain.Store, error)
 }
