@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"ordering-system-backend/domain"
 
 	"gorm.io/gorm"
@@ -77,8 +78,7 @@ func (r *StoresRepo) Delete(storeId string) error {
 }
 
 func (r *StoresRepo) GetAll() ([]domain.Store, error) {
-	var stores []domain.Store
-
+	// var stores []domain.Store
 	// sql := "SELECT * FROM store"
 	// rows, err := r.db.Query(sql)
 	// if err != nil {
@@ -101,7 +101,12 @@ func (r *StoresRepo) GetAll() ([]domain.Store, error) {
 	// 	}
 	// 	stores = append(stores, store)
 	// }
+	var stores []domain.Store
 
+	res := r.db.Find(&stores)
+	if res.Error != nil {
+		return nil, res.Error
+	}
 	return stores, nil
 }
 
@@ -141,14 +146,14 @@ func (r *StoresRepo) GetById(storeId string) (domain.Store, error) {
 
 	// return store, nil
 	var store domain.Store
-	// res := r.db.Where("id = ?", storeId).First(&store)
+	res := r.db.Where("id = ?", storeId).First(&store)
 
-	// if res.Error != nil {
-	// 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-	// 		return store, errors.New("store not found")
-	// 	}
-	// 	return store, res.Error
-	// }
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			return store, errors.New("store not found")
+		}
+		return store, res.Error
+	}
 
 	return store, nil
 }
