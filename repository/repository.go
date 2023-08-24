@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"database/sql"
 	"ordering-system-backend/domain"
+
+	"gorm.io/gorm"
 )
 
 type Stores interface {
@@ -26,7 +27,7 @@ type Repositories struct {
 	Stores Stores
 }
 
-func NewRepositories(db *sql.DB) *Repositories {
+func NewRepositories(db *gorm.DB) *Repositories {
 	return &Repositories{
 		Menus:  NewMenusRepo(db),
 		Stores: NewStoresRepo(db),
