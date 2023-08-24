@@ -16,36 +16,6 @@ func NewMenusRepo(db *gorm.DB) *MenusRepo {
 	}
 }
 
-// func scanMenusRow(rows *sql.Rows) ([]domain.Menu, error) {
-// 	var menus []domain.Menu
-// 	var err error
-
-// 	for rows.Next() {
-// 		var menu domain.Menu
-// 		var createAtStr string // 創建一個字串來暫存日期時間字串
-
-// 		err = rows.Scan(
-// 			&menu.Id,
-// 			&menu.StoreId,
-// 			&menu.Title,
-// 			&menu.Description,
-// 			&menu.IsHide,
-// 			&createAtStr, // 接收日期時間字串
-// 		)
-// 		if err != nil {
-// 			return menus, err
-// 		}
-
-// 		menu.CreateAt, err = utils.DateTimeConverter(createAtStr)
-// 		if err != nil {
-// 			return menus, err
-// 		}
-// 		menus = append(menus, menu)
-// 	}
-
-// 	return menus, nil
-// }
-
 // func scanMenuByIdRow(rows *sql.Rows) (domain.Menu, error) {
 // 	var menu domain.Menu
 // 	var menuItems []domain.MenuItem
@@ -78,65 +48,6 @@ func NewMenusRepo(db *gorm.DB) *MenusRepo {
 
 // 	menu.MenuItems = menuItems
 // 	return menu, nil
-// }
-
-// func insertMenu(tx *sql.Tx, m domain.Menu) (int64, error) {
-// 	sql := "INSERT INTO menu (store_id, title, `description`, is_hide, create_at)" +
-// 		"VALUE (?, ?, ?, ?, ?)"
-// 	res, err := tx.Exec(sql, m.StoreId, m.Title, m.Description, m.IsHide, m.CreateAt)
-// 	if err != nil {
-// 		return 0, err
-// 	}
-
-//		return res.LastInsertId()
-//	}
-
-func insertMenu(db *gorm.DB, m domain.Menu) (int, error) {
-	res := db.Create(&m)
-	if res.Error != nil {
-		return 0, res.Error
-	}
-	return m.Id, nil
-}
-
-func insertMenuItem(db *gorm.DB, mi domain.MenuItem) (int, error) {
-	res := db.Create(&mi)
-	if res.Error != nil {
-		return 0, res.Error
-	}
-	return mi.Id, nil
-}
-
-func insertMenuItemMapping(db *gorm.DB, menuId int, menuItemId int) error {
-	mapping := domain.MenuItemMapping{
-		MenuId:     menuId,
-		MenuItemId: menuItemId,
-	}
-	res := db.Create(&mapping)
-	return res.Error
-}
-
-// func insertMenuItem(tx *sql.Tx, mi domain.MenuItem) (int64, error) {
-// 	fmt.Println(mi)
-// 	sql := "INSERT INTO menu_item (menu_category_id, title, `description`, quantity, price)" +
-// 		"VALUE (?, ?, ?, ?, ?)"
-// 	res, err := tx.Exec(sql, mi.MenuCategory.Id, mi.Title, mi.Description, mi.Quantity, mi.Price)
-// 	if err != nil {
-// 		return 0, err
-// 	}
-
-// 	return res.LastInsertId()
-// }
-
-// func insertMenuItemMapping(tx *sql.Tx, menuId, menuItemId int64) error {
-// 	sql := "INSERT INTO menu_item_mapping (menu_id, menu_item_id)" +
-// 		"VALUE (?, ?)"
-// 	_, err := tx.Exec(sql, menuId, menuItemId)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
 // }
 
 // func updateMenus(tx *sql.Tx, m domain.Menu) error {
@@ -225,35 +136,32 @@ func insertMenuItemMapping(db *gorm.DB, menuId int, menuItemId int) error {
 // 	return nil
 // }
 
+func insertMenu(db *gorm.DB, m domain.Menu) (int, error) {
+	res := db.Create(&m)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return m.Id, nil
+}
+
+func insertMenuItem(db *gorm.DB, mi domain.MenuItem) (int, error) {
+	res := db.Create(&mi)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return mi.Id, nil
+}
+
+func insertMenuItemMapping(db *gorm.DB, menuId int, menuItemId int) error {
+	mapping := domain.MenuItemMapping{
+		MenuId:     menuId,
+		MenuItemId: menuItemId,
+	}
+	res := db.Create(&mapping)
+	return res.Error
+}
+
 func (r *MenusRepo) Create(m domain.Menu) error {
-	// // 開始 SQL Transaction
-	// tx, err := r.db.Begin()
-	// if err != nil {
-	// 	return err
-	// }
-	// defer tx.Rollback()
-
-	// menuId, err := insertMenu(tx, m)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// for _, mi := range m.MenuItems {
-	// 	menuItemId, err := insertMenuItem(tx, mi)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	err = insertMenuItemMapping(tx, menuId, menuItemId)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	// // 提交
-	// if err := tx.Commit(); err != nil {
-	// 	return err
-	// }
 	tx := r.db.Begin() // 開始事務
 	if tx.Error != nil {
 		return tx.Error
@@ -340,23 +248,6 @@ func (r *MenusRepo) Delete(storeId string, menuId int) error {
 }
 
 func (r *MenusRepo) GetAll(storeId string) ([]domain.Menu, error) {
-	// var menus []domain.Menu
-	// sql := "SELECT *" +
-	// 	" FROM menu" +
-	// 	" WHERE store_id = ?"
-	// rows, err := r.db.Query(sql, storeId)
-
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return menus, err
-	// }
-	// defer rows.Close()
-
-	// menus, err = scanMenusRow(rows)
-
-	// if err != nil {
-	// 	return menus, err
-	// }
 	var menus []domain.Menu
 	result := r.db.Where("store_id = ?", storeId).Find(&menus)
 	if result.Error != nil {
