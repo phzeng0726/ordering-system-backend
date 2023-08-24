@@ -12,7 +12,7 @@ type Menu struct {
 	Description string     `gorm:"column:description;" json:"description"`
 	IsHide      bool       `gorm:"column:is_hide;" json:"isHide"`
 	CreateAt    time.Time  `gorm:"column:create_at;" json:"createAt"`
-	MenuItems   []MenuItem `gorm:"-" json:"menuItems"`
+	MenuItems   []MenuItem `gorm:"-" json:"menuItems,omitempty"`
 }
 
 type MenuItem struct {
