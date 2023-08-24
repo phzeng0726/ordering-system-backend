@@ -6,6 +6,7 @@ import (
 	"ordering-system-backend/domain"
 	"ordering-system-backend/repository"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,6 +33,7 @@ func (s *MenusService) Create(c *gin.Context) {
 		return
 	}
 
+	newMenu.CreateAt = time.Now()
 	err := s.repo.Create(newMenu)
 
 	if err != nil {

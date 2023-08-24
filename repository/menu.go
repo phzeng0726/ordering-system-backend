@@ -88,8 +88,33 @@ func NewMenusRepo(db *gorm.DB) *MenusRepo {
 // 		return 0, err
 // 	}
 
-// 	return res.LastInsertId()
-// }
+//		return res.LastInsertId()
+//	}
+
+func insertMenu(db *gorm.DB, m domain.Menu) (int, error) {
+	res := db.Create(&m)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return m.Id, nil
+}
+
+func insertMenuItem(db *gorm.DB, mi domain.MenuItem) (int, error) {
+	res := db.Create(&mi)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return mi.Id, nil
+}
+
+func insertMenuItemMapping(db *gorm.DB, menuId int, menuItemId int) error {
+	mapping := domain.MenuItemMapping{
+		MenuId:     menuId,
+		MenuItemId: menuItemId,
+	}
+	res := db.Create(&mapping)
+	return res.Error
+}
 
 // func insertMenuItem(tx *sql.Tx, mi domain.MenuItem) (int64, error) {
 // 	fmt.Println(mi)
@@ -229,7 +254,30 @@ func (r *MenusRepo) Create(m domain.Menu) error {
 	// if err := tx.Commit(); err != nil {
 	// 	return err
 	// }
+	tx := r.db.Begin() // 開始事務
+	if tx.Error != nil {
+		return tx.Error
+	}
+	defer tx.Rollback()
 
+	menuId, err := insertMenu(tx, m)
+	if err != nil {
+		return err
+	}
+
+	for _, mi := range m.MenuItems {
+		menuItemId, err := insertMenuItem(tx, mi)
+		if err != nil {
+			return err
+		}
+
+		err = insertMenuItemMapping(tx, menuId, menuItemId)
+		if err != nil {
+			return err
+		}
+	}
+
+	tx.Commit() // 提交事務
 	return nil
 }
 
@@ -292,8 +340,7 @@ func (r *MenusRepo) Delete(storeId string, menuId int) error {
 }
 
 func (r *MenusRepo) GetAll(storeId string) ([]domain.Menu, error) {
-	var menus []domain.Menu
-
+	// var menus []domain.Menu
 	// sql := "SELECT *" +
 	// 	" FROM menu" +
 	// 	" WHERE store_id = ?"
@@ -310,7 +357,11 @@ func (r *MenusRepo) GetAll(storeId string) ([]domain.Menu, error) {
 	// if err != nil {
 	// 	return menus, err
 	// }
-
+	var menus []domain.Menu
+	result := r.db.Where("store_id = ?", storeId).Find(&menus)
+	if result.Error != nil {
+		return nil, result.Error
+	}
 	return menus, nil
 }
 
