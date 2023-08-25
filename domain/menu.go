@@ -16,9 +16,11 @@ type Menu struct {
 }
 
 type MenuItemMapping struct {
-	Id         int `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
-	MenuId     int `gorm:"column:menu_id;" json:"menuId"`
-	MenuItemId int `gorm:"column:menu_item_id;" json:"menuItemId"`
+	Id         int      `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
+	MenuId     int      `gorm:"column:menu_id;" json:"menuId"`
+	MenuItemId int      `gorm:"column:menu_item_id;" json:"menuItemId"`
+	Menu       Menu     `gorm:"foreignKey:MenuId;references:id;" json:"menu"`
+	MenuItem   MenuItem `gorm:"foreignKey:MenuItemId;references:id;" json:"menuItem"`
 }
 
 type MenuItem struct {
@@ -27,7 +29,7 @@ type MenuItem struct {
 	Description    string       `gorm:"column:description;" json:"description"`
 	Quantity       int          `gorm:"column:quantity;" json:"quantity"`
 	Price          int          `gorm:"column:price;" json:"price"`
-	MenuCategoryId int          `gorm:"column:menu_category_id;"` // 外鍵欄位名稱
+	MenuCategoryId int          `gorm:"column:menu_category_id;" json:"-"` // 外鍵欄位名稱
 	MenuCategory   MenuCategory `gorm:"foreignKey:MenuCategoryId;references:id;" json:"menuCategory"`
 }
 

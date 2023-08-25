@@ -61,6 +61,32 @@ func fetchData(db *gorm.DB) {
 	log.Println(post)
 }
 
+// func fetchData(db *gorm.DB) {
+// 	menuId := 2
+// 	storeId := "68904ab7-237e-428a-ba0e-453392417cc6"
+// 	var menuItemMappings []domain.MenuItemMapping
+// 	if err := db.Preload("Menu", "store_id = ?", storeId).Preload("MenuItem.MenuCategory").Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
+// 		log.Println(err)
+// 	}
+
+// 	if len(menuItemMappings) == 0 {
+// 		log.Println("menu with items not found")
+// 		return
+// 	}
+
+// 	menu := menuItemMappings[0].Menu
+// 	for _, mim := range menuItemMappings {
+// 		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
+// 	}
+
+// 	menuJSON, err := json.MarshalIndent(menu, "", "  ")
+// 	if err != nil {
+// 		log.Println("failed to marshal menu to JSON:", err)
+// 		return
+// 	}
+
+//		log.Println(string(menuJSON))
+//	}
 func ExecuteGormTest(db *gorm.DB) error {
 	// err := db.AutoMigrate(&User{}, &Post{}, &Like{})
 	// if err != nil {

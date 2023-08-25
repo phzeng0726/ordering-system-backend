@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"errors"
 	"ordering-system-backend/domain"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -443,62 +443,19 @@ func (r *MenusRepo) GetAll(storeId string) ([]domain.Menu, error) {
 //	}
 func (r *MenusRepo) GetById(storeId string, menuId int) (domain.Menu, error) {
 	var menu domain.Menu
-
-	var dests []struct {
-		Id              int       `gorm:"column:id;"`
-		StoreId         string    `gorm:"column:store_id;"`
-		Title           string    `gorm:"column:title;"`
-		Description     string    `gorm:"column:description;"`
-		IsHide          bool      `gorm:"column:is_hide;"`
-		CreateAt        time.Time `gorm:"column:create_at;"`
-		ItemId          int       `gorm:"column:item_id;"`
-		ItemTitle       string    `gorm:"column:item_title;"`
-		ItemDescription string    `gorm:"column:item_description;"`
-		ItemQuantity    int       `gorm:"column:quantity;"`
-		ItemPrice       int       `gorm:"column:price;"`
-		CategoryId      int       `gorm:"column:category_id;"`
-		CategoryTitle   string    `gorm:"column:category_title;"`
+	var menuItemMappings []domain.MenuItemMapping
+	if err := r.db.Preload("Menu", "store_id = ?", storeId).Preload("MenuItem.MenuCategory").Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
+		return menu, err
 	}
 
-	sql := "SELECT m.id, m.store_id, m.title, m.description, m.is_hide, m.create_at, mi.id item_id, mi.title item_title, mi.description item_description, mi.quantity, mi.price, mc.id category_id, mc.title category_title" +
-		" FROM menus m" +
-		" JOIN menu_item_mappings mim ON m.id = mim.menu_id" +
-		" JOIN menu_items mi ON mi.id = mim.menu_item_id" +
-		" JOIN menu_categories mc ON mi.menu_category_id = mc.id" +
-		" WHERE m.store_id = ?" +
-		" AND m.id = ?"
-
-	res := r.db.Raw(sql, storeId, menuId).Scan(&dests)
-	if res.Error != nil {
-		return menu, res.Error
+	if len(menuItemMappings) == 0 {
+		err := errors.New("menu with items not found")
+		return menu, err
 	}
 
-	menuItems := make([]domain.MenuItem, 0)
-	for _, d := range dests {
-		menuItems = append(menuItems, domain.MenuItem{
-			Id:          d.ItemId,
-			Title:       d.ItemTitle,
-			Description: d.ItemDescription,
-			Quantity:    d.ItemQuantity,
-			Price:       d.ItemPrice,
-			MenuCategory: domain.MenuCategory{
-				Id:    d.CategoryId,
-				Title: d.CategoryTitle,
-			},
-		})
-	}
-
-	if len(dests) > 0 {
-		firstDest := dests[0]
-		menu = domain.Menu{
-			Id:          firstDest.Id,
-			StoreId:     firstDest.StoreId,
-			Title:       firstDest.Title,
-			Description: firstDest.Description,
-			IsHide:      firstDest.IsHide,
-			CreateAt:    firstDest.CreateAt,
-			MenuItems:   menuItems,
-		}
+	menu = menuItemMappings[0].Menu
+	for _, mim := range menuItemMappings {
+		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
 	}
 
 	return menu, nil
