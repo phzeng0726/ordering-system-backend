@@ -12,25 +12,28 @@ type Menu struct {
 	Description string     `gorm:"column:description;" json:"description"`
 	IsHide      bool       `gorm:"column:is_hide;" json:"isHide"`
 	CreateAt    time.Time  `gorm:"column:create_at;" json:"createAt"`
-	MenuItems   []MenuItem `gorm:"-" json:"menuItems"`
+	MenuItems   []MenuItem `gorm:"-" json:"menuItems,omitempty"`
+}
+
+type MenuItemMapping struct {
+	Id         int      `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
+	MenuId     int      `gorm:"column:menu_id;" json:"menuId"`
+	MenuItemId int      `gorm:"column:menu_item_id;" json:"menuItemId"`
+	Menu       Menu     `gorm:"foreignKey:MenuId;references:id;" json:"menu"`
+	MenuItem   MenuItem `gorm:"foreignKey:MenuItemId;references:id;" json:"menuItem"`
 }
 
 type MenuItem struct {
-	Id           int          `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
-	Title        string       `gorm:"column:title;" json:"title"`
-	Description  string       `gorm:"column:description;" json:"description"`
-	Quantity     int          `gorm:"column:quantity;" json:"quantity"`
-	Price        int          `gorm:"column:price;" json:"price"`
-	MenuCategory MenuCategory `gorm:"-" json:"menuCategory"`
+	Id             int          `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
+	Title          string       `gorm:"column:title;" json:"title"`
+	Description    string       `gorm:"column:description;" json:"description"`
+	Quantity       int          `gorm:"column:quantity;" json:"quantity"`
+	Price          int          `gorm:"column:price;" json:"price"`
+	MenuCategoryId int          `gorm:"column:menu_category_id;" json:"-"` // 外鍵欄位名稱
+	MenuCategory   MenuCategory `gorm:"foreignKey:MenuCategoryId;references:id;" json:"menuCategory"`
 }
 
 type MenuCategory struct {
 	Id    int    `gorm:"column:id;not null;primaryKey;" json:"id"`
 	Title string `gorm:"column:title;" json:"title"`
-}
-
-type MenuItemMapping struct {
-	Id         int `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
-	MenuId     int `gorm:"column:menu_id;" json:"menuId"`
-	MenuItemId int `gorm:"column:menu_item_id;" json:"menuItemId"`
 }
