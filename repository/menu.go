@@ -73,93 +73,61 @@ func (r *MenusRepo) Create(m domain.Menu) error {
 	return nil
 }
 
-// func updateMenus(tx *sql.Tx, m domain.Menu) error {
-// 	sql := "UPDATE menu" +
-// 		" SET title=?, `description`=?, is_hide=?" +
-// 		" WHERE id=?"
-// 	_, err := tx.Exec(sql, m.Title, m.Description, m.IsHide, m.Id)
-// 	if err != nil {
-// 		return err
-// 	}
+func updateMenus(db *gorm.DB, m domain.Menu) error {
+	res := db.Model(&domain.Menu{}).Where("id = ?", m.Id).
+		Updates(map[string]interface{}{
+			"title":       m.Title,
+			"description": m.Description,
+			"is_hide":     m.IsHide,
+		})
+	return res.Error
+}
 
-// 	return nil
-// }
+func deleteMenuItemId(db *gorm.DB, r *MenusRepo, menuId int) error {
+	var menuItemIds []string
 
-// func getMappingMenuItemId(r *MenusRepo, menuId int) ([]int, error) {
-// 	var menuItemIds []int
-
-// 	sql := "SELECT menu_item_id" +
-// 		" FROM menu_item_mapping" +
-// 		" WHERE menu_id = ?"
-
-// 	rows, err := r.db.Query(sql, menuId)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return menuItemIds, err
-// 	}
-
-// 	defer rows.Close()
-
-// 	for rows.Next() {
-// 		var menuItemId int
-
-// 		err = rows.Scan(
-// 			&menuItemId,
-// 		)
-// 		if err != nil {
-// 			return menuItemIds, err
-// 		}
-// 		menuItemIds = append(menuItemIds, menuItemId)
-// 	}
-
-// 	if err != nil {
-// 		return menuItemIds, err
-// 	}
-
-// 	return menuItemIds, nil
-// }
-
-// func deleteMenuItemId(tx *sql.Tx, r *MenusRepo, menuId int) error {
-// 	menuItemIds, err := getMappingMenuItemId(r, menuId)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	sql := "DELETE FROM menu_item_mapping WHERE menu_id = ?"
-// 	_, err = tx.Exec(sql, menuId)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	for _, mId := range menuItemIds {
-// 		sql = "DELETE FROM menu_item WHERE id = ?"
-// 		_, err = tx.Exec(sql, mId)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
-
-func (r *MenusRepo) Update(m domain.Menu) error {
-	tx := r.db.Begin() // 開始事務
+	tx := r.db.Begin()
 	if tx.Error != nil {
 		return tx.Error
 	}
 	defer tx.Rollback()
 
-	menuId, err := insertMenu(tx, m)
-	// err = updateMenus(tx, m)
-	// if err != nil {
-	// 	return err
-	// }
+	res := db.Where("menu_id = ?", menuId).Delete(&domain.MenuItemMapping{})
+	if res.Error != nil {
+		return res.Error
+	}
 
-	// err = deleteMenuItemId(tx, r, m.Id)
-	// if err != nil {
-	// 	return err
-	// }
+	res = r.db.Model(&domain.MenuItemMapping{}).Select("menu_item_id").Where("menu_id = ?", menuId).Find(&menuItemIds)
+	if res.Error != nil {
+		return res.Error
+	}
+	res = db.Delete(&domain.MenuItem{}, menuItemIds)
+	if res.Error != nil {
+		return res.Error
+	}
 
+	// 提交
+	if err := tx.Commit(); err != nil {
+		return err.Error
+	}
+
+	return nil
+}
+
+func (r *MenusRepo) Update(m domain.Menu) error {
+	// 開始 SQL Transaction
+	tx := r.db.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	defer tx.Rollback()
+
+	err := updateMenus(tx, m)
+	if err != nil {
+		return err
+	}
+
+	err = deleteMenuItemId(tx, r, m.Id)
 	if err != nil {
 		return err
 	}
@@ -170,7 +138,7 @@ func (r *MenusRepo) Update(m domain.Menu) error {
 			return err
 		}
 
-		err = insertMenuItemMapping(tx, menuId, menuItemId)
+		err = insertMenuItemMapping(tx, m.Id, menuItemId)
 		if err != nil {
 			return err
 		}
