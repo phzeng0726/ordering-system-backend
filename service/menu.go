@@ -58,7 +58,7 @@ func (s *MenusService) Update(c *gin.Context) {
 		return
 	}
 
-	if storeId != newMenu.StoreId {
+	if storeId != newMenu.StoreId || menuId != newMenu.Id {
 		err := domain.ErrIDMismatch
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
