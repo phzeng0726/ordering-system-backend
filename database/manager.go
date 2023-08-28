@@ -14,12 +14,12 @@ func Connect() *gorm.DB {
 	// 設定資料庫連線字串
 	dsn := fmt.Sprintf("%s:%s@/%s?parseTime=true", appConfig.UserName, appConfig.Password, appConfig.DBName)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	conn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	fmt.Println("Connected to MySQL database!")
-	return db
+	return conn
 }

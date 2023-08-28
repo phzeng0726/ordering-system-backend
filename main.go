@@ -13,14 +13,23 @@ import (
 func main() {
 	config.InitConfig()
 
-	db := database.Connect()
-	repos := repository.NewRepositories(db)
+	conn := database.Connect()
+	// db, err := conn.DB()
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// defer db.Close()
+
+	repos := repository.NewRepositories(conn)
 	services := service.NewServices(service.Deps{
 		Repos: repos,
 	})
 
+	gin.SetMode(gin.ReleaseMode)
+
 	router := gin.Default()
-	routesSetup := routes.NewRoutesSetup(router, services)
+	router.Use(routes.Middleware(conn))
+	routesSetup := routes.NewHandler(router, services)
 	routes.SetUpRoutes(routesSetup)
 	router.Run("localhost:" + config.Env.Port)
 }
