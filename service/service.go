@@ -6,6 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type OTP interface {
+	Create(c *gin.Context)
+	Verify(c *gin.Context)
+}
+
+type Users interface {
+	GetByEmail(c *gin.Context)
+}
+
 type Stores interface {
 	Create(c *gin.Context)
 	Update(c *gin.Context)
@@ -22,6 +31,8 @@ type Menus interface {
 }
 
 type Services struct {
+	Users  Users
+	OTP    OTP
 	Menus  Menus
 	Stores Stores
 }
@@ -31,10 +42,14 @@ type Deps struct {
 }
 
 func NewServices(deps Deps) *Services {
+	usersService := NewUsersService(deps.Repos.Users)
+	OTPService := NewOTPService(deps.Repos.OTP)
 	menusService := NewMenusService(deps.Repos.Menus)
 	storesService := NewStoresService(deps.Repos.Stores)
 
 	return &Services{
+		Users:  usersService,
+		OTP:    OTPService,
 		Menus:  menusService,
 		Stores: storesService,
 	}

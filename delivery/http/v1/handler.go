@@ -19,7 +19,14 @@ func NewHandler(services *service.Services) *Handler {
 func (h *Handler) Init(api *gin.RouterGroup) {
 	v1 := api.Group("/v1")
 	{
+		h.initUserRoutes(v1)
+		h.initOTPRoutes(v1)
 		h.initMenuRoutes(v1)
 		h.initStoreRoutes(v1)
 	}
 }
+
+// TODO
+// 寄驗證信
+// 驗證六碼驗證信
+// 使用者是否存在
