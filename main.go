@@ -20,5 +20,8 @@ func main() {
 
 	handlers := delivery.NewHandler(services)
 	router := handlers.Init()
-	router.Run("localhost:" + config.Env.Port)
+	if config.Env.Host == "" {
+		config.Env.Host = "localhost"
+	}
+	router.Run(config.Env.Host + ":" + config.Env.Port)
 }
