@@ -33,7 +33,7 @@ func (s *MenusService) Create(c *gin.Context) {
 		return
 	}
 
-	newMenu.CreateAt = time.Now()
+	newMenu.CreatedAt = time.Now()
 	err := s.repo.Create(newMenu)
 
 	if err != nil {
