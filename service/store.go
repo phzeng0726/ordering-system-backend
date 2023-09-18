@@ -20,6 +20,7 @@ func NewStoresService(repo repository.Stores) *StoresService {
 func (s *StoresService) Create(c *gin.Context) {
 	var newStore domain.Store
 	if err := c.BindJSON(&newStore); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 

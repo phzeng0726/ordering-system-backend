@@ -11,7 +11,7 @@ type Menu struct {
 	Title       string     `gorm:"column:title;" json:"title"`
 	Description string     `gorm:"column:description;" json:"description"`
 	IsHide      bool       `gorm:"column:is_hide;" json:"isHide"`
-	CreateAt    time.Time  `gorm:"column:create_at;" json:"createAt"`
+	CreatedAt   time.Time  `gorm:"column:created_at;" json:"createAt"`
 	MenuItems   []MenuItem `gorm:"-" json:"menuItems,omitempty"`
 }
 
@@ -36,4 +36,8 @@ type MenuItem struct {
 type MenuCategory struct {
 	Id    int    `gorm:"column:id;not null;primaryKey;" json:"id"`
 	Title string `gorm:"column:title;" json:"title"`
+}
+
+func (MenuItemMapping) TableName() string {
+	return "menu_item_mapping"
 }
