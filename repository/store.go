@@ -27,13 +27,7 @@ func (r *StoresRepo) Create(s domain.Store) error {
 
 func (r *StoresRepo) Update(s domain.Store) error {
 	var store domain.Store
-	res := r.db.Model(&store).Where("id = ?", s.Id).Updates(domain.Store{
-		Name:        s.Name,
-		Description: s.Description,
-		Email:       s.Email,
-		Phone:       s.Phone,
-		IsOpen:      s.IsOpen,
-	})
+	res := r.db.Model(&store).Where("id = ?", s.Id).Updates(&s)
 
 	if res.Error != nil {
 		return res.Error
@@ -54,10 +48,17 @@ func (r *StoresRepo) Delete(storeId string) error {
 func (r *StoresRepo) GetAll() ([]domain.Store, error) {
 	var stores []domain.Store
 
-	res := r.db.Find(&stores)
-	if res.Error != nil {
-		return nil, res.Error
+	if err := r.db.Find(&stores).Error; err != nil {
+		return nil, err
 	}
+
+	// 加載每個商店的營業時間
+	for i := range stores {
+		if err := r.db.Model(&stores[i]).Association("StoreOpeningHours").Find(&stores[i].StoreOpeningHours); err != nil {
+			return nil, err
+		}
+	}
+
 	return stores, nil
 }
 
@@ -70,6 +71,10 @@ func (r *StoresRepo) GetById(storeId string) (domain.Store, error) {
 			return store, errors.New("store not found")
 		}
 		return store, res.Error
+	}
+
+	if err := r.db.Where("store_id = ?", storeId).Find(&store.StoreOpeningHours).Error; err != nil {
+		return store, err
 	}
 
 	return store, nil
