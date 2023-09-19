@@ -68,7 +68,7 @@ func (s *StoresService) Delete(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (s *StoresService) GetAll(c *gin.Context) {
