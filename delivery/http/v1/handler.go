@@ -25,8 +25,3 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 		h.initStoreRoutes(v1)
 	}
 }
-
-// TODO
-// 寄驗證信
-// 驗證六碼驗證信
-// 使用者是否存在

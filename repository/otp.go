@@ -33,8 +33,6 @@ func sendVerificationMail(code string, recipient string) error {
 
 	// The message object allows you to add attachments and Bcc recipients
 	message := mg.NewMessage(sender, subject, body, recipient)
-
-	// 设置电子邮件内容类型为 HTML 格式
 	message.SetHtml(body)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
