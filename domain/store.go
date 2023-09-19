@@ -18,10 +18,14 @@ type Store struct {
 	StoreOpeningHours []StoreOpeningHour `gorm:"foreignKey:StoreId;references:id;" json:"storeOpeningHours"`
 }
 
-// StoreOpeningHour裡面的StoreId為fKey
+// NOTE:
+// StoreOpeningHour裡面的StoreId為fKey，目前是用store，預先加載裡面的StoreOpeningHour。
+// if err := r.db.Preload("StoreOpeningHours").Find(&stores).Error; err != nil {
+// 	return nil, err
+// }
 type StoreOpeningHour struct {
 	Id        int     `gorm:"column:id;not null;primaryKey;" json:"-"`
-	StoreId   string  `gorm:"column:store_id;" json:"storeId"`
+	StoreId   string  `gorm:"column:store_id;" json:"-"`
 	DayOfWeek int     `gorm:"column:day_of_week;" json:"dayOfWeek"`
 	OpenTime  dt.Time `gorm:"column:open_time" json:"openTime"`
 	CloseTime dt.Time `gorm:"column:close_time" json:"closeTime"`
