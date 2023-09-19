@@ -12,4 +12,5 @@ type Store struct {
 	Email       string `gorm:"column:email;" json:"email"`
 	Phone       string `gorm:"column:phone;" json:"phone"`
 	IsOpen      bool   `gorm:"column:is_open;" json:"isOpen"`
+	LanguageId  int    `gorm:"column:language_id;" json:"languageId"`
 }
