@@ -27,9 +27,9 @@ https://drawsql.app/teams/pipis-team/diagrams/ordering-db
 <!-- - 作為一名註冊用戶，我希望可以重設我的密碼，這樣當我忘記密碼時可以重新訪問我的賬戶。 -->
 
 ### Sprint 1
-- 作為一名商家用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID、Name、Phone、Address），才能讓客戶方便認識我。
+- 作為一名商家用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID Code、Name、Phone、Address），才能讓客戶方便認識我。
 後續可填（Description、OpeningHours）
-<!-- - 作為一名顧客用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID、Name），才能進行點餐。 -->
+<!-- - 作為一名顧客用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID Code、Name），才能進行點餐。 -->
 ```
 UI順序
 Email（按下登入，確認Firebase帳號有沒有註冊過、沒有註冊的話要發驗證6碼OTP信） -> 驗證碼 -> Password + 基本資訊（Name、Phone、Address）

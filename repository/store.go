@@ -30,9 +30,9 @@ func (r *StoresRepo) Update(s domain.Store) error {
 	res := r.db.Model(&store).Where("id = ?", s.Id).Updates(domain.Store{
 		Name:        s.Name,
 		Description: s.Description,
-		Email:       s.Email,
-		Phone:       s.Phone,
-		IsOpen:      s.IsOpen,
+		// Email:       s.Email,
+		Phone:   s.Phone,
+		Address: s.Address,
 	})
 
 	if res.Error != nil {
