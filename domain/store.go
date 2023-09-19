@@ -15,14 +15,14 @@ type Store struct {
 	Phone             string             `gorm:"column:phone;" json:"phone"`
 	Address           string             `gorm:"column:address;" json:"address"`
 	LanguageId        int                `gorm:"column:language_id;" json:"languageId"`
-	StoreOpeningHours []StoreOpeningHour `gorm:"foreignKey:StoreId" json:"storeOpeningHours"` // fkey 是不知為何不加的話沒辦法用GetAll 的 Association
+	StoreOpeningHours []StoreOpeningHour `gorm:"foreignKey:StoreId;references:id;" json:"storeOpeningHours"`
 }
 
+// StoreOpeningHour裡面的StoreId為fKey
 type StoreOpeningHour struct {
 	Id        int     `gorm:"column:id;not null;primaryKey;" json:"-"`
-	StoreId   string  `gorm:"column:store_id;" json:"-"`
+	StoreId   string  `gorm:"column:store_id;" json:"storeId"`
 	DayOfWeek int     `gorm:"column:day_of_week;" json:"dayOfWeek"`
 	OpenTime  dt.Time `gorm:"column:open_time" json:"openTime"`
 	CloseTime dt.Time `gorm:"column:close_time" json:"closeTime"`
-	Store     Store   `gorm:"foreignKey:StoreId;references:id;" json:"-"`
 }

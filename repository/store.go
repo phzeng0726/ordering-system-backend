@@ -48,15 +48,9 @@ func (r *StoresRepo) Delete(storeId string) error {
 func (r *StoresRepo) GetAll() ([]domain.Store, error) {
 	var stores []domain.Store
 
-	if err := r.db.Find(&stores).Error; err != nil {
+	// 使用 Preload 一次載入所有的OpeningHours，避免N+1問題
+	if err := r.db.Preload("StoreOpeningHours").Find(&stores).Error; err != nil {
 		return nil, err
-	}
-
-	// 加載每個商店的營業時間
-	for i := range stores {
-		if err := r.db.Model(&stores[i]).Association("StoreOpeningHours").Find(&stores[i].StoreOpeningHours); err != nil {
-			return nil, err
-		}
 	}
 
 	return stores, nil
