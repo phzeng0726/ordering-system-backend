@@ -68,13 +68,19 @@ func (r *OTPRepo) Create(token string, email string) error {
 	otp.Password = code
 	otp.Email = email
 
-	// 和前端傳來的token寫入otp table
-	res := r.db.Create(&otp)
-	if res.Error != nil {
-		return res.Error
-	}
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&otp).Error; err != nil {
+			return err
+		}
 
-	err := sendVerificationMail(code, email)
+		if err := sendVerificationMail(code, email); err != nil {
+			return errors.New("invalid email for mailgun")
+		}
+
+		// return nil will commit the whole transaction
+		return nil
+	})
+
 	if err != nil {
 		return err
 	}
