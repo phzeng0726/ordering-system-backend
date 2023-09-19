@@ -63,6 +63,12 @@ func (r *StoresRepo) GetAll() ([]domain.Store, error) {
 
 func (r *StoresRepo) GetById(storeId string) (domain.Store, error) {
 	var store domain.Store
+	var openingHours []domain.StoreOpeningHour
+
+	if err := r.db.Preload("Store").Find(&openingHours).Error; err != nil {
+		return store, err
+	}
+
 	res := r.db.Where("id = ?", storeId).First(&store)
 
 	if res.Error != nil {
@@ -72,5 +78,6 @@ func (r *StoresRepo) GetById(storeId string) (domain.Store, error) {
 		return store, res.Error
 	}
 
+	store.StoreOpeningHours = openingHours
 	return store, nil
 }
