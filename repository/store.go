@@ -27,13 +27,7 @@ func (r *StoresRepo) Create(s domain.Store) error {
 
 func (r *StoresRepo) Update(s domain.Store) error {
 	var store domain.Store
-	res := r.db.Model(&store).Where("id = ?", s.Id).Updates(domain.Store{
-		Name:        s.Name,
-		Description: s.Description,
-		// Email:       s.Email,
-		Phone:   s.Phone,
-		Address: s.Address,
-	})
+	res := r.db.Model(&store).Where("id = ?", s.Id).Updates(&s)
 
 	if res.Error != nil {
 		return res.Error
