@@ -12,6 +12,7 @@ type OTP interface {
 }
 
 type Users interface {
+	Create(c *gin.Context)
 	GetByEmail(c *gin.Context)
 }
 

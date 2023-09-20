@@ -15,6 +15,10 @@ func NewUsersService(repo repository.Users) *UsersService {
 	return &UsersService{repo: repo}
 }
 
+func (s *UsersService) Create(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, false)
+}
+
 // email
 func (s *UsersService) GetByEmail(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, false)

@@ -27,6 +27,20 @@ https://drawsql.app/teams/pipis-team/diagrams/ordering-db
 <!-- - 作為一名註冊用戶，我希望可以重設我的密碼，這樣當我忘記密碼時可以重新訪問我的賬戶。 -->
 
 ### Sprint 1
+<!-- 兩隻APP的Firebase不該共用 -->
+<!-- 避免Firebase Auth帳號亂掉 -->
+
+<!-- 在firebase創帳號 -->
+<!-- 拿firebase uid在DB創帳號 -->
+
+<!-- 1. 沒有帳號，使用者可註冊 -->
+<!-- 2. db 有帳號，使用者已存在 -->
+<!-- 3. firebase 有但 db 沒有帳號
+<!-- (1) 刪除+重創firebase再註冊 -->
+<!-- (2) 無法刪除的話報錯 -->
+<!-- 3.(2) 可在使用者創帳號的時候，如果firebase成功，但db失敗時，立刻將firebase刪除，減少該錯誤發生機率-->
+
+
 - 作為一名商家用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID Code、Name、Phone、Address），才能讓客戶方便認識我。
 後續可填（Description、OpeningHours）
 <!-- - 作為一名顧客用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID Code、Name），才能進行點餐。 -->

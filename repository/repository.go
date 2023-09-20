@@ -12,6 +12,7 @@ type OTP interface {
 }
 
 type Users interface {
+	Create(email string) (domain.User, error)
 	GetByEmail(email string) (domain.User, error)
 }
 

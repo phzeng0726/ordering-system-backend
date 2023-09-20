@@ -16,6 +16,11 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	}
 }
 
+func (r *UsersRepo) Create(email string) (domain.User, error) {
+	var menu domain.User
+	return menu, nil
+}
+
 func (r *UsersRepo) GetByEmail(email string) (domain.User, error) {
 	var menu domain.User
 	return menu, nil
