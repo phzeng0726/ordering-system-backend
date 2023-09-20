@@ -10,7 +10,6 @@ import (
 
 func main() {
 	config.InitConfig()
-
 	conn := database.Connect()
 
 	repos := repository.NewRepositories(conn)
