@@ -4,7 +4,6 @@ import "time"
 
 // Create User的POST Request 結構
 type UserRequest struct {
-	UidCode    string `json:"uid_code"`
 	Email      string `json:"email"`
 	UserType   int    `json:"user_type"`
 	FirstName  string `json:"first_name"`

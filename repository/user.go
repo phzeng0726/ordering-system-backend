@@ -57,38 +57,32 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 }
 
 func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
-	// 如果Firebase uid已經存在於DB，報錯
-	var userAccounts []domain.UserAccount
-	if err := r.db.Where("uid_code = ?", uq.UidCode).Find(&userAccounts).Error; err != nil {
-		return err
-	}
-
-	if len(userAccounts) != 0 {
-		return errors.New("firebase uid already exist")
-	}
-
-	userAccount := domain.UserAccount{
-		Id:       userId,
-		UidCode:  uq.UidCode,
-		Email:    uq.Email,
-		UserType: uq.UserType,
-	}
-
-	user := domain.User{
-		Id:         userId,
-		FirstName:  uq.FirstName,
-		LastName:   uq.LastName,
-		LanguageId: uq.LanguageId,
-	}
-
 	if err := r.db.Transaction(func(tx *gorm.DB) error {
 		client, err := firebaseInit()
 		if err != nil {
 			return err
 		}
 
-		if _, err := createFirebaseUser(uq, client); err != nil {
+		uidCode, err := createFirebaseUser(uq, client)
+		if err != nil {
+			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
+				return errors.New("email has already existed")
+			}
 			return err
+		}
+
+		userAccount := domain.UserAccount{
+			Id:       userId,
+			UidCode:  uidCode,
+			Email:    uq.Email,
+			UserType: uq.UserType,
+		}
+
+		user := domain.User{
+			Id:         userId,
+			FirstName:  uq.FirstName,
+			LastName:   uq.LastName,
+			LanguageId: uq.LanguageId,
 		}
 
 		if err := tx.Create(&userAccount).Error; err != nil {
