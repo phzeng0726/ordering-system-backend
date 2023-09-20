@@ -13,7 +13,7 @@ type OTP interface {
 
 type Users interface {
 	Create(userId string, u domain.UserRequest) error
-	GetByEmail(email string) (domain.User, error)
+	GetByEmail(email string, userType int) (string, error)
 }
 
 type Stores interface {

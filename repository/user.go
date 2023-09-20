@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"ordering-system-backend/domain"
 
 	"gorm.io/gorm"
@@ -58,7 +59,16 @@ func (r *UsersRepo) Create(userId string, u domain.UserRequest) error {
 	return nil
 }
 
-func (r *UsersRepo) GetByEmail(email string) (domain.User, error) {
-	var menu domain.User
-	return menu, nil
+func (r *UsersRepo) GetByEmail(email string, userType int) (string, error) {
+	var userAccount domain.UserAccount
+	if err := r.db.Where("email = ?", email).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
+		// 查無使用者，前端要收到false的消息
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return userAccount.Id, nil
+		}
+		return userAccount.Id, err
+	}
+
+	fmt.Println(userAccount)
+	return userAccount.Id, nil
 }

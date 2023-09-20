@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"ordering-system-backend/domain"
 	"ordering-system-backend/repository"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -37,5 +38,24 @@ func (s *UsersService) Create(c *gin.Context) {
 
 // email
 func (s *UsersService) GetByEmail(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, false)
+	email := c.Query("email")
+	userTypeStr := c.Query("userType")
+	userType, err := strconv.Atoi(userTypeStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	userId, err := s.repo.GetByEmail(email, userType)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if userId == "" {
+		c.IndentedJSON(http.StatusOK, false)
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, userId)
 }
