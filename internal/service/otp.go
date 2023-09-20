@@ -2,8 +2,8 @@ package service
 
 import (
 	"net/http"
-	"ordering-system-backend/domain"
-	"ordering-system-backend/repository"
+	"ordering-system-backend/internal/domain"
+	"ordering-system-backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
 )

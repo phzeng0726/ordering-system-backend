@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"ordering-system-backend/domain"
+	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
 )
@@ -12,7 +12,7 @@ type OTP interface {
 }
 
 type Users interface {
-	Create(userId string, u domain.UserRequest) error
+	Create(userId string, uq domain.UserRequest) error
 	GetByEmail(email string, userType int) (string, error)
 	GetById(userId string) (domain.User, error)
 }

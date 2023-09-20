@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
-	"ordering-system-backend/config"
+	"ordering-system-backend/internal/config"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

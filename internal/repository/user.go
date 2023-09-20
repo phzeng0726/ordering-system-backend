@@ -3,7 +3,8 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"ordering-system-backend/domain"
+	"ordering-system-backend/internal/domain"
+	firebase_auth "ordering-system-backend/pkg/auth"
 	"strings"
 
 	"gorm.io/gorm"
@@ -19,32 +20,35 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	}
 }
 
-func (r *UsersRepo) Create(userId string, u domain.UserRequest) error {
-	// 如果Firebase uid已經存在於DB，報錯
-	var userAccounts []domain.UserAccount
-	if err := r.db.Where("uid_code = ?", u.UidCode).Find(&userAccounts).Error; err != nil {
-		return err
-	}
-
-	if len(userAccounts) != 0 {
-		return errors.New("firebase uid already exist")
-	}
-
-	userAccount := domain.UserAccount{
-		Id:       userId,
-		UidCode:  u.UidCode,
-		Email:    u.Email,
-		UserType: u.UserType,
-	}
-
-	user := domain.User{
-		Id:         userId,
-		FirstName:  u.FirstName,
-		LastName:   u.LastName,
-		LanguageId: u.LanguageId,
-	}
-
+func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
 	if err := r.db.Transaction(func(tx *gorm.DB) error {
+		client, err := firebase_auth.Init()
+		if err != nil {
+			return err
+		}
+
+		uidCode, err := firebase_auth.CreateUser(uq, client)
+		if err != nil {
+			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
+				return errors.New("email has already existed")
+			}
+			return err
+		}
+
+		userAccount := domain.UserAccount{
+			Id:       userId,
+			UidCode:  uidCode,
+			Email:    uq.Email,
+			UserType: uq.UserType,
+		}
+
+		user := domain.User{
+			Id:         userId,
+			FirstName:  uq.FirstName,
+			LastName:   uq.LastName,
+			LanguageId: uq.LanguageId,
+		}
+
 		if err := tx.Create(&userAccount).Error; err != nil {
 			if strings.Contains(err.Error(), "unique_email_user_type") {
 				return errors.New("email has already existed")
