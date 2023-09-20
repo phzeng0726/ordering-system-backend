@@ -2,8 +2,8 @@ package http
 
 import (
 	"net/http"
-	v1 "ordering-system-backend/delivery/http/v1"
-	"ordering-system-backend/service"
+	v1 "ordering-system-backend/internal/delivery/http/v1"
+	"ordering-system-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

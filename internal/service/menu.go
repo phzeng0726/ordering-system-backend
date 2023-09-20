@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 	"net/http"
-	"ordering-system-backend/domain"
-	"ordering-system-backend/repository"
+	"ordering-system-backend/internal/domain"
+	"ordering-system-backend/internal/repository"
 	"strconv"
 	"time"
 

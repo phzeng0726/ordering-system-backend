@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"ordering-system-backend/service"
+	"ordering-system-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

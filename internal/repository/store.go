@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-	"ordering-system-backend/domain"
+	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
 )

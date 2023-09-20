@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"ordering-system-backend/domain"
-	"ordering-system-backend/utils"
+	"ordering-system-backend/internal/domain"
+	otp "ordering-system-backend/pkg/otp"
 	"time"
 
 	"github.com/mailgun/mailgun-go/v4"
@@ -61,7 +61,7 @@ func NewOTPRepo(db *gorm.DB) *OTPRepo {
 }
 
 func (r *OTPRepo) Create(token string, email string) error {
-	code := utils.GenerateRandomCode(6)
+	code := otp.GenerateRandomCode(6)
 
 	var otp domain.OTP
 	otp.Token = token

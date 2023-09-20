@@ -1,50 +1,14 @@
 package repository
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"ordering-system-backend/domain"
+	"ordering-system-backend/internal/domain"
+	firebase_auth "ordering-system-backend/pkg/auth"
 	"strings"
 
 	"gorm.io/gorm"
-
-	firebase "firebase.google.com/go"
-	"firebase.google.com/go/auth"
-
-	"google.golang.org/api/option"
 )
-
-func firebaseInit() (*auth.Client, error) {
-	opt := option.WithCredentialsFile("firebase_credential.json")
-	app, err := firebase.NewApp(context.Background(), nil, opt)
-	if err != nil {
-		return nil, err
-	}
-	// Access Auth service from default app
-	client, err := app.Auth(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
-}
-
-func createFirebaseUser(uq domain.UserRequest, client *auth.Client) (string, error) {
-	params := (&auth.UserToCreate{}).
-		Email(uq.Email).
-		Password("secretPassword").
-		DisplayName(uq.LastName + " " + uq.FirstName)
-
-	u, err := client.CreateUser(context.Background(), params)
-
-	if err != nil {
-		return "", err
-	}
-
-	fmt.Printf("Successfully created user: %v\n", u)
-	return u.UID, nil
-}
 
 type UsersRepo struct {
 	db *gorm.DB
@@ -58,12 +22,12 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 
 func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
 	if err := r.db.Transaction(func(tx *gorm.DB) error {
-		client, err := firebaseInit()
+		client, err := firebase_auth.Init()
 		if err != nil {
 			return err
 		}
 
-		uidCode, err := createFirebaseUser(uq, client)
+		uidCode, err := firebase_auth.CreateUser(uq, client)
 		if err != nil {
 			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
 				return errors.New("email has already existed")

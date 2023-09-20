@@ -1,8 +1,8 @@
-package utils
+package otp
 
 import "math/rand"
 
-// 生成指定长度的随机数字串
+// 生成隨機字串
 func GenerateRandomCode(length int) string {
 	const digits = "0123456789"
 

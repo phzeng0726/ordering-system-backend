@@ -1,11 +1,11 @@
 package main
 
 import (
-	"ordering-system-backend/config"
-	"ordering-system-backend/database"
-	delivery "ordering-system-backend/delivery/http"
-	"ordering-system-backend/repository"
-	"ordering-system-backend/service"
+	"ordering-system-backend/internal/config"
+	"ordering-system-backend/internal/database"
+	delivery "ordering-system-backend/internal/delivery/http"
+	"ordering-system-backend/internal/repository"
+	"ordering-system-backend/internal/service"
 )
 
 func main() {
