@@ -2,13 +2,20 @@ package domain
 
 import "time"
 
-// TODO 修改成真正的User
-// autoIncrement 會在insert之後自行塞回model，所以可以直接用Id取lastInsertId
+// Create User的POST Request 結構
+type UserRequest struct {
+	UidCode    string `json:"uid_code"`
+	Email      string `json:"email"`
+	UserType   int    `json:"user_type"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	LanguageId int    `json:"language_id"`
+}
+
 type User struct {
-	Id         int    `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
+	Id         string `gorm:"column:id;not null;primaryKey;" json:"id"`
 	FirstName  string `gorm:"column:first_name;" json:"firstName"`
 	LastName   string `gorm:"column:last_name;" json:"lastName"`
-	Phone      string `gorm:"column:phone;" json:"phone"`
 	LanguageId int    `gorm:"column:language_id;" json:"languageId"`
 }
 
@@ -16,6 +23,14 @@ type UserAccount struct {
 	Id        string    `gorm:"column:id;not null;primaryKey;" json:"id"`
 	UidCode   string    `gorm:"column:uid_code;" json:"userCode"`
 	Email     string    `gorm:"column:email;" json:"email"`
-	UserType  int       `gorm:"column:user_type;" json:"userType"`
+	UserType  int       `gorm:"column:user_type;" json:"userType"` // 0: store, 1: customer
 	CreatedAt time.Time `gorm:"column:created_at;" json:"createAt"`
+}
+
+func (User) TableName() string {
+	return "user"
+}
+
+func (UserAccount) TableName() string {
+	return "user_account"
 }

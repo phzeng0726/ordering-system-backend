@@ -2,9 +2,11 @@ package service
 
 import (
 	"net/http"
+	"ordering-system-backend/domain"
 	"ordering-system-backend/repository"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UsersService struct {
@@ -16,7 +18,21 @@ func NewUsersService(repo repository.Users) *UsersService {
 }
 
 func (s *UsersService) Create(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, false)
+	var newUserReq domain.UserRequest
+	if err := c.BindJSON(&newUserReq); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	uuid := uuid.New()
+
+	err := s.repo.Create(uuid.String(), newUserReq)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, newUserReq)
 }
 
 // email

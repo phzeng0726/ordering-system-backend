@@ -77,7 +77,6 @@ func (r *OTPRepo) Create(token string, email string) error {
 			return errors.New("invalid email for mailgun")
 		}
 
-		// return nil will commit the whole transaction
 		return nil
 	})
 
