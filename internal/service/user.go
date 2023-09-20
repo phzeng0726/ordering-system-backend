@@ -37,21 +37,22 @@ func (s *UsersService) Create(c *gin.Context) {
 }
 
 func (s *UsersService) Update(c *gin.Context) {
-	var newUserReq domain.UserRequest
-	if err := c.BindJSON(&newUserReq); err != nil {
+	var newUser domain.User
+	id := c.Param("user_id")
+
+	if err := c.BindJSON(&newUser); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	uuid := uuid.New()
-
-	err := s.repo.Create(uuid.String(), newUserReq)
+	newUser.Id = id
+	err := s.repo.Update(newUser)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, newUserReq)
+	c.IndentedJSON(http.StatusOK, newUser)
 }
 
 func (s *UsersService) GetByEmail(c *gin.Context) {

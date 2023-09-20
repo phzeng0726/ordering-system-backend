@@ -44,12 +44,7 @@ func (s *StoresService) Update(c *gin.Context) {
 		return
 	}
 
-	if id != newStore.Id {
-		err := domain.ErrIDMismatch
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
+	newStore.Id = id
 	err := s.repo.Update(newStore)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})

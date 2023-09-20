@@ -18,7 +18,7 @@ type User struct {
 	LastName    string      `gorm:"column:last_name;" json:"lastName"`
 	LanguageId  int         `gorm:"column:language_id;" json:"languageId"`
 	UserAccount UserAccount `gorm:"foreignKey:Id;references:id;" json:"-"` // 為了取email
-	Email       string      `gorm:"-" json:"email"`
+	Email       string      `gorm:"-" json:"email,omitempty"`
 }
 
 type UserAccount struct {
