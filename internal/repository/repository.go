@@ -12,6 +12,7 @@ type OTP interface {
 }
 
 type Users interface {
+	Update(uq domain.UserRequest) error
 	Create(userId string, uq domain.UserRequest) error
 	GetByEmail(email string, userType int) (string, error)
 	GetById(userId string) (domain.User, error)

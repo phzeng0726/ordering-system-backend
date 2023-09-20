@@ -67,6 +67,53 @@ func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
 	return nil
 }
 
+func (r *UsersRepo) Update(uq domain.UserRequest) error {
+	if err := r.db.Transaction(func(tx *gorm.DB) error {
+		client, err := firebase_auth.Init()
+		if err != nil {
+			return err
+		}
+
+		uidCode, err := firebase_auth.CreateUser(uq, client)
+		if err != nil {
+			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
+				return errors.New("email has already existed")
+			}
+			return err
+		}
+
+		userAccount := domain.UserAccount{
+			// Id:       userId,
+			UidCode:  uidCode,
+			Email:    uq.Email,
+			UserType: uq.UserType,
+		}
+
+		user := domain.User{
+			// Id:         userId,
+			FirstName:  uq.FirstName,
+			LastName:   uq.LastName,
+			LanguageId: uq.LanguageId,
+		}
+
+		if err := tx.Create(&userAccount).Error; err != nil {
+			if strings.Contains(err.Error(), "unique_email_user_type") {
+				return errors.New("email has already existed")
+			}
+			return errors.New("failed to create user account: " + err.Error())
+		}
+
+		if err := tx.Create(&user).Error; err != nil {
+			return errors.New("failed to create user: " + err.Error())
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *UsersRepo) GetByEmail(email string, userType int) (string, error) {
 	var userAccount domain.UserAccount
 	if err := r.db.Where("email = ?", email).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {

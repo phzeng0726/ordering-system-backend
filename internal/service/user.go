@@ -36,7 +36,24 @@ func (s *UsersService) Create(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, newUserReq)
 }
 
-// email
+func (s *UsersService) Update(c *gin.Context) {
+	var newUserReq domain.UserRequest
+	if err := c.BindJSON(&newUserReq); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	uuid := uuid.New()
+
+	err := s.repo.Create(uuid.String(), newUserReq)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, newUserReq)
+}
+
 func (s *UsersService) GetByEmail(c *gin.Context) {
 	email := c.Query("email")
 	userTypeStr := c.Query("userType")
@@ -60,7 +77,6 @@ func (s *UsersService) GetByEmail(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, userId)
 }
 
-// userId
 func (s *UsersService) GetById(c *gin.Context) {
 	id := c.Param("user_id")
 	user, err := s.repo.GetById(id)
