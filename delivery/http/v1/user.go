@@ -7,5 +7,6 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 	{
 		user.POST("", h.services.Users.Create)          // 創建User
 		user.GET("/login", h.services.Users.GetByEmail) // 透過Email確認user有沒有存在
+		user.GET("/:user_id", h.services.Users.GetById)
 	}
 }

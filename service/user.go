@@ -59,3 +59,14 @@ func (s *UsersService) GetByEmail(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, userId)
 }
+
+// userId
+func (s *UsersService) GetById(c *gin.Context) {
+	id := c.Param("user_id")
+	user, err := s.repo.GetById(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, user)
+}

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"ordering-system-backend/domain"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -45,6 +46,9 @@ func (r *UsersRepo) Create(userId string, u domain.UserRequest) error {
 
 	if err := r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&userAccount).Error; err != nil {
+			if strings.Contains(err.Error(), "unique_email_user_type") {
+				return errors.New("email has already existed")
+			}
 			return errors.New("failed to create user account: " + err.Error())
 		}
 
@@ -71,4 +75,14 @@ func (r *UsersRepo) GetByEmail(email string, userType int) (string, error) {
 
 	fmt.Println(userAccount)
 	return userAccount.Id, nil
+}
+
+func (r *UsersRepo) GetById(userId string) (domain.User, error) {
+	var user domain.User
+	if err := r.db.Where("id = ?", userId).Preload("UserAccount").Find(&user).Error; err != nil {
+		return user, err
+	}
+
+	user.Email = user.UserAccount.Email
+	return user, nil
 }
