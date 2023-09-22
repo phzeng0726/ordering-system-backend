@@ -12,7 +12,7 @@ func (h *Handler) initUserStoreRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// 不帶有userId
+// 不帶有userId，目前用不到
 func (h *Handler) initStoreRoutes(api *gin.RouterGroup) {
 	stores := api.Group("/stores")
 	{

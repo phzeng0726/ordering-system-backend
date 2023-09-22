@@ -19,6 +19,8 @@ func NewStoresService(repo repository.Stores) *StoresService {
 
 func (s *StoresService) Create(c *gin.Context) {
 	var newStore domain.Store
+	userId := c.Param("user_id")
+
 	if err := c.BindJSON(&newStore); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -26,6 +28,7 @@ func (s *StoresService) Create(c *gin.Context) {
 
 	uuid := uuid.New()
 	newStore.Id = uuid.String()
+	newStore.UserId = userId
 
 	err := s.repo.Create(newStore)
 	if err != nil {
@@ -38,6 +41,7 @@ func (s *StoresService) Create(c *gin.Context) {
 
 func (s *StoresService) Update(c *gin.Context) {
 	var newStore domain.Store
+	userId := c.Param("user_id")
 	id := c.Param("store_id")
 
 	if err := c.BindJSON(&newStore); err != nil {
@@ -45,7 +49,7 @@ func (s *StoresService) Update(c *gin.Context) {
 	}
 
 	newStore.Id = id
-	err := s.repo.Update(newStore)
+	err := s.repo.Update(userId, newStore)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -55,9 +59,10 @@ func (s *StoresService) Update(c *gin.Context) {
 }
 
 func (s *StoresService) Delete(c *gin.Context) {
+	userId := c.Param("user_id")
 	id := c.Param("store_id")
 
-	err := s.repo.Delete(id)
+	err := s.repo.Delete(userId, id)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -76,8 +81,10 @@ func (s *StoresService) GetAll(c *gin.Context) {
 }
 
 func (s *StoresService) GetById(c *gin.Context) {
+	userId := c.Param("user_id")
 	id := c.Param("store_id")
-	stores, err := s.repo.GetById(id)
+
+	stores, err := s.repo.GetById(userId, id)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return

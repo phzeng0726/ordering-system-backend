@@ -20,10 +20,12 @@ type Users interface {
 
 type Stores interface {
 	Create(s domain.Store) error
-	Update(s domain.Store) error
-	Delete(storeId string) error
+	Update(userId string, s domain.Store) error
+	Delete(userId string, storeId string) error
+	GetById(userId string, storeId string) (domain.Store, error)
+
+	// 不含UserId
 	GetAll() ([]domain.Store, error)
-	GetById(storeId string) (domain.Store, error)
 }
 
 type Menus interface {
