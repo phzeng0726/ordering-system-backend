@@ -13,16 +13,19 @@ type OTP interface {
 
 type Users interface {
 	Create(userId string, uq domain.UserRequest) error
+	Update(u domain.User) error // 只能更新 User，不能更新 UserAccount
 	GetByEmail(email string, userType int) (string, error)
 	GetById(userId string) (domain.User, error)
 }
 
 type Stores interface {
 	Create(s domain.Store) error
-	Update(s domain.Store) error
-	Delete(storeId string) error
+	Update(userId string, s domain.Store) error
+	Delete(userId string, storeId string) error
+	GetById(userId string, storeId string) (domain.Store, error)
+
+	// 不含UserId
 	GetAll() ([]domain.Store, error)
-	GetById(storeId string) (domain.Store, error)
 }
 
 type Menus interface {

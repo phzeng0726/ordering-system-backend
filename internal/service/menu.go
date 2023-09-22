@@ -27,12 +27,7 @@ func (s *MenusService) Create(c *gin.Context) {
 		return
 	}
 
-	if storeId != newMenu.StoreId {
-		err := domain.ErrIDMismatch
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
+	newMenu.StoreId = storeId
 	newMenu.CreatedAt = time.Now()
 	err := s.repo.Create(newMenu)
 
@@ -58,11 +53,8 @@ func (s *MenusService) Update(c *gin.Context) {
 		return
 	}
 
-	if storeId != newMenu.StoreId || menuId != newMenu.Id {
-		err := domain.ErrIDMismatch
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
+	newMenu.StoreId = storeId
+	newMenu.Id = menuId
 
 	// 確認是否store有該menu，有的話才會做下一步，避免別人把她的menu刪掉
 	menus, err := s.repo.GetById(storeId, menuId)

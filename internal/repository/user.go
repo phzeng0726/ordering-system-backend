@@ -67,6 +67,16 @@ func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
 	return nil
 }
 
+func (r *UsersRepo) Update(u domain.User) error {
+	var user domain.User
+	res := r.db.Model(&user).Where("id = ?", u.Id).Updates(&u)
+	if res.Error != nil {
+		return res.Error
+	}
+
+	return nil
+}
+
 func (r *UsersRepo) GetByEmail(email string, userType int) (string, error) {
 	var userAccount domain.UserAccount
 	if err := r.db.Where("email = ?", email).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
