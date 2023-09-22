@@ -22,8 +22,11 @@ type Stores interface {
 	Create(c *gin.Context)
 	Update(c *gin.Context)
 	Delete(c *gin.Context)
+	GetAllByUserId(c *gin.Context)
+	GetByStoreId(c *gin.Context)
+
+	// 不含UserId
 	GetAll(c *gin.Context)
-	GetById(c *gin.Context)
 }
 type Menus interface {
 	Create(c *gin.Context)

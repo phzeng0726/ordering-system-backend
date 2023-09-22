@@ -86,7 +86,18 @@ func (r *StoresRepo) Delete(userId string, storeId string) error {
 	return nil
 }
 
-func (r *StoresRepo) GetById(userId string, storeId string) (domain.Store, error) {
+func (r *StoresRepo) GetAllByUserId(userId string) ([]domain.Store, error) {
+	var stores []domain.Store
+
+	// 使用 Preload 一次載入所有的OpeningHours，避免N+1問題
+	if err := r.db.Preload("StoreOpeningHours").Where("user_id = ?", userId).Find(&stores).Error; err != nil {
+		return nil, err
+	}
+
+	return stores, nil
+}
+
+func (r *StoresRepo) GetByStoreId(userId string, storeId string) (domain.Store, error) {
 	var store domain.Store
 	res := r.db.Where("user_id = ?", userId).Where("id = ?", storeId).First(&store)
 

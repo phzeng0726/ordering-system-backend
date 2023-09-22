@@ -8,7 +8,8 @@ func (h *Handler) initUserStoreRoutes(api *gin.RouterGroup) {
 		stores.POST("", h.services.Stores.Create)
 		stores.PATCH("/:store_id", h.services.Stores.Update)
 		stores.DELETE("/:store_id", h.services.Stores.Delete)
-		stores.GET("/:store_id", h.services.Stores.GetById)
+		stores.GET("", h.services.Stores.GetAllByUserId)
+		stores.GET("/:store_id", h.services.Stores.GetByStoreId)
 	}
 }
 
