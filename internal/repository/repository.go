@@ -22,7 +22,8 @@ type Stores interface {
 	Create(s domain.Store) error
 	Update(userId string, s domain.Store) error
 	Delete(userId string, storeId string) error
-	GetById(userId string, storeId string) (domain.Store, error)
+	GetAllByUserId(userId string) ([]domain.Store, error)
+	GetByStoreId(userId string, storeId string) (domain.Store, error)
 
 	// 不含UserId
 	GetAll() ([]domain.Store, error)
