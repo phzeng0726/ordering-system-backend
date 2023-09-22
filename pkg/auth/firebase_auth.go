@@ -26,15 +26,28 @@ func Init() (*auth.Client, error) {
 	return client, nil
 }
 
-func CreateUser(uq domain.UserRequest, uid string, client *auth.Client) error {
-	fullName := uq.LastName + " " + uq.FirstName
+func CreateUser(ur domain.UserRequest, uid string, client *auth.Client) error {
+	fullName := ur.LastName + " " + ur.FirstName
 	params := (&auth.UserToCreate{}).
-		Email(uq.Email).
-		Password(uq.Password).
+		Email(ur.Email).
+		Password(ur.Password).
 		DisplayName(fullName).
 		UID(uid)
 
-	u, err := client.CreateUser(context.Background(), params)
+	_, err := client.CreateUser(context.Background(), params)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ResetPassword(ur domain.UserRequest, uid string, client *auth.Client) error {
+	params := (&auth.UserToUpdate{}).
+		Password(ur.Password)
+
+	u, err := client.UpdateUser(context.Background(), uid, params)
 
 	if err != nil {
 		return err
@@ -45,12 +58,9 @@ func CreateUser(uq domain.UserRequest, uid string, client *auth.Client) error {
 }
 
 func DeleteUser(uid string, client *auth.Client) error {
-	err := client.DeleteUser(context.Background(), uid)
-
-	if err != nil {
+	if err := client.DeleteUser(context.Background(), uid); err != nil {
 		return err
 	}
 
-	fmt.Printf("Successfully deleted user: %s\n", uid)
 	return nil
 }

@@ -21,7 +21,7 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	}
 }
 
-func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
+func (r *UsersRepo) Create(userId string, ur domain.UserRequest) error {
 	if err := r.db.Transaction(func(tx *gorm.DB) error {
 		client, err := firebase_auth.Init()
 		if err != nil {
@@ -34,15 +34,15 @@ func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
 		userAccount := domain.UserAccount{
 			Id:       userId,
 			UidCode:  uidCode,
-			Email:    uq.Email,
-			UserType: uq.UserType,
+			Email:    ur.Email,
+			UserType: ur.UserType,
 		}
 
 		user := domain.User{
 			Id:         userId,
-			FirstName:  uq.FirstName,
-			LastName:   uq.LastName,
-			LanguageId: uq.LanguageId,
+			FirstName:  ur.FirstName,
+			LastName:   ur.LastName,
+			LanguageId: ur.LanguageId,
 		}
 
 		if err := tx.Create(&userAccount).Error; err != nil {
@@ -56,7 +56,7 @@ func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
 			return errors.New("failed to create user: " + err.Error())
 		}
 
-		err = firebase_auth.CreateUser(uq, uidCode, client)
+		err = firebase_auth.CreateUser(ur, uidCode, client)
 		if err != nil {
 			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
 				return errors.New("email has already existed in firebase")
@@ -139,6 +139,28 @@ func (r *UsersRepo) Delete(userId string) error {
 	})
 
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UsersRepo) ResetPassword(ur domain.UserRequest) error {
+	var userAccount domain.UserAccount
+	res := r.db.Where("id = ?", ur.UserId).First(&userAccount)
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			return errors.New("user id not found")
+		}
+		return res.Error
+	}
+
+	client, err := firebase_auth.Init()
+	if err != nil {
+		return err
+	}
+
+	if err = firebase_auth.ResetPassword(ur, userAccount.UidCode, client); err != nil {
 		return err
 	}
 
