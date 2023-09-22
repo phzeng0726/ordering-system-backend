@@ -7,6 +7,7 @@ import (
 	firebase_auth "ordering-system-backend/pkg/auth"
 	"strings"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -27,13 +28,8 @@ func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
 			return err
 		}
 
-		uidCode, err := firebase_auth.CreateUser(uq, client)
-		if err != nil {
-			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
-				return errors.New("email has already existed")
-			}
-			return err
-		}
+		uuid := uuid.New()
+		uidCode := uuid.String()
 
 		userAccount := domain.UserAccount{
 			Id:       userId,
@@ -58,6 +54,14 @@ func (r *UsersRepo) Create(userId string, uq domain.UserRequest) error {
 
 		if err := tx.Create(&user).Error; err != nil {
 			return errors.New("failed to create user: " + err.Error())
+		}
+
+		err = firebase_auth.CreateUser(uq, uidCode, client)
+		if err != nil {
+			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
+				return errors.New("email has already existed in firebase")
+			}
+			return err
 		}
 		return nil
 	}); err != nil {
@@ -99,4 +103,44 @@ func (r *UsersRepo) GetById(userId string) (domain.User, error) {
 
 	user.Email = user.UserAccount.Email
 	return user, nil
+}
+
+func (r *UsersRepo) Delete(userId string) error {
+	var user domain.User
+	var userAccount domain.UserAccount
+
+	res := r.db.Where("id = ?", userId).First(&userAccount)
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			return errors.New("user id not found")
+		}
+		return res.Error
+	}
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		client, err := firebase_auth.Init()
+		if err != nil {
+			return err
+		}
+
+		if err := tx.Where("id = ?", userId).Delete(&userAccount).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("id = ?", userId).Delete(&user).Error; err != nil {
+			return err
+		}
+
+		if err := firebase_auth.DeleteUser(userAccount.UidCode, client); err != nil {
+			return errors.New("firebase uid code not found in firebase")
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

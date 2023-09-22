@@ -55,6 +55,18 @@ func (s *UsersService) Update(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, newUser)
 }
 
+func (s *UsersService) Delete(c *gin.Context) {
+	userId := c.Param("user_id")
+
+	err := s.repo.Delete(userId)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, true)
+}
+
 func (s *UsersService) GetByEmail(c *gin.Context) {
 	email := c.Query("email")
 	userTypeStr := c.Query("userType")
