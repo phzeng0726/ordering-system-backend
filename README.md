@@ -41,8 +41,7 @@ https://drawsql.app/teams/pipis-team/diagrams/ordering-db
 <!-- 3.(2) 可在使用者創帳號的時候，如果firebase成功，但db失敗時，立刻將firebase刪除，減少該錯誤發生機率-->
 
 
-- 作為一名商家用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID Code、Name、Phone、Address），才能讓客戶方便認識我。
-後續可填（Description、OpeningHours）
+- 作為一名商家用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID、Last Name、First Name），才能讓客戶方便認識我。後續可填（Address、OpeningHours、Description）
 <!-- - 作為一名顧客用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID Code、Name），才能進行點餐。 -->
 ```
 UI順序
