@@ -68,11 +68,11 @@ func (r *StoresRepo) Delete(userId string, storeId string) error {
 	}
 
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := r.db.Where("store_id = ?", storeId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
+		if err := tx.Where("store_id = ?", storeId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
 			return err
 		}
 
-		if err := r.db.Where("user_id = ?", userId).Where("id = ?", storeId).Delete(&domain.Store{}).Error; err != nil {
+		if err := tx.Where("user_id = ?", userId).Where("id = ?", storeId).Delete(&domain.Store{}).Error; err != nil {
 			return err
 		}
 

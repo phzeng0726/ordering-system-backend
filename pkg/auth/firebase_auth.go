@@ -26,19 +26,31 @@ func Init() (*auth.Client, error) {
 	return client, nil
 }
 
-func CreateUser(uq domain.UserRequest, client *auth.Client) (string, error) {
+func CreateUser(uq domain.UserRequest, uid string, client *auth.Client) error {
 	fullName := uq.LastName + " " + uq.FirstName
 	params := (&auth.UserToCreate{}).
 		Email(uq.Email).
 		Password(uq.Password).
-		DisplayName(fullName)
+		DisplayName(fullName).
+		UID(uid)
 
 	u, err := client.CreateUser(context.Background(), params)
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	fmt.Printf("Successfully created user: %v\n", u)
-	return u.UID, nil
+	return nil
+}
+
+func DeleteUser(uid string, client *auth.Client) error {
+	err := client.DeleteUser(context.Background(), uid)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Successfully deleted user: %s\n", uid)
+	return nil
 }

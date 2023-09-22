@@ -16,6 +16,7 @@ type Users interface {
 	Update(u domain.User) error // 只能更新 User，不能更新 UserAccount
 	GetByEmail(email string, userType int) (string, error)
 	GetById(userId string) (domain.User, error)
+	Delete(userId string) error
 }
 
 type Stores interface {
