@@ -12,11 +12,12 @@ type OTP interface {
 }
 
 type Users interface {
-	Create(userId string, uq domain.UserRequest) error
+	Create(userId string, ur domain.UserRequest) error
 	Update(u domain.User) error // 只能更新 User，不能更新 UserAccount
 	GetByEmail(email string, userType int) (string, error)
 	GetById(userId string) (domain.User, error)
 	Delete(userId string) error
+	ResetPassword(ur domain.UserRequest) error
 }
 
 type Stores interface {

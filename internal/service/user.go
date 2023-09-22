@@ -99,3 +99,20 @@ func (s *UsersService) GetById(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusOK, user)
 }
+
+func (s *UsersService) ResetPassword(c *gin.Context) {
+	var ur domain.UserRequest
+
+	if err := c.BindJSON(&ur); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	err := s.repo.ResetPassword(ur)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, true)
+}

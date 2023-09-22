@@ -6,9 +6,9 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 	// 不帶有userId
 	userAuth := api.Group("/users")
 	{
-		userAuth.POST("", h.services.Users.Create)                   // 創建User
-		userAuth.GET("/login", h.services.Users.GetByEmail)          // 透過Email確認user有沒有存在
-		userAuth.GET("/reset-password", h.services.Users.GetByEmail) // 重設密碼
+		userAuth.POST("", h.services.Users.Create)                       // 創建User
+		userAuth.GET("/login", h.services.Users.GetByEmail)              // 透過Email確認user有沒有存在
+		userAuth.POST("/reset-password", h.services.Users.ResetPassword) // 重設密碼
 	}
 
 	// 帶有userId

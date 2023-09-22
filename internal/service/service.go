@@ -17,6 +17,7 @@ type Users interface {
 	Delete(c *gin.Context)
 	GetByEmail(c *gin.Context)
 	GetById(c *gin.Context)
+	ResetPassword(c *gin.Context)
 }
 
 type Stores interface {
