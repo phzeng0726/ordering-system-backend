@@ -2,17 +2,6 @@ package domain
 
 import "time"
 
-// Create User的POST Request 結構
-type UserRequest struct {
-	UserId     string `json:"userId,omitempty"`
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	UserType   int    `json:"user_type"`
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	LanguageId int    `json:"language_id"`
-}
-
 type User struct {
 	Id          string      `gorm:"column:id;not null;primaryKey;" json:"id"`
 	FirstName   string      `gorm:"column:first_name;" json:"firstName"`

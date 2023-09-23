@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"fmt"
-	"ordering-system-backend/internal/domain"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
@@ -26,12 +25,10 @@ func Init() (*auth.Client, error) {
 	return client, nil
 }
 
-func CreateUser(ur domain.UserRequest, uid string, client *auth.Client) error {
-	fullName := ur.LastName + " " + ur.FirstName
+func CreateUser(client *auth.Client, email string, password, string, uid string) error {
 	params := (&auth.UserToCreate{}).
-		Email(ur.Email).
-		Password(ur.Password).
-		DisplayName(fullName).
+		Email(email).
+		Password(password).
 		UID(uid)
 
 	_, err := client.CreateUser(context.Background(), params)
@@ -43,9 +40,9 @@ func CreateUser(ur domain.UserRequest, uid string, client *auth.Client) error {
 	return nil
 }
 
-func ResetPassword(ur domain.UserRequest, uid string, client *auth.Client) error {
+func ResetPassword(newPassword string, uid string, client *auth.Client) error {
 	params := (&auth.UserToUpdate{}).
-		Password(ur.Password)
+		Password(newPassword)
 
 	u, err := client.UpdateUser(context.Background(), uid, params)
 

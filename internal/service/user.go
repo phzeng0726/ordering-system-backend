@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
@@ -18,22 +19,26 @@ func NewUsersService(repo repository.Users) *UsersService {
 	return &UsersService{repo: repo}
 }
 
-func (s *UsersService) Create(c *gin.Context) {
-	var newUserReq domain.UserRequest
-	if err := c.BindJSON(&newUserReq); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
+func (s *UsersService) Create(ctx context.Context, input CreateUserInput) error {
 	uuid := uuid.New()
-
-	err := s.repo.Create(uuid.String(), newUserReq)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+	userAccount := domain.UserAccount{
+		Id:       input.UserId,
+		UidCode:  uuid.String(),
+		Email:    input.Email,
+		UserType: input.UserType,
 	}
 
-	c.IndentedJSON(http.StatusOK, newUserReq)
+	user := domain.User{
+		Id:         input.UserId,
+		FirstName:  input.FirstName,
+		LastName:   input.LastName,
+		LanguageId: input.LanguageId,
+	}
+
+	if err := s.repo.Create(ctx, userAccount, user, input.Password); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *UsersService) Update(c *gin.Context) {

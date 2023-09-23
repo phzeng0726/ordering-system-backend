@@ -17,15 +17,23 @@ type VerifyOTPInput struct {
 	Password string
 }
 
+type CreateUserInput struct {
+	UserId     string
+	Email      string
+	Password   string
+	UserType   int
+	FirstName  string
+	LastName   string
+	LanguageId int
+}
+
 type OTP interface {
 	Create(ctx context.Context, input CreateOTPInput) error
 	Verify(ctx context.Context, input VerifyOTPInput) error
-	// Create(c *gin.Context)
-	// Verify(c *gin.Context)
 }
 
 type Users interface {
-	Create(c *gin.Context)
+	Create(ctx context.Context, input CreateUserInput) error
 	Update(c *gin.Context)
 	Delete(c *gin.Context)
 	GetByEmail(c *gin.Context)

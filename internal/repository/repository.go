@@ -13,12 +13,12 @@ type OTP interface {
 }
 
 type Users interface {
-	Create(userId string, ur domain.UserRequest) error
-	Update(u domain.User) error // 只能更新 User，不能更新 UserAccount
-	GetByEmail(email string, userType int) (string, error)
-	GetById(userId string) (domain.User, error)
-	Delete(userId string) error
-	ResetPassword(ur domain.UserRequest) error
+	Create(ctx context.Context, userAccount domain.UserAccount, user domain.User, password string) error
+	Update(ctx context.Context, u domain.User) error // 只能更新 User，不能更新 UserAccount
+	GetByEmail(ctx context.Context, email string, userType int) (string, error)
+	GetById(ctx context.Context, userId string) (domain.User, error)
+	Delete(ctx context.Context, userId string) error
+	ResetPassword(ctx context.Context, ur domain.UserRequest) error
 }
 
 type Stores interface {
