@@ -8,15 +8,20 @@ import (
 )
 
 type CreateOTPInput struct {
+	Token string
+	Email string
+}
+
+type VerifyOTPInput struct {
 	Token    string
-	Email    string
 	Password string
 }
 
 type OTP interface {
-	CreateTesting(ctx context.Context, input CreateOTPInput) error
-	Create(c *gin.Context)
-	Verify(c *gin.Context)
+	Create(ctx context.Context, input CreateOTPInput) error
+	Verify(ctx context.Context, input VerifyOTPInput) error
+	// Create(c *gin.Context)
+	// Verify(c *gin.Context)
 }
 
 type Users interface {

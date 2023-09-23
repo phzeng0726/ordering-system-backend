@@ -8,9 +8,8 @@ import (
 )
 
 type OTP interface {
-	CreateTesting(ctx context.Context, token string, email string) error
-	Create(token string, email string) error
-	Verify(token string, password string) error
+	Create(ctx context.Context, token string, email string) error
+	Verify(ctx context.Context, token string, password string) error
 }
 
 type Users interface {

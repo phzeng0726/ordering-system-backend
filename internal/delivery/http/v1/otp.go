@@ -10,32 +10,54 @@ import (
 func (h *Handler) initOTPRoutes(api *gin.RouterGroup) {
 	otp := api.Group("/otp")
 	{
-		otp.POST("/create-testing", h.createTesting) // createOTP 建立OTP
-		otp.POST("/create", h.services.OTP.Create)   // createOTP 建立OTP
-		otp.POST("/verify", h.services.OTP.Verify)   // verifyOTP 驗證OTP
+		otp.POST("/create", h.create) // 建立OTP
+		otp.POST("/verify", h.verify) // 驗證OTP
 	}
 }
 
 type createOTPInput struct {
+	Token string `json:"token" binding:"required"`
+	Email string `json:"email" binding:"required"`
+}
+
+type verifyOTPInput struct {
 	Token    string `json:"token" binding:"required"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Password string `json:"password" binding:"required"`
 }
 
 // token, email
-func (h *Handler) createTesting(c *gin.Context) {
+func (h *Handler) create(c *gin.Context) {
 	var inp createOTPInput
 	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	if err := h.services.OTP.CreateTesting(c.Request.Context(), service.CreateOTPInput{
+	if err := h.services.OTP.Create(c.Request.Context(), service.CreateOTPInput{
+		Token: inp.Token,
+		Email: inp.Email,
+	}); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, true)
+}
+
+func (h *Handler) verify(c *gin.Context) {
+	var inp verifyOTPInput
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := h.services.OTP.Verify(c.Request.Context(), service.VerifyOTPInput{
 		Token:    inp.Token,
-		Email:    inp.Email,
 		Password: inp.Password,
 	}); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	c.IndentedJSON(http.StatusOK, true)
 }
