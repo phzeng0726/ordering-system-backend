@@ -25,11 +25,11 @@ func Init() (*auth.Client, error) {
 	return client, nil
 }
 
-func CreateUser(client *auth.Client, email string, password, string, uid string) error {
+func CreateUser(client *auth.Client, uid string, email string, password string) error {
 	params := (&auth.UserToCreate{}).
+		UID(uid).
 		Email(email).
-		Password(password).
-		UID(uid)
+		Password(password)
 
 	_, err := client.CreateUser(context.Background(), params)
 
@@ -40,7 +40,7 @@ func CreateUser(client *auth.Client, email string, password, string, uid string)
 	return nil
 }
 
-func ResetPassword(newPassword string, uid string, client *auth.Client) error {
+func ResetPassword(client *auth.Client, uid string, newPassword string) error {
 	params := (&auth.UserToUpdate{}).
 		Password(newPassword)
 

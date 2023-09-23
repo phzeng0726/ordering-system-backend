@@ -2,12 +2,9 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
-	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -41,83 +38,46 @@ func (s *UsersService) Create(ctx context.Context, input CreateUserInput) error 
 	return nil
 }
 
-func (s *UsersService) Update(c *gin.Context) {
-	var newUser domain.User
-	id := c.Param("user_id")
-
-	if err := c.BindJSON(&newUser); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+func (s *UsersService) ResetPassword(ctx context.Context, input ResetPasswordInput) error {
+	if err := s.repo.ResetPassword(ctx, input.UserId, input.Password); err != nil {
+		return err
 	}
-
-	newUser.Id = id
-	err := s.repo.Update(newUser)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, newUser)
+	return nil
 }
 
-func (s *UsersService) Delete(c *gin.Context) {
-	userId := c.Param("user_id")
-
-	err := s.repo.Delete(userId)
+func (s *UsersService) GetByEmail(ctx context.Context, email string, userType int) (string, error) {
+	userId, err := s.repo.GetByEmail(ctx, email, userType)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+		return userId, err
 	}
-
-	c.IndentedJSON(http.StatusOK, true)
+	return userId, nil
 }
 
-func (s *UsersService) GetByEmail(c *gin.Context) {
-	email := c.Query("email")
-	userTypeStr := c.Query("userType")
-	userType, err := strconv.Atoi(userTypeStr)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+func (s *UsersService) Update(ctx context.Context, userId string, input UpdateUserInput) error {
+	newUser := domain.User{
+		Id:         userId,
+		FirstName:  input.FirstName,
+		LastName:   input.LastName,
+		LanguageId: input.LanguageId,
 	}
 
-	userId, err := s.repo.GetByEmail(email, userType)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+	if err := s.repo.Update(ctx, newUser); err != nil {
+		return err
 	}
-
-	if userId == "" {
-		c.IndentedJSON(http.StatusOK, false)
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, userId)
+	return nil
 }
 
-func (s *UsersService) GetById(c *gin.Context) {
-	id := c.Param("user_id")
-	user, err := s.repo.GetById(id)
-	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
+func (s *UsersService) Delete(ctx context.Context, userId string) error {
+	if err := s.repo.Delete(ctx, userId); err != nil {
+		return err
 	}
-	c.IndentedJSON(http.StatusOK, user)
+	return nil
 }
 
-func (s *UsersService) ResetPassword(c *gin.Context) {
-	var ur domain.UserRequest
-
-	if err := c.BindJSON(&ur); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	err := s.repo.ResetPassword(ur)
+func (s *UsersService) GetById(ctx context.Context, userId string) (domain.User, error) {
+	user, err := s.repo.GetById(ctx, userId)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+		return user, err
 	}
-
-	c.IndentedJSON(http.StatusOK, true)
+	return user, nil
 }

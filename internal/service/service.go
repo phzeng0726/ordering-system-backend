@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,17 @@ type CreateUserInput struct {
 	LanguageId int
 }
 
+type ResetPasswordInput struct {
+	UserId   string
+	Password string
+}
+
+type UpdateUserInput struct {
+	FirstName  string
+	LastName   string
+	LanguageId int
+}
+
 type OTP interface {
 	Create(ctx context.Context, input CreateOTPInput) error
 	Verify(ctx context.Context, input VerifyOTPInput) error
@@ -34,11 +46,11 @@ type OTP interface {
 
 type Users interface {
 	Create(ctx context.Context, input CreateUserInput) error
-	Update(c *gin.Context)
-	Delete(c *gin.Context)
-	GetByEmail(c *gin.Context)
-	GetById(c *gin.Context)
-	ResetPassword(c *gin.Context)
+	ResetPassword(ctx context.Context, input ResetPasswordInput) error
+	GetByEmail(ctx context.Context, email string, userType int) (string, error)
+	Update(ctx context.Context, userId string, input UpdateUserInput) error
+	Delete(ctx context.Context, userId string) error
+	GetById(ctx context.Context, userId string) (domain.User, error)
 }
 
 type Stores interface {

@@ -39,7 +39,7 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 			return errors.New("failed to create user: " + err.Error())
 		}
 
-		err = firebase_auth.CreateUser(client, userAccount.Email, password, userAccount.UidCode)
+		err = firebase_auth.CreateUser(client, userAccount.UidCode, userAccount.Email, password)
 		if err != nil {
 			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
 				return errors.New("email has already existed in firebase")
@@ -128,9 +128,9 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 	return nil
 }
 
-func (r *UsersRepo) ResetPassword(ctx context.Context, ur domain.UserRequest) error {
+func (r *UsersRepo) ResetPassword(ctx context.Context, userId string, newPassword string) error {
 	var userAccount domain.UserAccount
-	res := r.db.WithContext(ctx).Where("id = ?", ur.UserId).First(&userAccount)
+	res := r.db.WithContext(ctx).Where("id = ?", userId).First(&userAccount)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
 			return errors.New("user id not found")
@@ -143,7 +143,7 @@ func (r *UsersRepo) ResetPassword(ctx context.Context, ur domain.UserRequest) er
 		return err
 	}
 
-	if err = firebase_auth.ResetPassword(ur, userAccount.UidCode, client); err != nil {
+	if err = firebase_auth.ResetPassword(client, userAccount.UidCode, newPassword); err != nil {
 		return err
 	}
 

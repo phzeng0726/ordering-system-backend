@@ -7,24 +7,24 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
+	"github.com/google/uuid"
 )
 
 func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 	// 不帶有userId
 	userAuth := api.Group("/users")
 	{
-		userAuth.POST("", h.createUser)                                  // 創建User
-		userAuth.GET("/login", h.services.Users.GetByEmail)              // 透過Email確認user有沒有存在
-		userAuth.POST("/reset-password", h.services.Users.ResetPassword) // 重設密碼
+		userAuth.POST("", h.createUser)                   // 創建User
+		userAuth.GET("/login", h.getUserByEmail)          // 透過Email確認user有沒有存在
+		userAuth.POST("/reset-password", h.resetPassword) // 重設密碼
 	}
 
 	// 帶有userId
 	user := api.Group("/users/:user_id")
 	{
-		user.PATCH("", h.services.Users.Update)
-		user.DELETE("", h.services.Users.Delete)
-		user.GET("", h.services.Users.GetById)
+		user.PATCH("", h.updateUser)
+		user.DELETE("", h.deleteUser)
+		user.GET("", h.getUserById)
 		h.initUserStoreRoutes(user)
 	}
 }
@@ -32,10 +32,15 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 type createUserInput struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`
-	UserType   int    `json:"user_type"`
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	LanguageId int    `json:"language_id"`
+	UserType   int    `json:"userType"`
+	FirstName  string `json:"firstName"`
+	LastName   string `json:"lastName"`
+	LanguageId int    `json:"languageId"`
+}
+
+type resetPasswordInput struct {
+	UserId   string `json:"userId"`
+	Password string `json:"password"`
 }
 
 func (h *Handler) createUser(c *gin.Context) {
@@ -45,9 +50,9 @@ func (h *Handler) createUser(c *gin.Context) {
 		return
 	}
 
-	uuid := uuid.New()
+	userId := uuid.New().String()
 	if err := h.services.Users.Create(c.Request.Context(), service.CreateUserInput{
-		UserId:     uuid.String(),
+		UserId:     userId,
 		Email:      inp.Email,
 		Password:   inp.Password,
 		UserType:   inp.UserType,
@@ -62,38 +67,25 @@ func (h *Handler) createUser(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, inp)
 }
 
-func (h *Handler) Update(c *gin.Context) {
-	var newUser domain.User
-	id := c.Param("user_id")
-
-	if err := c.BindJSON(&newUser); err != nil {
+func (h *Handler) resetPassword(c *gin.Context) {
+	var inp resetPasswordInput
+	if err := c.BindJSON(&inp); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	newUser.Id = id
-	err := s.repo.Update(newUser)
-	if err != nil {
+	if err := h.services.Users.ResetPassword(c.Request.Context(), service.ResetPasswordInput{
+		UserId:   inp.UserId,
+		Password: inp.Password,
+	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, newUser)
+	c.IndentedJSON(http.StatusOK, inp)
 }
 
-func (h *Handler) Delete(c *gin.Context) {
-	userId := c.Param("user_id")
-
-	err := s.repo.Delete(userId)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, true)
-}
-
-func (h *Handler) GetByEmail(c *gin.Context) {
+func (h *Handler) getUserByEmail(c *gin.Context) {
 	email := c.Query("email")
 	userTypeStr := c.Query("userType")
 	userType, err := strconv.Atoi(userTypeStr)
@@ -102,7 +94,8 @@ func (h *Handler) GetByEmail(c *gin.Context) {
 		return
 	}
 
-	userId, err := s.repo.GetByEmail(email, userType)
+	userId, err := h.services.Users.GetByEmail(c.Request.Context(), email, userType)
+
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -116,29 +109,44 @@ func (h *Handler) GetByEmail(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, userId)
 }
 
-func (h *Handler) GetById(c *gin.Context) {
-	id := c.Param("user_id")
-	user, err := s.repo.GetById(id)
-	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, user)
-}
+func (h *Handler) updateUser(c *gin.Context) {
+	var inp domain.User
+	userId := c.Param("user_id")
 
-func (h *Handler) ResetPassword(c *gin.Context) {
-	var ur domain.UserRequest
-
-	if err := c.BindJSON(&ur); err != nil {
+	if err := c.BindJSON(&inp); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	err := s.repo.ResetPassword(ur)
-	if err != nil {
+	if err := h.services.Users.Update(c.Request.Context(), userId, service.UpdateUserInput{
+		FirstName:  inp.FirstName,
+		LastName:   inp.LastName,
+		LanguageId: inp.LanguageId,
+	}); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, inp)
+}
+
+func (h *Handler) deleteUser(c *gin.Context) {
+	userId := c.Param("user_id")
+	if err := h.services.Users.Delete(c.Request.Context(), userId); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	c.IndentedJSON(http.StatusOK, true)
+}
+
+func (h *Handler) getUserById(c *gin.Context) {
+	userId := c.Param("user_id")
+	user, err := h.services.Users.GetById(c.Request.Context(), userId)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, user)
 }
