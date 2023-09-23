@@ -1,12 +1,20 @@
 package service
 
 import (
+	"context"
 	"ordering-system-backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
+type CreateOTPInput struct {
+	Token    string
+	Email    string
+	Password string
+}
+
 type OTP interface {
+	CreateTesting(ctx context.Context, input CreateOTPInput) error
 	Create(c *gin.Context)
 	Verify(c *gin.Context)
 }

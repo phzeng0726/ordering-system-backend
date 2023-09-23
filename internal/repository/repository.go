@@ -1,12 +1,14 @@
 package repository
 
 import (
+	"context"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
 )
 
 type OTP interface {
+	CreateTesting(ctx context.Context, token string, email string) error
 	Create(token string, email string) error
 	Verify(token string, password string) error
 }

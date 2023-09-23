@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
@@ -14,6 +15,13 @@ type OTPService struct {
 
 func NewOTPService(repo repository.OTP) *OTPService {
 	return &OTPService{repo: repo}
+}
+
+func (s *OTPService) CreateTesting(ctx context.Context, input CreateOTPInput) error {
+	if err := s.repo.CreateTesting(ctx, input.Token, input.Password); err != nil {
+		return err
+	}
+	return nil
 }
 
 // token, email

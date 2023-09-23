@@ -59,6 +59,32 @@ func NewOTPRepo(db *gorm.DB) *OTPRepo {
 		db: db,
 	}
 }
+func (r *OTPRepo) CreateTesting(ctx context.Context, token string, email string) error {
+	code := otp.GenerateRandomCode(6)
+
+	var otp domain.OTP
+	otp.Token = token
+	otp.Password = code
+	otp.Email = email
+
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&otp).Error; err != nil {
+			return err
+		}
+
+		if err := sendVerificationMail(code, email); err != nil {
+			return errors.New("invalid email for mailgun")
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (r *OTPRepo) Create(token string, email string) error {
 	code := otp.GenerateRandomCode(6)
