@@ -67,48 +67,6 @@ func (h *Handler) createUser(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, inp)
 }
 
-func (h *Handler) resetPassword(c *gin.Context) {
-	var inp resetPasswordInput
-	if err := c.BindJSON(&inp); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	if err := h.services.Users.ResetPassword(c.Request.Context(), service.ResetPasswordInput{
-		UserId:   inp.UserId,
-		Password: inp.Password,
-	}); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, inp)
-}
-
-func (h *Handler) getUserByEmail(c *gin.Context) {
-	email := c.Query("email")
-	userTypeStr := c.Query("userType")
-	userType, err := strconv.Atoi(userTypeStr)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	userId, err := h.services.Users.GetByEmail(c.Request.Context(), email, userType)
-
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	if userId == "" {
-		c.IndentedJSON(http.StatusOK, false)
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, userId)
-}
-
 func (h *Handler) updateUser(c *gin.Context) {
 	var inp domain.User
 	userId := c.Param("user_id")
@@ -140,6 +98,30 @@ func (h *Handler) deleteUser(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+func (h *Handler) getUserByEmail(c *gin.Context) {
+	email := c.Query("email")
+	userTypeStr := c.Query("userType")
+	userType, err := strconv.Atoi(userTypeStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	userId, err := h.services.Users.GetByEmail(c.Request.Context(), email, userType)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if userId == "" {
+		c.IndentedJSON(http.StatusOK, false)
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, userId)
+}
+
 func (h *Handler) getUserById(c *gin.Context) {
 	userId := c.Param("user_id")
 	user, err := h.services.Users.GetById(c.Request.Context(), userId)
@@ -149,4 +131,22 @@ func (h *Handler) getUserById(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, user)
+}
+
+func (h *Handler) resetPassword(c *gin.Context) {
+	var inp resetPasswordInput
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := h.services.Users.ResetPassword(c.Request.Context(), service.ResetPasswordInput{
+		UserId:   inp.UserId,
+		Password: inp.Password,
+	}); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, inp)
 }

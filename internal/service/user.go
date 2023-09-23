@@ -38,21 +38,6 @@ func (s *UsersService) Create(ctx context.Context, input CreateUserInput) error 
 	return nil
 }
 
-func (s *UsersService) ResetPassword(ctx context.Context, input ResetPasswordInput) error {
-	if err := s.repo.ResetPassword(ctx, input.UserId, input.Password); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *UsersService) GetByEmail(ctx context.Context, email string, userType int) (string, error) {
-	userId, err := s.repo.GetByEmail(ctx, email, userType)
-	if err != nil {
-		return userId, err
-	}
-	return userId, nil
-}
-
 func (s *UsersService) Update(ctx context.Context, userId string, input UpdateUserInput) error {
 	newUser := domain.User{
 		Id:         userId,
@@ -74,10 +59,25 @@ func (s *UsersService) Delete(ctx context.Context, userId string) error {
 	return nil
 }
 
+func (s *UsersService) GetByEmail(ctx context.Context, email string, userType int) (string, error) {
+	userId, err := s.repo.GetByEmail(ctx, email, userType)
+	if err != nil {
+		return userId, err
+	}
+	return userId, nil
+}
+
 func (s *UsersService) GetById(ctx context.Context, userId string) (domain.User, error) {
 	user, err := s.repo.GetById(ctx, userId)
 	if err != nil {
 		return user, err
 	}
 	return user, nil
+}
+
+func (s *UsersService) ResetPassword(ctx context.Context, input ResetPasswordInput) error {
+	if err := s.repo.ResetPassword(ctx, input.UserId, input.Password); err != nil {
+		return err
+	}
+	return nil
 }

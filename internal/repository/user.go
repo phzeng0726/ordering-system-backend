@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"ordering-system-backend/internal/domain"
 	firebase_auth "ordering-system-backend/pkg/auth"
 	"strings"
@@ -21,7 +20,7 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	}
 }
 
-func (r *UsersRepo) checkIsUserExist(ctx context.Context, userId string) (domain.UserAccount, error) {
+func (r *UsersRepo) getUserAccountFromDB(ctx context.Context, userId string) (domain.UserAccount, error) {
 	var userAccount domain.UserAccount
 
 	res := r.db.WithContext(ctx).Where("id = ?", userId).First(&userAccount)
@@ -70,17 +69,11 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 
 func (r *UsersRepo) Update(ctx context.Context, u domain.User) error {
 	var user domain.User
-	var userAccount domain.UserAccount
-
-	res := r.db.WithContext(ctx).Where("id = ?", u.Id).First(&userAccount)
-	if res.Error != nil {
-		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return errors.New("user id not found")
-		}
-		return res.Error
+	if _, err := r.getUserAccountFromDB(ctx, u.Id); err != nil {
+		return err
 	}
 
-	res = r.db.WithContext(ctx).Model(&user).Where("id = ?", u.Id).Updates(&u)
+	res := r.db.WithContext(ctx).Model(&user).Where("id = ?", u.Id).Updates(&u)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -88,43 +81,14 @@ func (r *UsersRepo) Update(ctx context.Context, u domain.User) error {
 	return nil
 }
 
-func (r *UsersRepo) GetByEmail(ctx context.Context, email string, userType int) (string, error) {
-	var userAccount domain.UserAccount
-	if err := r.db.WithContext(ctx).Where("email = ?", email).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
-		// 查無使用者，前端要收到false的消息
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return userAccount.Id, nil
-		}
-		return userAccount.Id, err
-	}
-
-	fmt.Println(userAccount)
-	return userAccount.Id, nil
-}
-
-func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, error) {
-	var user domain.User
-	if err := r.db.WithContext(ctx).Where("id = ?", userId).Preload("UserAccount").First(&user).Error; err != nil {
-		return user, err
-	}
-
-	user.Email = user.UserAccount.Email
-	return user, nil
-}
-
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 	var user domain.User
-	var userAccount domain.UserAccount
-
-	res := r.db.WithContext(ctx).Where("id = ?", userId).First(&userAccount)
-	if res.Error != nil {
-		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return errors.New("user id not found")
-		}
-		return res.Error
+	userAccount, err := r.getUserAccountFromDB(ctx, userId)
+	if err != nil {
+		return err
 	}
 
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err = r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		client, err := firebase_auth.Init()
 		if err != nil {
 			return err
@@ -152,14 +116,33 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 	return nil
 }
 
+func (r *UsersRepo) GetByEmail(ctx context.Context, email string, userType int) (string, error) {
+	var userAccount domain.UserAccount
+	if err := r.db.WithContext(ctx).Where("email = ?", email).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
+		// 查無使用者，前端要收到false的消息
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return userAccount.Id, nil
+		}
+		return userAccount.Id, err
+	}
+	return userAccount.Id, nil
+}
+
+func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, error) {
+	var user domain.User
+	if err := r.db.WithContext(ctx).Where("id = ?", userId).Preload("UserAccount").First(&user).Error; err != nil {
+		return user, err
+	}
+
+	user.Email = user.UserAccount.Email
+	return user, nil
+}
+
 func (r *UsersRepo) ResetPassword(ctx context.Context, userId string, newPassword string) error {
 	var userAccount domain.UserAccount
-	res := r.db.WithContext(ctx).Where("id = ?", userId).First(&userAccount)
-	if res.Error != nil {
-		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return errors.New("user id not found")
-		}
-		return res.Error
+	userAccount, err := r.getUserAccountFromDB(ctx, userId)
+	if err != nil {
+		return err
 	}
 
 	client, err := firebase_auth.Init()
