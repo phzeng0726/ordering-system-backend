@@ -22,6 +22,13 @@ func (h *Handler) Init() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
+
+	router.Use(
+		gin.Recovery(),
+		gin.Logger(),
+		corsMiddleware,
+	)
+
 	// router.Use(Middleware(conn))
 	router.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
