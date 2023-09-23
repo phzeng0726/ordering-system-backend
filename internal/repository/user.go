@@ -21,6 +21,20 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	}
 }
 
+func (r *UsersRepo) checkIsUserExist(ctx context.Context, userId string) (domain.UserAccount, error) {
+	var userAccount domain.UserAccount
+
+	res := r.db.WithContext(ctx).Where("id = ?", userId).First(&userAccount)
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			return userAccount, errors.New("user id not found")
+		}
+		return userAccount, res.Error
+	}
+
+	return userAccount, res.Error
+}
+
 func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, user domain.User, password string) error {
 	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		client, err := firebase_auth.Init()
@@ -56,7 +70,17 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 
 func (r *UsersRepo) Update(ctx context.Context, u domain.User) error {
 	var user domain.User
-	res := r.db.WithContext(ctx).Model(&user).Where("id = ?", u.Id).Updates(&u)
+	var userAccount domain.UserAccount
+
+	res := r.db.WithContext(ctx).Where("id = ?", u.Id).First(&userAccount)
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			return errors.New("user id not found")
+		}
+		return res.Error
+	}
+
+	res = r.db.WithContext(ctx).Model(&user).Where("id = ?", u.Id).Updates(&u)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -80,7 +104,7 @@ func (r *UsersRepo) GetByEmail(ctx context.Context, email string, userType int) 
 
 func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, error) {
 	var user domain.User
-	if err := r.db.WithContext(ctx).Where("id = ?", userId).Preload("UserAccount").Find(&user).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", userId).Preload("UserAccount").First(&user).Error; err != nil {
 		return user, err
 	}
 

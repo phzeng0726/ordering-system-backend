@@ -127,7 +127,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, inp)
+	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (h *Handler) deleteUser(c *gin.Context) {
