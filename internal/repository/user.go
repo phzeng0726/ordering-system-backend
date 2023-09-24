@@ -83,12 +83,13 @@ func (r *UsersRepo) Update(ctx context.Context, u domain.User) error {
 
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 	var user domain.User
-	userAccount, err := r.getUserAccountFromDB(ctx, userId)
-	if err != nil {
-		return err
-	}
 
-	err = r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		userAccount, err := r.getUserAccountFromDB(ctx, userId)
+		if err != nil {
+			return err
+		}
+
 		client, err := firebase_auth.Init()
 		if err != nil {
 			return err

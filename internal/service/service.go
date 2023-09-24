@@ -56,13 +56,14 @@ type Users interface {
 type Stores interface {
 	Create(c *gin.Context)
 	Update(c *gin.Context)
-	Delete(c *gin.Context)
+	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(c *gin.Context)
 	GetByStoreId(c *gin.Context)
 
 	// 不含UserId
 	GetAll(c *gin.Context)
 }
+
 type Menus interface {
 	Create(c *gin.Context)
 	Update(c *gin.Context)

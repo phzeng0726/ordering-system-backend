@@ -24,7 +24,7 @@ type Users interface {
 type Stores interface {
 	Create(s domain.Store) error
 	Update(userId string, s domain.Store) error
-	Delete(userId string, storeId string) error
+	Delete(tx context.Context, userId string, storeId string) error
 	GetAllByUserId(userId string) ([]domain.Store, error)
 	GetByStoreId(userId string, storeId string) (domain.Store, error)
 

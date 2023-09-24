@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"ordering-system-backend/internal/domain"
@@ -55,19 +56,19 @@ func (r *StoresRepo) Update(userId string, s domain.Store) error {
 	return nil
 }
 
-func (r *StoresRepo) Delete(userId string, storeId string) error {
+func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) error {
 	var store domain.Store
-	res := r.db.Where("id = ?", storeId).Where("user_id = ?", userId).First(&store)
 
-	if res.Error != nil {
-		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			// userId避免print在log上
-			return fmt.Errorf("no store found with id %s for this user id", storeId)
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		res := tx.Where("id = ?", storeId).Where("user_id = ?", userId).First(&store)
+		if res.Error != nil {
+			if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+				// userId避免print在log上
+				return fmt.Errorf("no store found with id %s for this user id", storeId)
+			}
+			return res.Error
 		}
-		return res.Error
-	}
 
-	err := r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("store_id = ?", storeId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
 			return err
 		}

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
@@ -57,17 +58,11 @@ func (s *StoresService) Update(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, newStore)
 }
 
-func (s *StoresService) Delete(c *gin.Context) {
-	userId := c.Param("user_id")
-	storeId := c.Param("store_id")
-
-	err := s.repo.Delete(userId, storeId)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+func (s *StoresService) Delete(ctx context.Context, userId string, storeId string) error {
+	if err := s.repo.Delete(ctx, userId, storeId); err != nil {
+		return err
 	}
-
-	c.IndentedJSON(http.StatusOK, true)
+	return nil
 }
 
 func (s *StoresService) GetAllByUserId(c *gin.Context) {
