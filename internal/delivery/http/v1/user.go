@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
@@ -30,17 +29,17 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 }
 
 type createUserInput struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	UserType   int    `json:"userType"`
-	FirstName  string `json:"firstName"`
-	LastName   string `json:"lastName"`
-	LanguageId int    `json:"languageId"`
+	Email      string `json:"email" binding:"required"`
+	Password   string `json:"password" binding:"required"`
+	UserType   int    `json:"userType" binding:"required"`
+	FirstName  string `json:"firstName" binding:"required"`
+	LastName   string `json:"lastName" binding:"required"`
+	LanguageId int    `json:"languageId" binding:"required"`
 }
 
 type resetPasswordInput struct {
-	UserId   string `json:"userId"`
-	Password string `json:"password"`
+	UserId   string `json:"userId" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 func (h *Handler) createUser(c *gin.Context) {
@@ -50,9 +49,7 @@ func (h *Handler) createUser(c *gin.Context) {
 		return
 	}
 
-	userId := uuid.New().String()
 	if err := h.services.Users.Create(c.Request.Context(), service.CreateUserInput{
-		UserId:     userId,
 		Email:      inp.Email,
 		Password:   inp.Password,
 		UserType:   inp.UserType,

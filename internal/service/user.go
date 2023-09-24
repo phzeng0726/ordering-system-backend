@@ -17,16 +17,18 @@ func NewUsersService(repo repository.Users) *UsersService {
 }
 
 func (s *UsersService) Create(ctx context.Context, input CreateUserInput) error {
-	uuid := uuid.New()
+	userId := uuid.New().String()  // DB
+	uidCode := uuid.New().String() // Firebase Auth
+
 	userAccount := domain.UserAccount{
-		Id:       input.UserId,
-		UidCode:  uuid.String(),
+		Id:       userId,
+		UidCode:  uidCode,
 		Email:    input.Email,
 		UserType: input.UserType,
 	}
 
 	user := domain.User{
-		Id:         input.UserId,
+		Id:         userId,
 		FirstName:  input.FirstName,
 		LastName:   input.LastName,
 		LanguageId: input.LanguageId,

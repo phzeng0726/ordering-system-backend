@@ -26,8 +26,7 @@ func (s *StoresService) Create(c *gin.Context) {
 		return
 	}
 
-	uuid := uuid.New()
-	newStore.Id = uuid.String()
+	newStore.Id = uuid.New().String()
 	newStore.UserId = userId
 
 	err := s.repo.Create(newStore)

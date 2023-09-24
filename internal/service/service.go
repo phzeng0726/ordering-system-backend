@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 不同層之間可能需要做資料轉換，所以delivery和service分開
 type CreateOTPInput struct {
 	Token string
 	Email string
@@ -18,11 +19,21 @@ type VerifyOTPInput struct {
 	Password string
 }
 
+type OTP interface {
+	Create(ctx context.Context, input CreateOTPInput) error
+	Verify(ctx context.Context, input VerifyOTPInput) error
+}
+
 type CreateUserInput struct {
-	UserId     string
 	Email      string
 	Password   string
 	UserType   int
+	FirstName  string
+	LastName   string
+	LanguageId int
+}
+
+type UpdateUserInput struct {
 	FirstName  string
 	LastName   string
 	LanguageId int
@@ -33,24 +44,13 @@ type ResetPasswordInput struct {
 	Password string
 }
 
-type UpdateUserInput struct {
-	FirstName  string
-	LastName   string
-	LanguageId int
-}
-
-type OTP interface {
-	Create(ctx context.Context, input CreateOTPInput) error
-	Verify(ctx context.Context, input VerifyOTPInput) error
-}
-
 type Users interface {
 	Create(ctx context.Context, input CreateUserInput) error
-	ResetPassword(ctx context.Context, input ResetPasswordInput) error
-	GetByEmail(ctx context.Context, email string, userType int) (string, error)
 	Update(ctx context.Context, userId string, input UpdateUserInput) error
 	Delete(ctx context.Context, userId string) error
+	GetByEmail(ctx context.Context, email string, userType int) (string, error)
 	GetById(ctx context.Context, userId string) (domain.User, error)
+	ResetPassword(ctx context.Context, input ResetPasswordInput) error
 }
 
 type Stores interface {
