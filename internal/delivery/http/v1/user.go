@@ -31,7 +31,7 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 type createUserInput struct {
 	Email      string `json:"email" binding:"required"`
 	Password   string `json:"password" binding:"required"`
-	UserType   int    `json:"userType" binding:"required"`
+	UserType   *int   `json:"userType" binding:"required"`
 	FirstName  string `json:"firstName" binding:"required"`
 	LastName   string `json:"lastName" binding:"required"`
 	LanguageId int    `json:"languageId" binding:"required"`

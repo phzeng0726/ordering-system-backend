@@ -27,7 +27,7 @@ type OTP interface {
 type CreateUserInput struct {
 	Email      string
 	Password   string
-	UserType   int
+	UserType   *int
 	FirstName  string
 	LastName   string
 	LanguageId int

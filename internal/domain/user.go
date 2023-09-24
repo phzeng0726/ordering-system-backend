@@ -15,7 +15,7 @@ type UserAccount struct {
 	Id        string    `gorm:"column:id;not null;primaryKey;" json:"id"`
 	UidCode   string    `gorm:"column:uid_code;" json:"userCode"`
 	Email     string    `gorm:"column:email;" json:"email"`
-	UserType  int       `gorm:"column:user_type;" json:"userType"` // 0: store, 1: customer
+	UserType  *int      `gorm:"column:user_type;" json:"userType"` // 0: store, 1: customer，設定required如果值是0會有錯，所以要用成*
 	CreatedAt time.Time `gorm:"column:created_at;" json:"createdAt"`
 }
 
