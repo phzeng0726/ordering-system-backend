@@ -54,14 +54,14 @@ type Users interface {
 }
 
 type Stores interface {
-	Create(c *gin.Context)
-	Update(c *gin.Context)
+	Create(ctx context.Context, store domain.Store) (string, error)
+	Update(ctx context.Context, store domain.Store) error
 	Delete(ctx context.Context, userId string, storeId string) error
-	GetAllByUserId(c *gin.Context)
-	GetByStoreId(c *gin.Context)
+	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
+	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
 
 	// 不含UserId
-	GetAll(c *gin.Context)
+	GetAll(ctx context.Context) ([]domain.Store, error)
 }
 
 type Menus interface {

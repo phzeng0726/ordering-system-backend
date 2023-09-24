@@ -15,21 +15,21 @@ type OTP interface {
 type Users interface {
 	Create(ctx context.Context, userAccount domain.UserAccount, user domain.User, password string) error
 	ResetPassword(ctx context.Context, userId string, newPassword string) error
-	Update(ctx context.Context, u domain.User) error // 只能更新 User，不能更新 UserAccount
+	Update(ctx context.Context, user domain.User) error // 只能更新 User，不能更新 UserAccount
 	GetByEmail(ctx context.Context, email string, userType int) (string, error)
 	GetById(ctx context.Context, userId string) (domain.User, error)
 	Delete(ctx context.Context, userId string) error
 }
 
 type Stores interface {
-	Create(s domain.Store) error
-	Update(userId string, s domain.Store) error
-	Delete(tx context.Context, userId string, storeId string) error
-	GetAllByUserId(userId string) ([]domain.Store, error)
-	GetByStoreId(userId string, storeId string) (domain.Store, error)
+	Create(ctx context.Context, store domain.Store) error
+	Update(ctx context.Context, store domain.Store) error
+	Delete(ctx context.Context, userId string, storeId string) error
+	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
+	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
 
 	// 不含UserId
-	GetAll() ([]domain.Store, error)
+	GetAll(ctx context.Context) ([]domain.Store, error)
 }
 
 type Menus interface {

@@ -67,13 +67,12 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 	return nil
 }
 
-func (r *UsersRepo) Update(ctx context.Context, u domain.User) error {
-	var user domain.User
-	if _, err := r.getUserAccountFromDB(ctx, u.Id); err != nil {
+func (r *UsersRepo) Update(ctx context.Context, user domain.User) error {
+	if _, err := r.getUserAccountFromDB(ctx, user.Id); err != nil {
 		return err
 	}
 
-	res := r.db.WithContext(ctx).Model(&user).Where("id = ?", u.Id).Updates(&u)
+	res := r.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", user.Id).Updates(&user)
 	if res.Error != nil {
 		return res.Error
 	}

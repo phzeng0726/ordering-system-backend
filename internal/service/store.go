@@ -2,11 +2,9 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -18,44 +16,21 @@ func NewStoresService(repo repository.Stores) *StoresService {
 	return &StoresService{repo: repo}
 }
 
-func (s *StoresService) Create(c *gin.Context) {
-	var newStore domain.Store
-	userId := c.Param("user_id")
-
-	if err := c.BindJSON(&newStore); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+func (s *StoresService) Create(ctx context.Context, store domain.Store) (string, error) {
+	store.Id = uuid.New().String()
+	if err := s.repo.Create(ctx, store); err != nil {
+		return store.Id, err
 	}
 
-	newStore.Id = uuid.New().String()
-	newStore.UserId = userId
-
-	err := s.repo.Create(newStore)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, newStore)
+	return store.Id, nil
 }
 
-func (s *StoresService) Update(c *gin.Context) {
-	var newStore domain.Store
-	userId := c.Param("user_id")
-	storeId := c.Param("store_id")
-
-	if err := c.BindJSON(&newStore); err != nil {
-		return
+func (s *StoresService) Update(ctx context.Context, store domain.Store) error {
+	if err := s.repo.Update(ctx, store); err != nil {
+		return err
 	}
 
-	newStore.Id = storeId
-	err := s.repo.Update(userId, newStore)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, newStore)
+	return nil
 }
 
 func (s *StoresService) Delete(ctx context.Context, userId string, storeId string) error {
@@ -65,34 +40,26 @@ func (s *StoresService) Delete(ctx context.Context, userId string, storeId strin
 	return nil
 }
 
-func (s *StoresService) GetAllByUserId(c *gin.Context) {
-	userId := c.Param("user_id")
-
-	stores, err := s.repo.GetAllByUserId(userId)
+func (s *StoresService) GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error) {
+	stores, err := s.repo.GetAllByUserId(ctx, userId)
 	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
+		return stores, err
 	}
-	c.IndentedJSON(http.StatusOK, stores)
+	return stores, nil
 }
 
-func (s *StoresService) GetByStoreId(c *gin.Context) {
-	userId := c.Param("user_id")
-	storeId := c.Param("store_id")
-
-	stores, err := s.repo.GetByStoreId(userId, storeId)
+func (s *StoresService) GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error) {
+	store, err := s.repo.GetByStoreId(ctx, userId, storeId)
 	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
+		return store, err
 	}
-	c.IndentedJSON(http.StatusOK, stores)
+	return store, nil
 }
 
-func (s *StoresService) GetAll(c *gin.Context) {
-	stores, err := s.repo.GetAll()
+func (s *StoresService) GetAll(ctx context.Context) ([]domain.Store, error) {
+	stores, err := s.repo.GetAll(ctx)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+		return stores, err
 	}
-	c.IndentedJSON(http.StatusOK, stores)
+	return stores, nil
 }
