@@ -145,5 +145,5 @@ func (h *Handler) resetPassword(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, inp)
+	c.IndentedJSON(http.StatusOK, true)
 }
