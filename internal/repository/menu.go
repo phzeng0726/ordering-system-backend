@@ -93,7 +93,7 @@ func (r *MenusRepo) Update(ctx context.Context, menu domain.Menu) error {
 	return nil
 }
 
-func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId int) error {
+func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) error {
 	// tx := r.db.Begin()
 	// defer func() {
 	// 	if tx.Error != nil {
@@ -116,29 +116,62 @@ func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId int) error
 
 func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error) {
 	var menus []domain.Menu
-	// res := r.db.Where("store_id = ?", storeId).Find(&menus)
-	// if res.Error != nil {
-	// 	return nil, res.Error
-	// }
+	var menuItemMappings []domain.MenuItemMapping
+
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("id = ?", userId).First(&domain.User{}).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errors.New("user id not found")
+			}
+			return err
+		}
+
+		// 確認該User存在，才可新增執行後續
+		if err := tx.Where("user_id = ?", userId).Find(&menus).Error; err != nil {
+			return err
+		}
+
+		if len(menus) == 0 {
+			return errors.New("menu list is empty")
+		}
+
+		if err := tx.Preload("Menu").Preload("MenuItem.Category").Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).Find(&menuItemMappings).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return menus, err
+	}
+
+	menuItemsIdMap := make(map[string][]domain.MenuItem)
+	for _, mim := range menuItemMappings {
+		menuItemsIdMap[mim.MenuId] = append(menuItemsIdMap[mim.MenuId], mim.MenuItem)
+	}
+
+	for i, menu := range menus {
+		menus[i].MenuItems = menuItemsIdMap[menu.Id]
+	}
+
 	return menus, nil
 }
 
-func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId int) (domain.Menu, error) {
+func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string) (domain.Menu, error) {
 	var menu domain.Menu
-	// var menuItemMappings []domain.MenuItemMapping
-	// if err := r.db.Preload("Menu").Preload("MenuItem.MenuCategory").Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
-	// 	return menu, err
-	// }
+	var menuItemMappings []domain.MenuItemMapping
+	if err := r.db.WithContext(ctx).Preload("Menu").Preload("MenuItem.Category").Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
+		return menu, err
+	}
 
-	// if len(menuItemMappings) == 0 {
-	// 	err := errors.New("menu with items not found")
-	// 	return menu, err
-	// }
+	if len(menuItemMappings) == 0 {
+		err := errors.New("menu with items not found")
+		return menu, err
+	}
 
-	// menu = menuItemMappings[0].Menu
-	// for _, mim := range menuItemMappings {
-	// 	menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
-	// }
+	menu = menuItemMappings[0].Menu
+	for _, mim := range menuItemMappings {
+		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
+	}
 
 	return menu, nil
 }

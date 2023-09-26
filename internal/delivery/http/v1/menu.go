@@ -135,30 +135,26 @@ func (h *Handler) deleteMenu(c *gin.Context) {
 }
 
 func (h *Handler) getAllByUserId(c *gin.Context) {
-	// storeId := c.Param("store_id")
-	// menus, err := s.repo.GetAll(storeId)
-	// if err != nil {
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-	// 	return
-	// }
+	userId := c.Param("user_id")
 
-	// c.IndentedJSON(http.StatusOK, menus)
+	menus, err := h.services.Menus.GetAllByUserId(c.Request.Context(), userId)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, menus)
 }
 
 func (h *Handler) getById(c *gin.Context) {
-	// storeId := c.Param("store_id")
-	// menuIdStr := c.Param("menu_id")
-	// menuId, err := strconv.Atoi(menuIdStr)
-	// if err != nil {
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
-	// 	return
-	// }
+	userId := c.Param("user_id")
+	menuId := c.Param("menu_id")
 
-	// menus, err := s.repo.GetById(storeId, menuId)
-	// if err != nil {
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-	// 	return
-	// }
+	menu, err := h.services.Menus.GetById(c.Request.Context(), userId, menuId)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
 
-	// c.IndentedJSON(http.StatusOK, menus)
+	c.IndentedJSON(http.StatusOK, menu)
 }

@@ -43,7 +43,6 @@ func (s *MenusService) Create(ctx context.Context, userId string, input CreateMe
 	if err := s.repo.Create(ctx, menu); err != nil {
 		return menu.Id, err
 	}
-
 	return menu.Id, nil
 }
 
@@ -51,14 +50,22 @@ func (s *MenusService) Update(ctx context.Context, menu domain.Menu) error {
 	return nil
 }
 
-func (s *MenusService) Delete(ctx context.Context, userId string, menuId int) error {
+func (s *MenusService) Delete(ctx context.Context, userId string, menuId string) error {
 	return nil
 }
 
 func (s *MenusService) GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error) {
-	return []domain.Menu{}, nil
+	menus, err := s.repo.GetAllByUserId(ctx, userId)
+	if err != nil {
+		return menus, err
+	}
+	return menus, nil
 }
 
-func (s *MenusService) GetById(ctx context.Context, userId string, menuId int) (domain.Menu, error) {
-	return domain.Menu{}, nil
+func (s *MenusService) GetById(ctx context.Context, userId string, menuId string) (domain.Menu, error) {
+	menu, err := s.repo.GetById(ctx, userId, menuId)
+	if err != nil {
+		return menu, err
+	}
+	return menu, nil
 }

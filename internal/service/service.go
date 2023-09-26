@@ -81,9 +81,9 @@ type CreateMenuItemInput struct {
 type Menus interface {
 	Create(ctx context.Context, userId string, input CreateMenuInput) (string, error)
 	Update(ctx context.Context, menu domain.Menu) error
-	Delete(ctx context.Context, userId string, menuId int) error
+	Delete(ctx context.Context, userId string, menuId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error)
-	GetById(ctx context.Context, userId string, menuId int) (domain.Menu, error)
+	GetById(ctx context.Context, userId string, menuId string) (domain.Menu, error)
 }
 
 type Services struct {
