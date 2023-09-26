@@ -81,8 +81,6 @@ func (r *UsersRepo) Update(ctx context.Context, user domain.User) error {
 }
 
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
-	var user domain.User
-
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		userAccount, err := r.getUserAccountFromDB(ctx, userId)
 		if err != nil {
@@ -94,11 +92,23 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 			return err
 		}
 
+		// 查詢和刪除相關的 store_opening_hours
+		if err := tx.Where("store_id IN (SELECT id FROM stores WHERE user_id = ?)", userId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
+			return err
+		}
+
+		// 刪除 stores 表中具有特定 user_id 的行
+		if err := tx.Where("user_id = ?", userId).Delete(&domain.Store{}).Error; err != nil {
+			return err
+		}
+
+		// 刪除 user_account
 		if err := tx.Where("id = ?", userId).Delete(&userAccount).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Where("id = ?", userId).Delete(&user).Error; err != nil {
+		// 刪除 user
+		if err := tx.Where("id = ?", userId).Delete(&domain.User{}).Error; err != nil {
 			return err
 		}
 

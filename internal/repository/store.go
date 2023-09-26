@@ -71,13 +71,12 @@ func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) 
 	var store domain.Store
 
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		res := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store)
-		if res.Error != nil {
-			if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+		if err := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// userId避免print在log上
 				return fmt.Errorf("no store found with id %s for this user id", storeId)
 			}
-			return res.Error
+			return err
 		}
 
 		if err := tx.Where("store_id = ?", storeId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
