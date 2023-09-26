@@ -1,14 +1,11 @@
 package service
 
 import (
-	"errors"
-	"net/http"
+	"context"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
-	"strconv"
-	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type MenusService struct {
@@ -19,115 +16,27 @@ func NewMenusService(repo repository.Menus) *MenusService {
 	return &MenusService{repo: repo}
 }
 
-func (s *MenusService) Create(c *gin.Context) {
-	storeId := c.Param("store_id")
-	var newMenu domain.Menu
-
-	if err := c.BindJSON(&newMenu); err != nil {
-		return
+func (s *MenusService) Create(ctx context.Context, menu domain.Menu) (string, error) {
+	menu.Id = uuid.New().String()
+	if err := s.repo.Create(ctx, menu); err != nil {
+		return menu.Id, err
 	}
 
-	newMenu.StoreId = storeId
-	newMenu.CreatedAt = time.Now()
-	err := s.repo.Create(newMenu)
-
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, newMenu)
+	return menu.Id, nil
 }
 
-func (s *MenusService) Update(c *gin.Context) {
-	storeId := c.Param("store_id")
-	menuIdStr := c.Param("menu_id")
-	menuId, err := strconv.Atoi(menuIdStr)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
-		return
-	}
-
-	var newMenu domain.Menu
-	if err := c.BindJSON(&newMenu); err != nil {
-		return
-	}
-
-	newMenu.StoreId = storeId
-	newMenu.Id = menuId
-
-	// 確認是否store有該menu，有的話才會做下一步，避免別人把她的menu刪掉
-	menus, err := s.repo.GetById(storeId, menuId)
-	if err != nil || menus.Id == 0 {
-		if menus.Id == 0 {
-			err = errors.New("menu not found for this store")
-		}
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	err = s.repo.Update(newMenu)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, newMenu)
+func (s *MenusService) Update(ctx context.Context, menu domain.Menu) error {
+	return nil
 }
 
-func (s *MenusService) Delete(c *gin.Context) {
-	storeId := c.Param("store_id")
-	menuIdStr := c.Param("menu_id")
-	menuId, err := strconv.Atoi(menuIdStr)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
-		return
-	}
-
-	// 確認是否store有該menu，有的話才會做下一步，避免別人把她的menu刪掉
-	menus, err := s.repo.GetById(storeId, menuId)
-	if err != nil || menus.Id == 0 {
-		if menus.Id == 0 {
-			err = errors.New("menu not found for this store")
-		}
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	err = s.repo.Delete(storeId, menuId)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, nil)
+func (s *MenusService) Delete(ctx context.Context, userId string, menuId int) error {
+	return nil
 }
 
-func (s *MenusService) GetAll(c *gin.Context) {
-	storeId := c.Param("store_id")
-	menus, err := s.repo.GetAll(storeId)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, menus)
+func (s *MenusService) GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error) {
+	return []domain.Menu{}, nil
 }
 
-func (s *MenusService) GetById(c *gin.Context) {
-	storeId := c.Param("store_id")
-	menuIdStr := c.Param("menu_id")
-	menuId, err := strconv.Atoi(menuIdStr)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
-		return
-	}
-
-	menus, err := s.repo.GetById(storeId, menuId)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, menus)
+func (s *MenusService) GetById(ctx context.Context, userId string, menuId int) (domain.Menu, error) {
+	return domain.Menu{}, nil
 }

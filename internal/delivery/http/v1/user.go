@@ -25,6 +25,7 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 		user.DELETE("", h.deleteUser)
 		user.GET("", h.getUserById)
 		h.initUserStoresRoutes(user)
+		h.initUserMenusRoutes(user)
 	}
 }
 

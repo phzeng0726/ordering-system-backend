@@ -33,11 +33,11 @@ type Stores interface {
 }
 
 type Menus interface {
-	Create(m domain.Menu) error
-	Update(m domain.Menu) error
-	Delete(storeId string, menuId int) error
-	GetAll(storeId string) ([]domain.Menu, error)
-	GetById(storeId string, menuId int) (domain.Menu, error)
+	Create(ctx context.Context, menu domain.Menu) error
+	Update(ctx context.Context, menu domain.Menu) error
+	Delete(ctx context.Context, userId string, menuId int) error
+	GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error)
+	GetById(ctx context.Context, userId string, menuId int) (domain.Menu, error)
 }
 
 type Repositories struct {

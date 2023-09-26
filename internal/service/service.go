@@ -4,8 +4,6 @@ import (
 	"context"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
-
-	"github.com/gin-gonic/gin"
 )
 
 // 不同層之間可能需要做資料轉換，所以delivery和service分開
@@ -65,11 +63,11 @@ type Stores interface {
 }
 
 type Menus interface {
-	Create(c *gin.Context)
-	Update(c *gin.Context)
-	Delete(c *gin.Context)
-	GetAll(c *gin.Context)
-	GetById(c *gin.Context)
+	Create(ctx context.Context, menu domain.Menu) (string, error)
+	Update(ctx context.Context, menu domain.Menu) error
+	Delete(ctx context.Context, userId string, menuId int) error
+	GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error)
+	GetById(ctx context.Context, userId string, menuId int) (domain.Menu, error)
 }
 
 type Services struct {
