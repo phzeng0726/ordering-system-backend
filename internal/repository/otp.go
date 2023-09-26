@@ -67,7 +67,7 @@ func (r *OTPRepo) Create(ctx context.Context, token string, email string) error 
 	otp.Password = code
 	otp.Email = email
 
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&otp).Error; err != nil {
 			return err
 		}
@@ -77,9 +77,7 @@ func (r *OTPRepo) Create(ctx context.Context, token string, email string) error 
 		}
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 

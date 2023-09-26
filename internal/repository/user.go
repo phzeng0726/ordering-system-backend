@@ -52,13 +52,13 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 			return errors.New("failed to create user: " + err.Error())
 		}
 
-		err = firebase_auth.CreateUser(client, userAccount.UidCode, userAccount.Email, password)
-		if err != nil {
+		if err := firebase_auth.CreateUser(client, userAccount.UidCode, userAccount.Email, password); err != nil {
 			if strings.Contains(err.Error(), "EMAIL_EXISTS") {
 				return errors.New("email has already existed in firebase")
 			}
 			return err
 		}
+
 		return nil
 	}); err != nil {
 		return err
@@ -81,7 +81,7 @@ func (r *UsersRepo) Update(ctx context.Context, user domain.User) error {
 }
 
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		userAccount, err := r.getUserAccountFromDB(ctx, userId)
 		if err != nil {
 			return err
@@ -102,13 +102,13 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 			return err
 		}
 
-		// 刪除 user_account
-		if err := tx.Where("id = ?", userId).Delete(&userAccount).Error; err != nil {
+		// 刪除 user
+		if err := tx.Where("id = ?", userId).Delete(&domain.User{}).Error; err != nil {
 			return err
 		}
 
-		// 刪除 user
-		if err := tx.Where("id = ?", userId).Delete(&domain.User{}).Error; err != nil {
+		// 刪除 user_account
+		if err := tx.Where("id = ?", userId).Delete(&userAccount).Error; err != nil {
 			return err
 		}
 
@@ -117,9 +117,7 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 		}
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 

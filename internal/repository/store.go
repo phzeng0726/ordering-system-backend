@@ -20,7 +20,7 @@ func NewStoresRepo(db *gorm.DB) *StoresRepo {
 }
 
 func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("id = ?", store.UserId).First(&domain.User{}).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return errors.New("user id not found")
@@ -34,9 +34,7 @@ func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 		}
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 
@@ -44,7 +42,7 @@ func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 }
 
 func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("user_id = ? AND id = ?", store.UserId, store.Id).First(&store).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// userId避免print在log上
@@ -58,9 +56,7 @@ func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 		}
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 
@@ -70,7 +66,7 @@ func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) error {
 	var store domain.Store
 
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// userId避免print在log上
@@ -88,9 +84,7 @@ func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) 
 		}
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 
@@ -111,7 +105,7 @@ func (r *StoresRepo) GetAllByUserId(ctx context.Context, userId string) ([]domai
 func (r *StoresRepo) GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error) {
 	var store domain.Store
 
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		res := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store)
 
 		if res.Error != nil {
@@ -126,9 +120,7 @@ func (r *StoresRepo) GetByStoreId(ctx context.Context, userId string, storeId st
 		}
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		return store, err
 	}
 
