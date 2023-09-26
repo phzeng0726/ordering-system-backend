@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -37,6 +36,7 @@ func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
 			if err := tx.Create(&mi).Error; err != nil {
 				return err
 			}
+
 			mapping := domain.MenuItemMapping{
 				MenuId:     menu.Id,
 				MenuItemId: mi.Id,
@@ -45,9 +45,8 @@ func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
 			if err := tx.Create(&mapping).Error; err != nil {
 				return err
 			}
-		}
 
-		fmt.Print(menu)
+		}
 		return nil
 	}); err != nil {
 		return err

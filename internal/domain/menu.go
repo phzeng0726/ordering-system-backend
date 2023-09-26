@@ -29,7 +29,7 @@ type MenuItem struct {
 	Description string   `gorm:"column:description;" json:"description"`
 	Quantity    int      `gorm:"column:quantity;" json:"quantity"`
 	Price       int      `gorm:"column:price;" json:"price"`
-	CategoryId  int      `gorm:"column:category_id;" json:"categoryId"` // 外鍵欄位名稱
+	CategoryId  int      `gorm:"column:category_id;" json:"-"` // 外鍵欄位名稱
 	Category    Category `gorm:"foreignKey:CategoryId;references:id;" json:"category"`
 }
 

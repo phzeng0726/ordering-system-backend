@@ -2,7 +2,7 @@ package v1
 
 import (
 	"net/http"
-	"ordering-system-backend/internal/domain"
+	"ordering-system-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,8 +18,24 @@ func (h *Handler) initUserMenusRoutes(api *gin.RouterGroup) {
 	}
 }
 
+type createMenuInput struct {
+	StoreId     string                `json:"storeId" binding:"required"`
+	Title       string                `json:"title" binding:"required"`
+	Description string                `json:"description"`
+	IsHide      *bool                 `json:"isHide" binding:"required"`
+	MenuItems   []createMenuItemInput `json:"menuItems" binding:"required"`
+}
+
+type createMenuItemInput struct {
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description"`
+	Quantity    *int   `json:"quantity" binding:"required"`
+	Price       *int   `json:"price" binding:"required"`
+	CategoryId  *int   `json:"categoryId" binding:"required"`
+}
+
 func (h *Handler) createMenu(c *gin.Context) {
-	var inp domain.Menu
+	var inp createMenuInput
 	userId := c.Param("user_id")
 
 	if err := c.BindJSON(&inp); err != nil {
@@ -27,16 +43,31 @@ func (h *Handler) createMenu(c *gin.Context) {
 		return
 	}
 
-	inp.UserId = userId
+	var menuItems []service.CreateMenuItemInput
+	for _, mi := range inp.MenuItems {
+		menuItems = append(menuItems, service.CreateMenuItemInput{
+			Title:       mi.Title,
+			Description: mi.Description,
+			Quantity:    *mi.Quantity,
+			Price:       *mi.Price,
+			CategoryId:  *mi.CategoryId,
+		})
+	}
 
-	menuId, err := h.services.Menus.Create(c.Request.Context(), inp)
+	menuId, err := h.services.Menus.Create(c.Request.Context(), userId, service.CreateMenuInput{
+		StoreId:     inp.StoreId,
+		Title:       inp.Title,
+		Description: inp.Description,
+		IsHide:      inp.IsHide,
+		MenuItems:   menuItems,
+	})
+
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	inp.Id = menuId
-	c.IndentedJSON(http.StatusOK, inp)
+	c.IndentedJSON(http.StatusOK, menuId)
 }
 
 func (h *Handler) updateMenu(c *gin.Context) {

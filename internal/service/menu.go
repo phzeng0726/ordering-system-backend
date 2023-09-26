@@ -16,8 +16,30 @@ func NewMenusService(repo repository.Menus) *MenusService {
 	return &MenusService{repo: repo}
 }
 
-func (s *MenusService) Create(ctx context.Context, menu domain.Menu) (string, error) {
-	menu.Id = uuid.New().String()
+func (s *MenusService) Create(ctx context.Context, userId string, input CreateMenuInput) (string, error) {
+	var menuItems []domain.MenuItem
+	for _, mi := range input.MenuItems {
+		menuItems = append(
+			menuItems,
+			domain.MenuItem{
+				Title:       mi.Title,
+				Description: mi.Description,
+				Quantity:    mi.Quantity,
+				Price:       mi.Price,
+				CategoryId:  mi.CategoryId,
+			},
+		)
+	}
+
+	menu := domain.Menu{
+		Id:          uuid.New().String(),
+		UserId:      userId,
+		Title:       input.Title,
+		Description: input.Description,
+		IsHide:      *input.IsHide,
+		MenuItems:   menuItems,
+	}
+
 	if err := s.repo.Create(ctx, menu); err != nil {
 		return menu.Id, err
 	}
