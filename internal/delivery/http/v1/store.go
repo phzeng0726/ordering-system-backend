@@ -7,22 +7,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) initUserStoreRoutes(api *gin.RouterGroup) {
+func (h *Handler) initUserStoresRoutes(api *gin.RouterGroup) {
 	stores := api.Group("/stores")
 	{
 		stores.POST("", h.createStore)
 		stores.PATCH("/:store_id", h.updateStore)
 		stores.DELETE("/:store_id", h.deleteStore)
-		stores.GET("", h.getAllStoresByUserId)
 		stores.GET("/:store_id", h.getStoreByStoreId)
+		stores.GET("", h.getAllStoresByUserId)
 	}
-}
 
-// 不帶有userId，目前用不到
-func (h *Handler) initStoreRoutes(api *gin.RouterGroup) {
-	stores := api.Group("/stores")
+	// menu 會建立在store之下
+	storeWithId := api.Group("/stores/:store_id")
 	{
-		stores.GET("", h.getAllStores)
+		h.initUserMenusRoutes(storeWithId)
 	}
 }
 
@@ -101,13 +99,4 @@ func (h *Handler) getStoreByStoreId(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, store)
-}
-
-func (h *Handler) getAllStores(c *gin.Context) {
-	stores, err := h.services.Stores.GetAll(c.Request.Context())
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, stores)
 }

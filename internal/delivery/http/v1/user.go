@@ -24,7 +24,7 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 		user.PATCH("", h.updateUser)
 		user.DELETE("", h.deleteUser)
 		user.GET("", h.getUserById)
-		h.initUserStoreRoutes(user)
+		h.initUserStoresRoutes(user)
 	}
 }
 
