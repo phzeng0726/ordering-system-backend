@@ -63,6 +63,7 @@ type Stores interface {
 }
 
 type CreateMenuInput struct {
+	UserId      string
 	StoreId     string
 	Title       string
 	Description string
@@ -78,9 +79,19 @@ type CreateMenuItemInput struct {
 	CategoryId  int
 }
 
+type UpdateMenuInput struct {
+	UserId      string
+	MenuId      string
+	StoreId     string
+	Title       string
+	Description string
+	IsHide      *bool
+	MenuItems   []CreateMenuItemInput
+}
+
 type Menus interface {
-	Create(ctx context.Context, userId string, input CreateMenuInput) (string, error)
-	Update(ctx context.Context, menu domain.Menu) error
+	Create(ctx context.Context, input CreateMenuInput) (string, error)
+	Update(ctx context.Context, input UpdateMenuInput) error
 	Delete(ctx context.Context, userId string, menuId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error)
 	GetById(ctx context.Context, userId string, menuId string) (domain.Menu, error)

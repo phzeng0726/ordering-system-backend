@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 	"ordering-system-backend/internal/service"
 
@@ -54,7 +55,8 @@ func (h *Handler) createMenu(c *gin.Context) {
 		})
 	}
 
-	menuId, err := h.services.Menus.Create(c.Request.Context(), userId, service.CreateMenuInput{
+	menuId, err := h.services.Menus.Create(c.Request.Context(), service.CreateMenuInput{
+		UserId:      userId,
 		StoreId:     inp.StoreId,
 		Title:       inp.Title,
 		Description: inp.Description,
@@ -71,39 +73,43 @@ func (h *Handler) createMenu(c *gin.Context) {
 }
 
 func (h *Handler) updateMenu(c *gin.Context) {
-	// storeId := c.Param("store_id")
-	// menuIdStr := c.Param("menu_id")
-	// menuId, err := strconv.Atoi(menuIdStr)
-	// if err != nil {
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
-	// 	return
-	// }
+	var inp createMenuInput
+	userId := c.Param("user_id")
+	menuId := c.Param("menu_id")
 
-	// var newMenu domain.Menu
-	// if err := c.BindJSON(&newMenu); err != nil {
-	// 	return
-	// }
+	fmt.Println(menuId)
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
 
-	// newMenu.StoreId = storeId
-	// newMenu.Id = menuId
+	var menuItems []service.CreateMenuItemInput
+	for _, mi := range inp.MenuItems {
+		menuItems = append(menuItems, service.CreateMenuItemInput{
+			Title:       mi.Title,
+			Description: mi.Description,
+			Quantity:    *mi.Quantity,
+			Price:       *mi.Price,
+			CategoryId:  *mi.CategoryId,
+		})
+	}
 
-	// // 確認是否store有該menu，有的話才會做下一步，避免別人把她的menu刪掉
-	// menus, err := s.repo.GetById(storeId, menuId)
-	// if err != nil || menus.Id == 0 {
-	// 	if menus.Id == 0 {
-	// 		err = errors.New("menu not found for this store")
-	// 	}
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-	// 	return
-	// }
+	err := h.services.Menus.Update(c.Request.Context(), service.UpdateMenuInput{
+		UserId:      userId,
+		MenuId:      menuId,
+		StoreId:     inp.StoreId,
+		Title:       inp.Title,
+		Description: inp.Description,
+		IsHide:      inp.IsHide,
+		MenuItems:   menuItems,
+	})
 
-	// err = s.repo.Update(newMenu)
-	// if err != nil {
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-	// 	return
-	// }
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
 
-	// c.IndentedJSON(http.StatusOK, newMenu)
+	c.IndentedJSON(http.StatusOK, menuId)
 }
 
 func (h *Handler) deleteMenu(c *gin.Context) {
@@ -150,6 +156,7 @@ func (h *Handler) getById(c *gin.Context) {
 	userId := c.Param("user_id")
 	menuId := c.Param("menu_id")
 
+	fmt.Println(menuId)
 	menu, err := h.services.Menus.GetById(c.Request.Context(), userId, menuId)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})

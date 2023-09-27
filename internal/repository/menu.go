@@ -18,6 +18,55 @@ func NewMenusRepo(db *gorm.DB) *MenusRepo {
 	}
 }
 
+func (r *MenusRepo) updateMenu(tx *gorm.DB, menu domain.Menu) error {
+	updatedMenu := map[string]interface{}{
+		"title":       menu.Title,
+		"description": menu.Description,
+		"is_hide":     menu.IsHide,
+	}
+
+	if err := tx.Model(&domain.Menu{}).Where("id = ?", menu.Id).Updates(updatedMenu).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *MenusRepo) deleteMenuItems(tx *gorm.DB, menuId string) error {
+	var menuItemIds []int
+	if err := tx.Model(&domain.MenuItemMapping{}).Where("menu_id = ?", menuId).Pluck("menu_item_id", &menuItemIds).
+		Error; err != nil {
+		return err
+	}
+
+	if err := tx.Where("menu_id = ?", menuId).Delete(&domain.MenuItemMapping{}).Error; err != nil {
+		return err
+	}
+
+	if err := tx.Where("id IN (?)", menuItemIds).Delete(&domain.MenuItem{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *MenusRepo) createMenuItems(tx *gorm.DB, menu domain.Menu) error {
+	for _, mi := range menu.MenuItems {
+		if err := tx.Create(&mi).Error; err != nil {
+			return err
+		}
+		mapping := domain.MenuItemMapping{
+			MenuId:     menu.Id,
+			MenuItemId: mi.Id,
+		}
+		if err := tx.Create(&mapping).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
 	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("id = ?", menu.UserId).First(&domain.User{}).Error; err != nil {
@@ -32,21 +81,10 @@ func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
 			return err
 		}
 
-		for _, mi := range menu.MenuItems {
-			if err := tx.Create(&mi).Error; err != nil {
-				return err
-			}
-
-			mapping := domain.MenuItemMapping{
-				MenuId:     menu.Id,
-				MenuItemId: mi.Id,
-			}
-
-			if err := tx.Create(&mapping).Error; err != nil {
-				return err
-			}
-
+		if err := r.createMenuItems(tx, menu); err != nil {
+			return err
 		}
+
 		return nil
 	}); err != nil {
 		return err
@@ -56,60 +94,42 @@ func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
 }
 
 func (r *MenusRepo) Update(ctx context.Context, menu domain.Menu) error {
-	// tx := r.db.Begin()
-	// defer func() {
-	// 	if tx.Error != nil {
-	// 		tx.Rollback()
-	// 	} else {
-	// 		tx.Commit()
-	// 	}
-	// }()
 
-	// if err := tx.Model(&domain.Menu{}).Where("id = ?", m.Id).Updates(map[string]interface{}{
-	// 	"title":       m.Title,
-	// 	"description": m.Description,
-	// 	"is_hide":     m.IsHide,
-	// }).Error; err != nil {
-	// 	return err
-	// }
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := r.updateMenu(tx, menu); err != nil {
+			return err
+		}
 
-	// if err := tx.Where("menu_id = ?", m.Id).Delete(&domain.MenuItemMapping{}).Error; err != nil {
-	// 	return err
-	// }
+		if err := r.deleteMenuItems(tx, menu.Id); err != nil {
+			return err
+		}
 
-	// for _, mi := range m.MenuItems {
-	// 	if err := tx.Create(&mi).Error; err != nil {
-	// 		return err
-	// 	}
-	// 	mapping := domain.MenuItemMapping{
-	// 		MenuId:     m.Id,
-	// 		MenuItemId: mi.Id,
-	// 	}
-	// 	if err := tx.Create(&mapping).Error; err != nil {
-	// 		return err
-	// 	}
-	// }
+		if err := r.createMenuItems(tx, menu); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) error {
-	// tx := r.db.Begin()
-	// defer func() {
-	// 	if tx.Error != nil {
-	// 		tx.Rollback()
-	// 	} else {
-	// 		tx.Commit()
-	// 	}
-	// }()
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := r.deleteMenuItems(tx, menuId); err != nil {
+			return err
+		}
 
-	// if err := tx.Where("menu_id = ?", menuId).Delete(&domain.MenuItemMapping{}).Error; err != nil {
-	// 	return err
-	// }
+		if err := tx.Where("id = ?", menuId).Delete(&domain.Menu{}).Error; err != nil {
+			return err
+		}
 
-	// if err := tx.Where("id = ?", menuId).Delete(&domain.Menu{}).Error; err != nil {
-	// 	return err
-	// }
+		return nil
+	}); err != nil {
+		return err
+	}
 
 	return nil
 }

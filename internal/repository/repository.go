@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -54,4 +55,15 @@ func NewRepositories(db *gorm.DB) *Repositories {
 		Menus:  NewMenusRepo(db),
 		Stores: NewStoresRepo(db),
 	}
+}
+
+func CheckUserExist(tx *gorm.DB, userId string) error {
+	if err := tx.Where("id = ?", userId).First(&domain.User{}).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("user id not found")
+		}
+		return err
+	}
+
+	return nil
 }
