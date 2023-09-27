@@ -11,20 +11,21 @@ import (
 
 type StoresRepo struct {
 	db *gorm.DB
+	rt *RepoTools
 }
 
-func NewStoresRepo(db *gorm.DB) *StoresRepo {
+func NewStoresRepo(db *gorm.DB, rt *RepoTools) *StoresRepo {
 	return &StoresRepo{
 		db: db,
+		rt: rt,
 	}
 }
 
 func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("id = ?", store.UserId).First(&domain.User{}).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("user id not found")
-			}
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := r.rt.CheckUserExist(tx, store.UserId); err != nil {
 			return err
 		}
 
@@ -42,7 +43,9 @@ func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 }
 
 func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("user_id = ? AND id = ?", store.UserId, store.Id).First(&store).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// userId避免print在log上
@@ -65,8 +68,9 @@ func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 
 func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) error {
 	var store domain.Store
+	db := r.db.WithContext(ctx)
 
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// userId避免print在log上
@@ -93,9 +97,10 @@ func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) 
 
 func (r *StoresRepo) GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error) {
 	var stores []domain.Store
+	db := r.db.WithContext(ctx)
 
 	// 使用 Preload 一次載入所有的OpeningHours，避免N+1問題
-	if err := r.db.WithContext(ctx).Preload("StoreOpeningHours").Where("user_id = ?", userId).Find(&stores).Error; err != nil {
+	if err := db.Preload("StoreOpeningHours").Where("user_id = ?", userId).Find(&stores).Error; err != nil {
 		return nil, err
 	}
 
@@ -104,8 +109,9 @@ func (r *StoresRepo) GetAllByUserId(ctx context.Context, userId string) ([]domai
 
 func (r *StoresRepo) GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error) {
 	var store domain.Store
+	db := r.db.WithContext(ctx)
 
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		res := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store)
 
 		if res.Error != nil {
@@ -129,9 +135,10 @@ func (r *StoresRepo) GetByStoreId(ctx context.Context, userId string, storeId st
 
 func (r *StoresRepo) GetAll(ctx context.Context) ([]domain.Store, error) {
 	var stores []domain.Store
+	db := r.db.WithContext(ctx)
 
 	// 使用 Preload 一次載入所有的OpeningHours，避免N+1問題
-	if err := r.db.WithContext(ctx).Preload("StoreOpeningHours").Find(&stores).Error; err != nil {
+	if err := db.Preload("StoreOpeningHours").Find(&stores).Error; err != nil {
 		return nil, err
 	}
 

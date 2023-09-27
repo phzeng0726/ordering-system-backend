@@ -12,30 +12,20 @@ import (
 
 type UsersRepo struct {
 	db *gorm.DB
+	rt *RepoTools
 }
 
-func NewUsersRepo(db *gorm.DB) *UsersRepo {
+func NewUsersRepo(db *gorm.DB, rt *RepoTools) *UsersRepo {
 	return &UsersRepo{
 		db: db,
+		rt: rt,
 	}
-}
-
-func (r *UsersRepo) getUserAccountFromDB(ctx context.Context, userId string) (domain.UserAccount, error) {
-	var userAccount domain.UserAccount
-
-	res := r.db.WithContext(ctx).Where("id = ?", userId).First(&userAccount)
-	if res.Error != nil {
-		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return userAccount, errors.New("user id not found")
-		}
-		return userAccount, res.Error
-	}
-
-	return userAccount, res.Error
 }
 
 func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, user domain.User, password string) error {
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		client, err := firebase_auth.Init()
 		if err != nil {
 			return err
@@ -68,21 +58,30 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 }
 
 func (r *UsersRepo) Update(ctx context.Context, user domain.User) error {
-	if _, err := r.getUserAccountFromDB(ctx, user.Id); err != nil {
-		return err
-	}
+	db := r.db.WithContext(ctx)
 
-	res := r.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", user.Id).Updates(&user)
-	if res.Error != nil {
-		return res.Error
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		_, err := r.rt.GetUserAccount(tx, user.Id)
+		if err != nil {
+			return err
+		}
+
+		if err := tx.Model(&domain.User{}).Where("id = ?", user.Id).Updates(&user).Error; err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		userAccount, err := r.getUserAccountFromDB(ctx, userId)
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		userAccount, err := r.rt.GetUserAccount(tx, userId)
 		if err != nil {
 			return err
 		}
@@ -126,7 +125,9 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 
 func (r *UsersRepo) GetByEmail(ctx context.Context, email string, userType int) (string, error) {
 	var userAccount domain.UserAccount
-	if err := r.db.WithContext(ctx).Where("email = ?", email).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Where("email = ?", email).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
 		// 查無使用者，前端要收到false的消息
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return userAccount.Id, nil
@@ -138,7 +139,9 @@ func (r *UsersRepo) GetByEmail(ctx context.Context, email string, userType int) 
 
 func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, error) {
 	var user domain.User
-	if err := r.db.WithContext(ctx).Where("id = ?", userId).Preload("UserAccount").First(&user).Error; err != nil {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Where("id = ?", userId).Preload("UserAccount").First(&user).Error; err != nil {
 		return user, err
 	}
 
@@ -147,18 +150,24 @@ func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, er
 }
 
 func (r *UsersRepo) ResetPassword(ctx context.Context, userId string, newPassword string) error {
-	var userAccount domain.UserAccount
-	userAccount, err := r.getUserAccountFromDB(ctx, userId)
-	if err != nil {
-		return err
-	}
+	db := r.db.WithContext(ctx)
 
-	client, err := firebase_auth.Init()
-	if err != nil {
-		return err
-	}
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		userAccount, err := r.rt.GetUserAccount(tx, userId)
+		if err != nil {
+			return err
+		}
 
-	if err = firebase_auth.ResetPassword(client, userAccount.UidCode, newPassword); err != nil {
+		client, err := firebase_auth.Init()
+		if err != nil {
+			return err
+		}
+
+		if err = firebase_auth.ResetPassword(client, userAccount.UidCode, newPassword); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
 		return err
 	}
 

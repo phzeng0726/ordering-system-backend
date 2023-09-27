@@ -48,16 +48,9 @@ type Repositories struct {
 	Stores Stores
 }
 
-func NewRepositories(db *gorm.DB) *Repositories {
-	return &Repositories{
-		OTP:    NewOTPRepo(db),
-		Users:  NewUsersRepo(db),
-		Menus:  NewMenusRepo(db),
-		Stores: NewStoresRepo(db),
-	}
-}
+type RepoTools struct{}
 
-func CheckUserExist(tx *gorm.DB, userId string) error {
+func (*RepoTools) CheckUserExist(tx *gorm.DB, userId string) error {
 	if err := tx.Where("id = ?", userId).First(&domain.User{}).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("user id not found")
@@ -66,4 +59,26 @@ func CheckUserExist(tx *gorm.DB, userId string) error {
 	}
 
 	return nil
+}
+
+func (*RepoTools) GetUserAccount(tx *gorm.DB, userId string) (domain.UserAccount, error) {
+	var userAccount domain.UserAccount
+
+	if err := tx.Where("id = ?", userId).First(&userAccount).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return userAccount, errors.New("user id not found")
+		}
+		return userAccount, err
+	}
+
+	return userAccount, nil
+}
+
+func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
+	return &Repositories{
+		OTP:    NewOTPRepo(db),
+		Users:  NewUsersRepo(db, rt),
+		Menus:  NewMenusRepo(db, rt),
+		Stores: NewStoresRepo(db, rt),
+	}
 }

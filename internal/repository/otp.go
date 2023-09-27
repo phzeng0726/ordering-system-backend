@@ -59,15 +59,16 @@ func NewOTPRepo(db *gorm.DB) *OTPRepo {
 		db: db,
 	}
 }
+
 func (r *OTPRepo) Create(ctx context.Context, token string, email string) error {
 	code := otp.GenerateRandomCode(6)
-
 	var otp domain.OTP
 	otp.Token = token
 	otp.Password = code
 	otp.Email = email
+	db := r.db.WithContext(ctx)
 
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&otp).Error; err != nil {
 			return err
 		}
@@ -86,7 +87,9 @@ func (r *OTPRepo) Create(ctx context.Context, token string, email string) error 
 
 func (r *OTPRepo) Verify(ctx context.Context, token string, password string) error {
 	var otp domain.OTP
-	res := r.db.WithContext(ctx).Where("token = ?", token).First(&otp)
+	db := r.db.WithContext(ctx)
+
+	res := db.Where("token = ?", token).First(&otp)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
 			return errors.New("token not found")

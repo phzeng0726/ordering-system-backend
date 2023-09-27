@@ -10,11 +10,13 @@ import (
 
 type MenusRepo struct {
 	db *gorm.DB
+	rt *RepoTools
 }
 
-func NewMenusRepo(db *gorm.DB) *MenusRepo {
+func NewMenusRepo(db *gorm.DB, rt *RepoTools) *MenusRepo {
 	return &MenusRepo{
 		db: db,
+		rt: rt,
 	}
 }
 
@@ -68,15 +70,13 @@ func (r *MenusRepo) createMenuItems(tx *gorm.DB, menu domain.Menu) error {
 }
 
 func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("id = ?", menu.UserId).First(&domain.User{}).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("user id not found")
-			}
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := r.rt.CheckUserExist(tx, menu.UserId); err != nil {
 			return err
 		}
 
-		// 確認該User存在，才可新增執行後續
 		if err := tx.Create(&menu).Error; err != nil {
 			return err
 		}
@@ -94,8 +94,9 @@ func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
 }
 
 func (r *MenusRepo) Update(ctx context.Context, menu domain.Menu) error {
+	db := r.db.WithContext(ctx)
 
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := r.updateMenu(tx, menu); err != nil {
 			return err
 		}
@@ -117,7 +118,9 @@ func (r *MenusRepo) Update(ctx context.Context, menu domain.Menu) error {
 }
 
 func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) error {
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := r.deleteMenuItems(tx, menuId); err != nil {
 			return err
 		}
@@ -137,16 +140,13 @@ func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) er
 func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error) {
 	var menus []domain.Menu
 	var menuItemMappings []domain.MenuItemMapping
+	db := r.db.WithContext(ctx)
 
-	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("id = ?", userId).First(&domain.User{}).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("user id not found")
-			}
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := r.rt.CheckUserExist(tx, userId); err != nil {
 			return err
 		}
 
-		// 確認該User存在，才可新增執行後續
 		if err := tx.Where("user_id = ?", userId).Find(&menus).Error; err != nil {
 			return err
 		}
@@ -179,7 +179,9 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string) ([]domain
 func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string) (domain.Menu, error) {
 	var menu domain.Menu
 	var menuItemMappings []domain.MenuItemMapping
-	if err := r.db.WithContext(ctx).Preload("Menu").Preload("MenuItem.Category").Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Preload("Menu").Preload("MenuItem.Category").Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
 		return menu, err
 	}
 
