@@ -36,8 +36,7 @@ func (r *MenusRepo) updateMenu(tx *gorm.DB, menu domain.Menu) error {
 
 func (r *MenusRepo) deleteMenuItems(tx *gorm.DB, menuId string) error {
 	var menuItemIds []int
-	if err := tx.Model(&domain.MenuItemMapping{}).Where("menu_id = ?", menuId).Pluck("menu_item_id", &menuItemIds).
-		Error; err != nil {
+	if err := tx.Model(&domain.MenuItemMapping{}).Where("menu_id = ?", menuId).Pluck("menu_item_id", &menuItemIds).Error; err != nil {
 		return err
 	}
 

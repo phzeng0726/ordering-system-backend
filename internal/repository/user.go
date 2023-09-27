@@ -7,6 +7,7 @@ import (
 	firebase_auth "ordering-system-backend/pkg/auth"
 	"strings"
 
+	"firebase.google.com/go/auth"
 	"gorm.io/gorm"
 )
 
@@ -77,6 +78,78 @@ func (r *UsersRepo) Update(ctx context.Context, user domain.User) error {
 	return nil
 }
 
+func (r *UsersRepo) deleteMenus(tx *gorm.DB, userId string) error {
+	type result struct {
+		MenuId     string
+		MenuItemId int
+	}
+	var res []result
+	var menuIds []string
+	var menuItemIds []int
+
+	sqlQuery := "SELECT mim.menu_id, mim.menu_item_id" +
+		" FROM menus m" +
+		" JOIN menu_item_mapping mim ON mim.menu_id = m.id" +
+		" JOIN menu_items mi ON mi.id = mim.menu_item_id" +
+		" WHERE m.user_id = ?;"
+	queryParams := []interface{}{userId}
+
+	if err := tx.Raw(sqlQuery, queryParams...).Scan(&res).Error; err != nil {
+		return err
+	}
+
+	for _, item := range res {
+		menuIds = append(menuIds, item.MenuId)
+		menuItemIds = append(menuItemIds, item.MenuItemId)
+	}
+
+	if err := tx.Where("menu_id IN (?)", menuIds).Delete(&domain.MenuItemMapping{}).Error; err != nil {
+		return err
+	}
+
+	if err := tx.Where("id IN (?)", menuItemIds).Delete(&domain.MenuItem{}).Error; err != nil {
+		return err
+	}
+
+	if err := tx.Where("user_id = ?", userId).Delete(&domain.Menu{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UsersRepo) deleteStores(tx *gorm.DB, userId string) error {
+	// 查詢和刪除相關的 store_opening_hours
+	if err := tx.Where("store_id IN (SELECT id FROM stores WHERE user_id = ?)", userId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
+		return err
+	}
+
+	// 刪除 stores 表中具有特定 user_id 的行
+	if err := tx.Where("user_id = ?", userId).Delete(&domain.Store{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UsersRepo) deleteUser(tx *gorm.DB, client *auth.Client, userAccount domain.UserAccount, userId string) error {
+	// 刪除 user
+	if err := tx.Where("id = ?", userId).Delete(&domain.User{}).Error; err != nil {
+		return err
+	}
+
+	// 刪除 user_account
+	if err := tx.Where("id = ?", userId).Delete(&userAccount).Error; err != nil {
+		return err
+	}
+
+	if err := firebase_auth.DeleteUser(userAccount.UidCode, client); err != nil {
+		return errors.New("firebase uid code not found in firebase")
+	}
+
+	return nil
+}
+
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 	db := r.db.WithContext(ctx)
 
@@ -91,28 +164,16 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 			return err
 		}
 
-		// 查詢和刪除相關的 store_opening_hours
-		if err := tx.Where("store_id IN (SELECT id FROM stores WHERE user_id = ?)", userId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
+		if err := r.deleteMenus(tx, userId); err != nil {
 			return err
 		}
 
-		// 刪除 stores 表中具有特定 user_id 的行
-		if err := tx.Where("user_id = ?", userId).Delete(&domain.Store{}).Error; err != nil {
+		if err := r.deleteStores(tx, userId); err != nil {
 			return err
 		}
 
-		// 刪除 user
-		if err := tx.Where("id = ?", userId).Delete(&domain.User{}).Error; err != nil {
+		if err := r.deleteUser(tx, client, userAccount, userId); err != nil {
 			return err
-		}
-
-		// 刪除 user_account
-		if err := tx.Where("id = ?", userId).Delete(&userAccount).Error; err != nil {
-			return err
-		}
-
-		if err := firebase_auth.DeleteUser(userAccount.UidCode, client); err != nil {
-			return errors.New("firebase uid code not found in firebase")
 		}
 
 		return nil

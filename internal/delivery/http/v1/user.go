@@ -112,11 +112,6 @@ func (h *Handler) getUserByEmail(c *gin.Context) {
 		return
 	}
 
-	if userId == "" {
-		c.IndentedJSON(http.StatusOK, false)
-		return
-	}
-
 	c.IndentedJSON(http.StatusOK, userId)
 }
 
