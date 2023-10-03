@@ -29,7 +29,8 @@ func CreateUser(client *auth.Client, uid string, email string, password string) 
 	params := (&auth.UserToCreate{}).
 		UID(uid).
 		Email(email).
-		Password(password)
+		Password(password).
+		Disabled(false)
 
 	_, err := client.CreateUser(context.Background(), params)
 

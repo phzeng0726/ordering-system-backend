@@ -198,6 +198,20 @@ func (r *UsersRepo) GetByEmail(ctx context.Context, email string, userType int) 
 	return userAccount.Id, nil
 }
 
+func (r *UsersRepo) GetByUid(ctx context.Context, uid string, userType int) (string, error) {
+	var userAccount domain.UserAccount
+	db := r.db.WithContext(ctx)
+
+	if err := db.Where("uid_code = ?", uid).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
+		// 查無使用者，前端要收到false的消息
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return userAccount.Id, nil
+		}
+		return userAccount.Id, err
+	}
+	return userAccount.Id, nil
+}
+
 func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, error) {
 	var user domain.User
 	db := r.db.WithContext(ctx)

@@ -47,6 +47,7 @@ type Users interface {
 	Update(ctx context.Context, userId string, input UpdateUserInput) error
 	Delete(ctx context.Context, userId string) error
 	GetByEmail(ctx context.Context, email string, userType int) (string, error)
+	GetByUid(ctx context.Context, uid string, userType int) (string, error)
 	GetById(ctx context.Context, userId string) (domain.User, error)
 	ResetPassword(ctx context.Context, input ResetPasswordInput) error
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -19,11 +20,13 @@ func NewUsersService(repo repository.Users) *UsersService {
 func (s *UsersService) Create(ctx context.Context, input CreateUserInput) error {
 	userId := uuid.New().String()  // DB
 	uidCode := uuid.New().String() // Firebase Auth
+	upperUidCode := strings.ToUpper(uidCode)
+	lowerEmail := strings.ToLower(input.Email)
 
 	userAccount := domain.UserAccount{
 		Id:       userId,
-		UidCode:  uidCode,
-		Email:    input.Email,
+		UidCode:  upperUidCode,
+		Email:    lowerEmail,
 		UserType: input.UserType,
 	}
 
@@ -62,7 +65,17 @@ func (s *UsersService) Delete(ctx context.Context, userId string) error {
 }
 
 func (s *UsersService) GetByEmail(ctx context.Context, email string, userType int) (string, error) {
-	userId, err := s.repo.GetByEmail(ctx, email, userType)
+	lowerEmail := strings.ToLower(email)
+
+	userId, err := s.repo.GetByEmail(ctx, lowerEmail, userType)
+	if err != nil {
+		return userId, err
+	}
+	return userId, nil
+}
+
+func (s *UsersService) GetByUid(ctx context.Context, uid string, userType int) (string, error) {
+	userId, err := s.repo.GetByUid(ctx, uid, userType)
 	if err != nil {
 		return userId, err
 	}

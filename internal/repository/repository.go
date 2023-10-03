@@ -18,6 +18,7 @@ type Users interface {
 	ResetPassword(ctx context.Context, userId string, newPassword string) error
 	Update(ctx context.Context, user domain.User) error // 只能更新 User，不能更新 UserAccount
 	GetByEmail(ctx context.Context, email string, userType int) (string, error)
+	GetByUid(ctx context.Context, uid string, userType int) (string, error)
 	GetById(ctx context.Context, userId string) (domain.User, error)
 	Delete(ctx context.Context, userId string) error
 }

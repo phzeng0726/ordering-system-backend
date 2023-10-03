@@ -97,19 +97,46 @@ func (h *Handler) deleteUser(c *gin.Context) {
 }
 
 func (h *Handler) getUserByEmail(c *gin.Context) {
-	email := c.Query("email")
 	userTypeStr := c.Query("userType")
+	method := c.Query("method") // email or uid
+	userId := ""
 	userType, err := strconv.Atoi(userTypeStr)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "userType parameter is missing or invalid syntax"})
 		return
 	}
 
-	userId, err := h.services.Users.GetByEmail(c.Request.Context(), email, userType)
-
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	if method == "" {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "method parameter is missing"})
 		return
+	}
+
+	if method == "email" {
+		email := c.Query("email")
+		if email == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "email parameter is missing"})
+			return
+		}
+
+		userId, err = h.services.Users.GetByEmail(c.Request.Context(), email, userType)
+
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	} else if method == "uid" {
+		uid := c.Query("uid")
+		if uid == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "uid parameter is missing"})
+			return
+		}
+
+		userId, err = h.services.Users.GetByUid(c.Request.Context(), uid, userType)
+
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
 	}
 
 	c.IndentedJSON(http.StatusOK, userId)
