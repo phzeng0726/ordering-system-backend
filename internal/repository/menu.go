@@ -24,7 +24,6 @@ func (r *MenusRepo) updateMenu(tx *gorm.DB, menu domain.Menu) error {
 	updatedMenu := map[string]interface{}{
 		"title":       menu.Title,
 		"description": menu.Description,
-		"is_hide":     menu.IsHide,
 	}
 
 	if err := tx.Model(&domain.Menu{}).Where("id = ?", menu.Id).Updates(updatedMenu).Error; err != nil {

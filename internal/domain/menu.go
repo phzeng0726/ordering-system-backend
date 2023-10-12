@@ -10,7 +10,6 @@ type Menu struct {
 	UserId      string     `gorm:"column:user_id;" json:"userId"`
 	Title       string     `gorm:"column:title;" json:"title"`
 	Description string     `gorm:"column:description;" json:"description"`
-	IsHide      bool       `gorm:"column:is_hide;" json:"isHide"`
 	CreatedAt   time.Time  `gorm:"column:created_at;" json:"createdAt"`
 	MenuItems   []MenuItem `gorm:"-" json:"menuItems,omitempty"`
 }

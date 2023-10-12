@@ -23,7 +23,6 @@ type createMenuInput struct {
 	StoreId     string                `json:"storeId" binding:"required"`
 	Title       string                `json:"title" binding:"required"`
 	Description string                `json:"description"`
-	IsHide      *bool                 `json:"isHide" binding:"required"`
 	MenuItems   []createMenuItemInput `json:"menuItems" binding:"required"`
 }
 
@@ -60,7 +59,6 @@ func (h *Handler) createMenu(c *gin.Context) {
 		StoreId:     inp.StoreId,
 		Title:       inp.Title,
 		Description: inp.Description,
-		IsHide:      inp.IsHide,
 		MenuItems:   menuItems,
 	})
 
@@ -100,7 +98,6 @@ func (h *Handler) updateMenu(c *gin.Context) {
 		StoreId:     inp.StoreId,
 		Title:       inp.Title,
 		Description: inp.Description,
-		IsHide:      inp.IsHide,
 		MenuItems:   menuItems,
 	})
 

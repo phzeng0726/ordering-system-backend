@@ -36,7 +36,6 @@ func (s *MenusService) Create(ctx context.Context, input CreateMenuInput) (strin
 		UserId:      input.UserId,
 		Title:       input.Title,
 		Description: input.Description,
-		IsHide:      *input.IsHide,
 		MenuItems:   menuItems,
 	}
 
@@ -66,7 +65,6 @@ func (s *MenusService) Update(ctx context.Context, input UpdateMenuInput) error 
 		UserId:      input.UserId,
 		Title:       input.Title,
 		Description: input.Description,
-		IsHide:      *input.IsHide,
 		MenuItems:   menuItems,
 	}
 

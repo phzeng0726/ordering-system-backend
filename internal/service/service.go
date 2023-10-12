@@ -68,7 +68,6 @@ type CreateMenuInput struct {
 	StoreId     string
 	Title       string
 	Description string
-	IsHide      *bool
 	MenuItems   []CreateMenuItemInput
 }
 
@@ -86,7 +85,6 @@ type UpdateMenuInput struct {
 	StoreId     string
 	Title       string
 	Description string
-	IsHide      *bool
 	MenuItems   []CreateMenuItemInput
 }
 
