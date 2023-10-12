@@ -79,6 +79,10 @@ func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) 
 			return err
 		}
 
+		if err := tx.Where("store_id = ?", storeId).Delete(&domain.Seat{}).Error; err != nil {
+			return err
+		}
+
 		if err := tx.Where("store_id = ?", storeId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
 			return err
 		}
