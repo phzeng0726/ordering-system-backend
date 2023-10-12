@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -44,14 +42,9 @@ func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 
 func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 	db := r.db.WithContext(ctx)
-	fmt.Println(store)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("user_id = ? AND id = ?", store.UserId, store.Id).First(&domain.Store{}).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				// userId避免print在log上
-				return fmt.Errorf("no store found with id %s for this user id", store.Id)
-			}
+		if _, err := r.rt.CheckStoreExist(tx, store.UserId, store.Id); err != nil {
 			return err
 		}
 
@@ -80,15 +73,10 @@ func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 }
 
 func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) error {
-	var store domain.Store
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				// userId避免print在log上
-				return fmt.Errorf("no store found with id %s for this user id", storeId)
-			}
+		if _, err := r.rt.CheckStoreExist(tx, userId, storeId); err != nil {
 			return err
 		}
 
@@ -126,16 +114,13 @@ func (r *StoresRepo) GetAllByUserId(ctx context.Context, userId string) ([]domai
 
 func (r *StoresRepo) GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error) {
 	var store domain.Store
+	var err error
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		res := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store)
-
-		if res.Error != nil {
-			if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-				return errors.New("store not found")
-			}
-			return res.Error
+		store, err = r.rt.CheckStoreExist(tx, userId, storeId)
+		if err != nil {
+			return err
 		}
 
 		if err := tx.Where("store_id = ?", storeId).Find(&store.StoreOpeningHours).Error; err != nil {

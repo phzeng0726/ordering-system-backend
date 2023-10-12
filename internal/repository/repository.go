@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -70,6 +71,20 @@ func (*RepoTools) CheckUserExist(tx *gorm.DB, userId string) error {
 	}
 
 	return nil
+}
+
+func (*RepoTools) CheckStoreExist(tx *gorm.DB, userId string, storeId string) (domain.Store, error) {
+	var store domain.Store
+
+	if err := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// userId避免print在log上
+			return store, fmt.Errorf("no store found with id %s for this user id", storeId)
+		}
+		return store, err
+	}
+
+	return store, nil
 }
 
 func (*RepoTools) GetUserAccount(tx *gorm.DB, userId string) (domain.UserAccount, error) {
