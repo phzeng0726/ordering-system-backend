@@ -19,9 +19,9 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 		user.POST("/reset-password", h.resetPassword) // 重設密碼
 
 		// Others
-		user.PATCH("/users/:user_id", h.updateUser)
-		user.DELETE("/users/:user_id", h.deleteUser)
-		user.GET("/users/:user_id", h.getUserById)
+		user.PATCH("/:user_id", h.updateUser)
+		user.DELETE("/:user_id", h.deleteUser)
+		user.GET("/:user_id", h.getUserById)
 	}
 }
 
