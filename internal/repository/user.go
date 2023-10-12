@@ -181,6 +181,14 @@ func (r *UsersRepo) deleteUser(tx *gorm.DB, client *auth.Client, userAccount dom
 	return nil
 }
 
+func (r *UsersRepo) deleteCategories(tx *gorm.DB, userId string) error {
+	if err := tx.Where("user_id = ?", userId).Delete(&domain.CategoryUserMapping{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 	db := r.db.WithContext(ctx)
 
@@ -200,6 +208,10 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 		}
 
 		if err := r.deleteStores(tx, userId); err != nil {
+			return err
+		}
+
+		if err := r.deleteCategories(tx, userId); err != nil {
 			return err
 		}
 
