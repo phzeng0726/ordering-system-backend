@@ -15,13 +15,16 @@ func NewCategoriesService(repo repository.Categories) *CategoriesService {
 }
 
 func (s *CategoriesService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error) {
-	categories, err := s.repo.GetAllByUserId(ctx, userId, languageId)
+	var categories []domain.Category
+
+	categoryUserMappings, err := s.repo.GetAllByUserId(ctx, userId, languageId)
 	if err != nil {
 		return categories, err
 	}
 
-	for i, c := range categories {
-		categories[i].Title = c.CategoryLanguage.Title
+	for _, cum := range categoryUserMappings {
+		cum.Category.Title = cum.Category.CategoryLanguage.Title
+		categories = append(categories, cum.Category)
 	}
 
 	return categories, nil

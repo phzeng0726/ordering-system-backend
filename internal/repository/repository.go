@@ -35,7 +35,7 @@ type Stores interface {
 }
 
 type Categories interface {
-	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error)
+	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.CategoryUserMapping, error)
 }
 
 type Menus interface {

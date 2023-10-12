@@ -19,10 +19,8 @@ func NewCategoriesRepo(db *gorm.DB, rt *RepoTools) *CategoriesRepo {
 	}
 }
 
-func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error) {
-	var categories []domain.Category
+func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.CategoryUserMapping, error) {
 	var categoryUserMappings []domain.CategoryUserMapping
-
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
@@ -39,12 +37,8 @@ func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, lang
 
 		return nil
 	}); err != nil {
-		return categories, err
+		return categoryUserMappings, err
 	}
 
-	for _, cum := range categoryUserMappings {
-		categories = append(categories, cum.Category)
-	}
-
-	return categories, nil
+	return categoryUserMappings, nil
 }
