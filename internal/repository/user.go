@@ -38,7 +38,7 @@ func (r *UsersRepo) createUser(tx *gorm.DB, userAccount *domain.UserAccount, use
 	return nil
 }
 
-func (r *UsersRepo) createDefaultCategories(tx *gorm.DB, userId string) error {
+func (r *UsersRepo) createCategories(tx *gorm.DB, userId string) error {
 	var categories []domain.Category
 
 	if err := tx.Where("is_default = ?", true).Find(&categories).Error; err != nil {
@@ -70,7 +70,7 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 			return err
 		}
 
-		if err := r.createDefaultCategories(tx, user.Id); err != nil {
+		if err := r.createCategories(tx, user.Id); err != nil {
 			return err
 		}
 
