@@ -135,22 +135,13 @@ func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) er
 	return nil
 }
 
-func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
-	var menus []domain.Menu
+func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.MenuItemMapping, error) {
 	var menuItemMappings []domain.MenuItemMapping
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := r.rt.CheckUserExist(tx, userId); err != nil {
 			return err
-		}
-
-		if err := tx.Where("user_id = ?", userId).Find(&menus).Error; err != nil {
-			return err
-		}
-
-		if len(menus) == 0 {
-			return errors.New("menu list is empty")
 		}
 
 		if err := tx.Preload("Menu").
@@ -162,24 +153,17 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageI
 
 		return nil
 	}); err != nil {
-		return menus, err
+		return menuItemMappings, err
 	}
 
-	menuItemsIdMap := make(map[string][]domain.MenuItem)
-	for _, mim := range menuItemMappings {
-		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
-		menuItemsIdMap[mim.MenuId] = append(menuItemsIdMap[mim.MenuId], mim.MenuItem)
+	if len(menuItemMappings) == 0 {
+		return menuItemMappings, errors.New("menu with items not found")
 	}
 
-	for i, menu := range menus {
-		menus[i].MenuItems = menuItemsIdMap[menu.Id]
-	}
-
-	return menus, nil
+	return menuItemMappings, nil
 }
 
-func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error) {
-	var menu domain.Menu
+func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, languageId int) ([]domain.MenuItemMapping, error) {
 	var menuItemMappings []domain.MenuItemMapping
 	db := r.db.WithContext(ctx)
 
@@ -187,19 +171,12 @@ func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, l
 		Preload("MenuItem.Category").
 		Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
 		Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
-		return menu, err
+		return menuItemMappings, err
 	}
 
 	if len(menuItemMappings) == 0 {
-		err := errors.New("menu with items not found")
-		return menu, err
+		return menuItemMappings, errors.New("menu with items not found")
 	}
 
-	menu = menuItemMappings[0].Menu
-	for _, mim := range menuItemMappings {
-		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
-		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
-	}
-
-	return menu, nil
+	return menuItemMappings, nil
 }

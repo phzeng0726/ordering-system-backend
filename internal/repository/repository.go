@@ -42,8 +42,8 @@ type Menus interface {
 	Create(ctx context.Context, menu domain.Menu) error
 	Update(ctx context.Context, menu domain.Menu) error
 	Delete(ctx context.Context, userId string, menuId string) error
-	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error)
-	GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error)
+	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.MenuItemMapping, error)
+	GetById(ctx context.Context, userId string, menuId string, languageId int) ([]domain.MenuItemMapping, error)
 }
 
 type Repositories struct {

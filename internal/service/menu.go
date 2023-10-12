@@ -82,17 +82,47 @@ func (s *MenusService) Delete(ctx context.Context, userId string, menuId string)
 }
 
 func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
-	menus, err := s.repo.GetAllByUserId(ctx, userId, languageId)
+	menus := make([]domain.Menu, 0)
+	menuItemMappings, err := s.repo.GetAllByUserId(ctx, userId, languageId)
 	if err != nil {
 		return menus, err
 	}
+
+	menuItemsIdMap := make(map[string][]domain.MenuItem)
+	menuMap := make(map[string]struct{}) // 使用map追蹤已經處理過的 menu
+
+	for _, mim := range menuItemMappings {
+		// 檢查是否已經處理過該 menu
+		if _, ok := menuMap[mim.Menu.Id]; !ok {
+			menuMap[mim.Menu.Id] = struct{}{}
+			menus = append(menus, mim.Menu)
+		}
+
+		// key: menuId, value: menuItems
+		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
+		menuItemsIdMap[mim.MenuId] = append(menuItemsIdMap[mim.MenuId], mim.MenuItem)
+	}
+
+	// 將 menuItems 加入 menu 中
+	for i, menu := range menus {
+		menus[i].MenuItems = menuItemsIdMap[menu.Id]
+	}
+
 	return menus, nil
 }
 
 func (s *MenusService) GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error) {
-	menu, err := s.repo.GetById(ctx, userId, menuId, languageId)
+	var menu domain.Menu
+	menuItemMappings, err := s.repo.GetById(ctx, userId, menuId, languageId)
 	if err != nil {
 		return menu, err
 	}
+
+	menu = menuItemMappings[0].Menu
+	for _, mim := range menuItemMappings {
+		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
+		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
+	}
+
 	return menu, nil
 }
