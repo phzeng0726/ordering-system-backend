@@ -19,5 +19,10 @@ func (s *CategoriesService) GetAllByUserId(ctx context.Context, userId string, l
 	if err != nil {
 		return categories, err
 	}
+
+	for i, c := range categories {
+		categories[i].Title = c.CategoryLanguage.Title
+	}
+
 	return categories, nil
 }

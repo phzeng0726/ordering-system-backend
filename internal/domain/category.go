@@ -3,7 +3,8 @@ package domain
 type Category struct {
 	Id               int              `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
 	Identifier       string           `gorm:"column:identifier;" json:"identifier"`
-	CategoryLanguage CategoryLanguage `gorm:"foreignKey:Id;references:category_id;" json:"categoryLanguage"`
+	Title            string           `gorm:"-" json:"title"`
+	CategoryLanguage CategoryLanguage `gorm:"foreignKey:Id;references:category_id;" json:"-"`
 }
 
 type CategoryUserMapping struct {

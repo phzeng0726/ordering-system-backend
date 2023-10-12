@@ -167,6 +167,7 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageI
 
 	menuItemsIdMap := make(map[string][]domain.MenuItem)
 	for _, mim := range menuItemMappings {
+		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
 		menuItemsIdMap[mim.MenuId] = append(menuItemsIdMap[mim.MenuId], mim.MenuItem)
 	}
 
@@ -196,6 +197,7 @@ func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, l
 
 	menu = menuItemMappings[0].Menu
 	for _, mim := range menuItemMappings {
+		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
 		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
 	}
 
