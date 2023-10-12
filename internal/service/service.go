@@ -63,6 +63,10 @@ type Stores interface {
 	GetAll(ctx context.Context) ([]domain.Store, error)
 }
 
+type Seats interface {
+	GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error)
+}
+
 type Categories interface {
 	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error)
 }
@@ -104,6 +108,7 @@ type Services struct {
 	Users      Users
 	OTP        OTP
 	Stores     Stores
+	Seats      Seats
 	Categories Categories
 	Menus      Menus
 }
@@ -118,6 +123,7 @@ func NewServices(deps Deps) *Services {
 	categoriesService := NewCategoriesService(deps.Repos.Categories)
 	menusService := NewMenusService(deps.Repos.Menus)
 	storesService := NewStoresService(deps.Repos.Stores)
+	seatsService := NewSeatsService(deps.Repos.Seats)
 
 	return &Services{
 		Users:      usersService,
@@ -125,5 +131,6 @@ func NewServices(deps Deps) *Services {
 		Stores:     storesService,
 		Categories: categoriesService,
 		Menus:      menusService,
+		Seats:      seatsService,
 	}
 }

@@ -38,6 +38,10 @@ type Categories interface {
 	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.CategoryUserMapping, error)
 }
 
+type Seats interface {
+	GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error)
+}
+
 type Menus interface {
 	Create(ctx context.Context, menu domain.Menu) error
 	Update(ctx context.Context, menu domain.Menu) error
@@ -50,6 +54,7 @@ type Repositories struct {
 	Users      Users
 	OTP        OTP
 	Stores     Stores
+	Seats      Seats
 	Categories Categories
 	Menus      Menus
 }
@@ -85,6 +90,7 @@ func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
 		OTP:        NewOTPRepo(db),
 		Users:      NewUsersRepo(db, rt),
 		Stores:     NewStoresRepo(db, rt),
+		Seats:      NewSeatsRepo(db, rt),
 		Categories: NewCategoriesRepo(db, rt),
 		Menus:      NewMenusRepo(db, rt),
 	}

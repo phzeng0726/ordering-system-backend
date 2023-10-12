@@ -2,6 +2,7 @@ package v1
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,5 +35,19 @@ func (h *Handler) getAllSeatsByStoreId(c *gin.Context) {
 }
 
 func (h *Handler) getSeatBySeatId(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	storeId := c.Param("store_id")
+	seatIdStr := c.Param("seat_id")
+	seatId, err := strconv.Atoi(seatIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	seat, err := h.services.Seats.GetById(c.Request.Context(), storeId, seatId)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, seat)
 }
