@@ -63,6 +63,10 @@ type Stores interface {
 	GetAll(ctx context.Context) ([]domain.Store, error)
 }
 
+type Categories interface {
+	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error)
+}
+
 type CreateMenuInput struct {
 	UserId      string
 	StoreId     string
@@ -97,10 +101,11 @@ type Menus interface {
 }
 
 type Services struct {
-	Users  Users
-	OTP    OTP
-	Menus  Menus
-	Stores Stores
+	Users      Users
+	OTP        OTP
+	Stores     Stores
+	Categories Categories
+	Menus      Menus
 }
 
 type Deps struct {
@@ -110,13 +115,15 @@ type Deps struct {
 func NewServices(deps Deps) *Services {
 	usersService := NewUsersService(deps.Repos.Users)
 	OTPService := NewOTPService(deps.Repos.OTP)
+	categoriesService := NewCategoriesService(deps.Repos.Categories)
 	menusService := NewMenusService(deps.Repos.Menus)
 	storesService := NewStoresService(deps.Repos.Stores)
 
 	return &Services{
-		Users:  usersService,
-		OTP:    OTPService,
-		Menus:  menusService,
-		Stores: storesService,
+		Users:      usersService,
+		OTP:        OTPService,
+		Stores:     storesService,
+		Categories: categoriesService,
+		Menus:      menusService,
 	}
 }

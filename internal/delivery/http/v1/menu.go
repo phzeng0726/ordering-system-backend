@@ -15,8 +15,8 @@ func (h *Handler) initUserMenusRoutes(api *gin.RouterGroup) {
 		menus.POST("", h.createMenu)
 		menus.PATCH("/:menu_id", h.updateMenu)
 		menus.DELETE("/:menu_id", h.deleteMenu)
-		menus.GET("", h.getAllByUserId)
-		menus.GET("/:menu_id", h.getById)
+		menus.GET("", h.getAllMenusByUserId)
+		menus.GET("/:menu_id", h.getMenuById)
 	}
 }
 
@@ -122,12 +122,12 @@ func (h *Handler) deleteMenu(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menuId)
 }
 
-func (h *Handler) getAllByUserId(c *gin.Context) {
+func (h *Handler) getAllMenusByUserId(c *gin.Context) {
 	userId := c.Param("user_id")
-	languageIdStr := c.Query("languageId")
+	languageIdStr := c.Query("language")
 	languageId, err := strconv.Atoi(languageIdStr)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "languageId parameter is missing or invalid syntax"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "language parameter is missing or invalid syntax"})
 		return
 	}
 
@@ -140,13 +140,13 @@ func (h *Handler) getAllByUserId(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menus)
 }
 
-func (h *Handler) getById(c *gin.Context) {
+func (h *Handler) getMenuById(c *gin.Context) {
 	userId := c.Param("user_id")
 	menuId := c.Param("menu_id")
-	languageIdStr := c.Query("languageId")
+	languageIdStr := c.Query("language")
 	languageId, err := strconv.Atoi(languageIdStr)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "languageId parameter is missing or invalid syntax"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "language parameter is missing or invalid syntax"})
 		return
 	}
 

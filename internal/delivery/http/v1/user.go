@@ -26,6 +26,7 @@ func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 		user.GET("", h.getUserById)
 		h.initUserStoresRoutes(user)
 		h.initUserMenusRoutes(user)
+		h.initUserCategoryRoutes(user)
 	}
 }
 

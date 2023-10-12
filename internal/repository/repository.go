@@ -34,6 +34,10 @@ type Stores interface {
 	GetAll(ctx context.Context) ([]domain.Store, error)
 }
 
+type Categories interface {
+	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error)
+}
+
 type Menus interface {
 	Create(ctx context.Context, menu domain.Menu) error
 	Update(ctx context.Context, menu domain.Menu) error
@@ -43,10 +47,11 @@ type Menus interface {
 }
 
 type Repositories struct {
-	Users  Users
-	OTP    OTP
-	Menus  Menus
-	Stores Stores
+	Users      Users
+	OTP        OTP
+	Stores     Stores
+	Categories Categories
+	Menus      Menus
 }
 
 type RepoTools struct{}
@@ -77,9 +82,10 @@ func (*RepoTools) GetUserAccount(tx *gorm.DB, userId string) (domain.UserAccount
 
 func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
 	return &Repositories{
-		OTP:    NewOTPRepo(db),
-		Users:  NewUsersRepo(db, rt),
-		Menus:  NewMenusRepo(db, rt),
-		Stores: NewStoresRepo(db, rt),
+		OTP:        NewOTPRepo(db),
+		Users:      NewUsersRepo(db, rt),
+		Stores:     NewStoresRepo(db, rt),
+		Categories: NewCategoriesRepo(db, rt),
+		Menus:      NewMenusRepo(db, rt),
 	}
 }
