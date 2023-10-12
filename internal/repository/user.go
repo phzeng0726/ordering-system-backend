@@ -23,6 +23,40 @@ func NewUsersRepo(db *gorm.DB, rt *RepoTools) *UsersRepo {
 	}
 }
 
+func (r *UsersRepo) createUser(tx *gorm.DB, userAccount *domain.UserAccount, user *domain.User) error {
+	if err := tx.Create(&userAccount).Error; err != nil {
+		if strings.Contains(err.Error(), "unique_email_user_type") {
+			return errors.New("email has already existed")
+		}
+		return errors.New("failed to create user account: " + err.Error())
+	}
+
+	if err := tx.Create(&user).Error; err != nil {
+		return errors.New("failed to create user: " + err.Error())
+	}
+
+	return nil
+}
+
+func (r *UsersRepo) createDefaultCategories(tx *gorm.DB, userId string) error {
+	var categories []domain.Category
+
+	if err := tx.Where("is_default = ?", true).Find(&categories).Error; err != nil {
+		return err
+	}
+
+	for _, c := range categories {
+		var categoryUserMapping domain.CategoryUserMapping
+		categoryUserMapping.UserId = userId
+		categoryUserMapping.CategoryId = c.Id
+
+		if err := tx.Create(&categoryUserMapping).Error; err != nil {
+			return errors.New("failed to create default categories: " + err.Error())
+		}
+	}
+	return nil
+}
+
 func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, user domain.User, password string) error {
 	db := r.db.WithContext(ctx)
 
@@ -32,15 +66,12 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 			return err
 		}
 
-		if err := tx.Create(&userAccount).Error; err != nil {
-			if strings.Contains(err.Error(), "unique_email_user_type") {
-				return errors.New("email has already existed")
-			}
-			return errors.New("failed to create user account: " + err.Error())
+		if err := r.createUser(tx, &userAccount, &user); err != nil {
+			return err
 		}
 
-		if err := tx.Create(&user).Error; err != nil {
-			return errors.New("failed to create user: " + err.Error())
+		if err := r.createDefaultCategories(tx, user.Id); err != nil {
+			return err
 		}
 
 		if err := firebase_auth.CreateUser(client, userAccount.UidCode, userAccount.Email, password); err != nil {

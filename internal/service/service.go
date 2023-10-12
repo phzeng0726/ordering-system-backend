@@ -43,7 +43,7 @@ type ResetPasswordInput struct {
 }
 
 type Users interface {
-	Create(ctx context.Context, input CreateUserInput) error
+	Create(ctx context.Context, input CreateUserInput) (string, error)
 	Update(ctx context.Context, userId string, input UpdateUserInput) error
 	Delete(ctx context.Context, userId string) error
 	GetByEmail(ctx context.Context, email string, userType int) (string, error)

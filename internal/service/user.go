@@ -17,7 +17,7 @@ func NewUsersService(repo repository.Users) *UsersService {
 	return &UsersService{repo: repo}
 }
 
-func (s *UsersService) Create(ctx context.Context, input CreateUserInput) error {
+func (s *UsersService) Create(ctx context.Context, input CreateUserInput) (string, error) {
 	userId := uuid.New().String()  // DB
 	uidCode := uuid.New().String() // Firebase Auth
 	upperUidCode := strings.ToUpper(uidCode)
@@ -38,9 +38,9 @@ func (s *UsersService) Create(ctx context.Context, input CreateUserInput) error 
 	}
 
 	if err := s.repo.Create(ctx, userAccount, user, input.Password); err != nil {
-		return err
+		return userId, err
 	}
-	return nil
+	return userId, nil
 }
 
 func (s *UsersService) Update(ctx context.Context, userId string, input UpdateUserInput) error {

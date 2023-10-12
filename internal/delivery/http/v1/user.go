@@ -51,19 +51,21 @@ func (h *Handler) createUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.Users.Create(c.Request.Context(), service.CreateUserInput{
+	userId, err := h.services.Users.Create(c.Request.Context(), service.CreateUserInput{
 		Email:      inp.Email,
 		Password:   inp.Password,
 		UserType:   inp.UserType,
 		FirstName:  inp.FirstName,
 		LastName:   inp.LastName,
 		LanguageId: inp.LanguageId,
-	}); err != nil {
+	})
+
+	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, inp)
+	c.IndentedJSON(http.StatusOK, userId)
 }
 
 func (h *Handler) updateUser(c *gin.Context) {
