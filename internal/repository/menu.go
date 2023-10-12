@@ -135,7 +135,7 @@ func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) er
 	return nil
 }
 
-func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error) {
+func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
 	var menus []domain.Menu
 	var menuItemMappings []domain.MenuItemMapping
 	db := r.db.WithContext(ctx)
@@ -153,7 +153,10 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string) ([]domain
 			return errors.New("menu list is empty")
 		}
 
-		if err := tx.Preload("Menu").Preload("MenuItem.Category").Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).Find(&menuItemMappings).Error; err != nil {
+		if err := tx.Preload("Menu").
+			Preload("MenuItem.Category").
+			Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
+			Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).Find(&menuItemMappings).Error; err != nil {
 			return err
 		}
 
@@ -174,12 +177,15 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string) ([]domain
 	return menus, nil
 }
 
-func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string) (domain.Menu, error) {
+func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error) {
 	var menu domain.Menu
 	var menuItemMappings []domain.MenuItemMapping
 	db := r.db.WithContext(ctx)
 
-	if err := db.Preload("Menu").Preload("MenuItem.Category").Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
+	if err := db.Preload("Menu").
+		Preload("MenuItem.Category").
+		Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
+		Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
 		return menu, err
 	}
 

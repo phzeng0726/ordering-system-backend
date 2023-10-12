@@ -38,8 +38,8 @@ type Menus interface {
 	Create(ctx context.Context, menu domain.Menu) error
 	Update(ctx context.Context, menu domain.Menu) error
 	Delete(ctx context.Context, userId string, menuId string) error
-	GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error)
-	GetById(ctx context.Context, userId string, menuId string) (domain.Menu, error)
+	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error)
+	GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error)
 }
 
 type Repositories struct {

@@ -1,8 +1,9 @@
 package domain
 
 type Category struct {
-	Id         int    `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
-	Identifier string `gorm:"column:identifier;" json:"identifier"`
+	Id               int              `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
+	Identifier       string           `gorm:"column:identifier;" json:"identifier"`
+	CategoryLanguage CategoryLanguage `gorm:"foreignKey:Id;references:category_id;" json:"categoryLanguage"`
 }
 
 type CategoryUserMapping struct {
@@ -15,13 +16,16 @@ type CategoryUserMapping struct {
 }
 
 type CategoryLanguage struct {
-	Id         int      `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
-	CategoryId int      `gorm:"column:category_id;" json:"categoryId"`
-	LanguageId int      `gorm:"column:language_id;" json:"languageId"`
-	Title      string   `gorm:"column:title;" json:"title"`
-	Category   Category `gorm:"foreignKey:CategoryId;references:id;" json:"-"`
+	Id         int    `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
+	CategoryId int    `gorm:"column:category_id;" json:"categoryId"`
+	LanguageId int    `gorm:"column:language_id;" json:"languageId"`
+	Title      string `gorm:"column:title;" json:"title"`
 }
 
 func (CategoryUserMapping) TableName() string {
 	return "category_user_mapping"
+}
+
+func (CategoryLanguage) TableName() string {
+	return "category_language"
 }

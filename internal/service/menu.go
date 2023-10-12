@@ -78,16 +78,16 @@ func (s *MenusService) Delete(ctx context.Context, userId string, menuId string)
 	return nil
 }
 
-func (s *MenusService) GetAllByUserId(ctx context.Context, userId string) ([]domain.Menu, error) {
-	menus, err := s.repo.GetAllByUserId(ctx, userId)
+func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
+	menus, err := s.repo.GetAllByUserId(ctx, userId, languageId)
 	if err != nil {
 		return menus, err
 	}
 	return menus, nil
 }
 
-func (s *MenusService) GetById(ctx context.Context, userId string, menuId string) (domain.Menu, error) {
-	menu, err := s.repo.GetById(ctx, userId, menuId)
+func (s *MenusService) GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error) {
+	menu, err := s.repo.GetById(ctx, userId, menuId, languageId)
 	if err != nil {
 		return menu, err
 	}

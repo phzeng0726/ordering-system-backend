@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"ordering-system-backend/internal/service"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -139,8 +140,14 @@ func (h *Handler) deleteMenu(c *gin.Context) {
 
 func (h *Handler) getAllByUserId(c *gin.Context) {
 	userId := c.Param("user_id")
+	languageIdStr := c.Query("languageId")
+	languageId, err := strconv.Atoi(languageIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "languageId parameter is missing or invalid syntax"})
+		return
+	}
 
-	menus, err := h.services.Menus.GetAllByUserId(c.Request.Context(), userId)
+	menus, err := h.services.Menus.GetAllByUserId(c.Request.Context(), userId, languageId)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -152,9 +159,14 @@ func (h *Handler) getAllByUserId(c *gin.Context) {
 func (h *Handler) getById(c *gin.Context) {
 	userId := c.Param("user_id")
 	menuId := c.Param("menu_id")
+	languageIdStr := c.Query("languageId")
+	languageId, err := strconv.Atoi(languageIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "languageId parameter is missing or invalid syntax"})
+		return
+	}
 
-	fmt.Println(menuId)
-	menu, err := h.services.Menus.GetById(c.Request.Context(), userId, menuId)
+	menu, err := h.services.Menus.GetById(c.Request.Context(), userId, menuId, languageId)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
