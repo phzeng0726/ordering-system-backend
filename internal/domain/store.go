@@ -18,7 +18,7 @@ type Store struct {
 	Timezone          string             `gorm:"column:timezone;" json:"timezone"`
 	IsBreak           bool               `gorm:"column:is_break;" json:"isBreak"`
 	StoreOpeningHours []StoreOpeningHour `gorm:"foreignKey:StoreId;references:id;" json:"storeOpeningHours"`
-	Seats             []Seat             `gorm:"foreignKey:StoreId;references:id;" json:"seats"`
+	// Seats             []Seat             `gorm:"foreignKey:StoreId;references:id;" json:"seats"`
 }
 
 // NOTE:

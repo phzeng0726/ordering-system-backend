@@ -44,13 +44,26 @@ func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 
 func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 	db := r.db.WithContext(ctx)
+	fmt.Println(store)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("user_id = ? AND id = ?", store.UserId, store.Id).First(&store).Error; err != nil {
+		if err := tx.Where("user_id = ? AND id = ?", store.UserId, store.Id).First(&domain.Store{}).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// userId避免print在log上
 				return fmt.Errorf("no store found with id %s for this user id", store.Id)
 			}
+			return err
+		}
+
+		if err := tx.Where("store_id = ?", store.Id).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
+			return err
+		}
+
+		for i := range store.StoreOpeningHours {
+			store.StoreOpeningHours[i].StoreId = store.Id
+		}
+
+		if err := tx.Create(&store.StoreOpeningHours).Error; err != nil {
 			return err
 		}
 
