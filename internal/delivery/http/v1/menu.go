@@ -111,31 +111,15 @@ func (h *Handler) updateMenu(c *gin.Context) {
 }
 
 func (h *Handler) deleteMenu(c *gin.Context) {
-	// storeId := c.Param("store_id")
-	// menuIdStr := c.Param("menu_id")
-	// menuId, err := strconv.Atoi(menuIdStr)
-	// if err != nil {
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid menu_id"})
-	// 	return
-	// }
+	userId := c.Param("user_id")
+	menuId := c.Param("menu_id")
 
-	// // 確認是否store有該menu，有的話才會做下一步，避免別人把她的menu刪掉
-	// menus, err := s.repo.GetById(storeId, menuId)
-	// if err != nil || menus.Id == 0 {
-	// 	if menus.Id == 0 {
-	// 		err = errors.New("menu not found for this store")
-	// 	}
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-	// 	return
-	// }
+	if err := h.services.Menus.Delete(c.Request.Context(), userId, menuId); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
 
-	// err = s.repo.Delete(storeId, menuId)
-	// if err != nil {
-	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-	// 	return
-	// }
-
-	// c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, menuId)
 }
 
 func (h *Handler) getAllByUserId(c *gin.Context) {

@@ -75,6 +75,9 @@ func (s *MenusService) Update(ctx context.Context, input UpdateMenuInput) error 
 }
 
 func (s *MenusService) Delete(ctx context.Context, userId string, menuId string) error {
+	if err := s.repo.Delete(ctx, userId, menuId); err != nil {
+		return err
+	}
 	return nil
 }
 
