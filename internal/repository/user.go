@@ -94,8 +94,7 @@ func (r *UsersRepo) Update(ctx context.Context, user domain.User) error {
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		_, err := r.rt.GetUserAccount(tx, user.Id)
-		if err != nil {
+		if err := r.rt.CheckUserAccountExist(tx, user.Id, nil); err != nil {
 			return err
 		}
 
@@ -191,11 +190,11 @@ func (r *UsersRepo) deleteCategories(tx *gorm.DB, userId string) error {
 }
 
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
+	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		userAccount, err := r.rt.GetUserAccount(tx, userId)
-		if err != nil {
+		if err := r.rt.CheckUserAccountExist(tx, userId, &userAccount); err != nil {
 			return err
 		}
 
@@ -232,7 +231,7 @@ func (r *UsersRepo) GetByEmail(ctx context.Context, email string, userType int) 
 	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
 
-	if err := db.Where("email = ?", email).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
+	if err := db.Where("email = ? AND user_type = ?", email, userType).First(&userAccount).Error; err != nil {
 		// 查無使用者，前端要收到false的消息
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return userAccount.Id, nil
@@ -246,7 +245,7 @@ func (r *UsersRepo) GetByUid(ctx context.Context, uid string, userType int) (str
 	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
 
-	if err := db.Where("uid_code = ?", uid).Where("user_type = ?", userType).First(&userAccount).Error; err != nil {
+	if err := db.Where("uid_code = ? AND user_type = ?", uid, userType).First(&userAccount).Error; err != nil {
 		// 查無使用者，前端要收到false的消息
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return userAccount.Id, nil
@@ -269,11 +268,11 @@ func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, er
 }
 
 func (r *UsersRepo) ResetPassword(ctx context.Context, userId string, newPassword string) error {
+	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		userAccount, err := r.rt.GetUserAccount(tx, userId)
-		if err != nil {
+		if err := r.rt.CheckUserAccountExist(tx, userId, &userAccount); err != nil {
 			return err
 		}
 

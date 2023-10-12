@@ -73,31 +73,37 @@ func (*RepoTools) CheckUserExist(tx *gorm.DB, userId string) error {
 	return nil
 }
 
-func (*RepoTools) CheckStoreExist(tx *gorm.DB, userId string, storeId string) (domain.Store, error) {
-	var store domain.Store
+func (*RepoTools) CheckStoreExist(tx *gorm.DB, userId string, storeId string, store *domain.Store) error {
+	// 沒有傳入指針時，代表外部不需要使用到
+	if store == nil {
+		store = &domain.Store{}
+	}
 
 	if err := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// userId避免print在log上
-			return store, fmt.Errorf("no store found with id %s for this user id", storeId)
+			return fmt.Errorf("no store found with id %s for this user id", storeId)
 		}
-		return store, err
+		return err
 	}
 
-	return store, nil
+	return nil
 }
 
-func (*RepoTools) GetUserAccount(tx *gorm.DB, userId string) (domain.UserAccount, error) {
-	var userAccount domain.UserAccount
+func (*RepoTools) CheckUserAccountExist(tx *gorm.DB, userId string, userAccount *domain.UserAccount) error {
+	// 沒有傳入指針時，代表外部不需要使用到
+	if userAccount == nil {
+		userAccount = &domain.UserAccount{}
+	}
 
 	if err := tx.Where("id = ?", userId).First(&userAccount).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return userAccount, errors.New("user id not found")
+			return errors.New("user id not found")
 		}
-		return userAccount, err
+		return err
 	}
 
-	return userAccount, nil
+	return nil
 }
 
 func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
