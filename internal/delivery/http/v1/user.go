@@ -11,22 +11,17 @@ import (
 
 func (h *Handler) initUserRoutes(api *gin.RouterGroup) {
 	// 不帶有userId
-	userAuth := api.Group("/users")
+	user := api.Group("/users")
 	{
-		userAuth.POST("", h.createUser)                   // 創建User
-		userAuth.GET("/login", h.getUserByEmail)          // 透過Email確認user有沒有存在
-		userAuth.POST("/reset-password", h.resetPassword) // 重設密碼
-	}
+		// Auth
+		user.POST("", h.createUser)                   // 創建User
+		user.GET("/login", h.getUserByEmail)          // 透過Email確認user有沒有存在
+		user.POST("/reset-password", h.resetPassword) // 重設密碼
 
-	// 帶有userId
-	user := api.Group("/users/:user_id")
-	{
-		user.PATCH("", h.updateUser)
-		user.DELETE("", h.deleteUser)
-		user.GET("", h.getUserById)
-		h.initUserStoresRoutes(user)
-		h.initUserMenusRoutes(user)
-		h.initUserCategoryRoutes(user)
+		// Others
+		user.PATCH("/users/:user_id", h.updateUser)
+		user.DELETE("/users/:user_id", h.deleteUser)
+		user.GET("/users/:user_id", h.getUserById)
 	}
 }
 

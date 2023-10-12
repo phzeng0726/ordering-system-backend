@@ -54,6 +54,7 @@ func (r *UsersRepo) createCategories(tx *gorm.DB, userId string) error {
 			return errors.New("failed to create default categories: " + err.Error())
 		}
 	}
+
 	return nil
 }
 

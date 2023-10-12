@@ -19,7 +19,14 @@ func NewHandler(services *service.Services) *Handler {
 func (h *Handler) Init(api *gin.RouterGroup) {
 	v1 := api.Group("/v1")
 	{
-		h.initUserRoutes(v1)
+		// For common
 		h.initOTPRoutes(v1)
+		h.initUserRoutes(v1)
+
+		// For 商家
+		h.initUserCategoryRoutes(v1)
+		h.initUserMenusRoutes(v1)
+		h.initUserStoresRoutes(v1)
+		h.initUserSeatsRoutes(v1)
 	}
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) initUserCategoryRoutes(api *gin.RouterGroup) {
-	menus := api.Group("/categories")
+	menus := api.Group("/users/:user_id/categories")
 	{
 		menus.POST("", h.createCategory)
 		menus.PATCH("/:category_id", h.updateCategory)

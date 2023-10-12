@@ -18,6 +18,7 @@ type Store struct {
 	Timezone          string             `gorm:"column:timezone;" json:"timezone"`
 	IsBreak           bool               `gorm:"column:is_break;" json:"isBreak"`
 	StoreOpeningHours []StoreOpeningHour `gorm:"foreignKey:StoreId;references:id;" json:"storeOpeningHours"`
+	StoreSeatings     []StoreSeating     `gorm:"foreignKey:StoreId;references:id;" json:"storeSeatings"`
 }
 
 // NOTE:
@@ -31,4 +32,10 @@ type StoreOpeningHour struct {
 	DayOfWeek int     `gorm:"column:day_of_week;" json:"dayOfWeek"`
 	OpenTime  dt.Time `gorm:"column:open_time" json:"openTime"`
 	CloseTime dt.Time `gorm:"column:close_time" json:"closeTime"`
+}
+
+type StoreSeating struct {
+	Id          int    `gorm:"column:id;not null;primaryKey;" json:"-"`
+	StoreId     string `gorm:"column:store_id;" json:"-"`
+	Description string `gorm:"column:description;" json:"description"`
 }

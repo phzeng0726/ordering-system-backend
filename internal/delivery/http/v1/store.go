@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) initUserStoresRoutes(api *gin.RouterGroup) {
-	stores := api.Group("/stores")
+	stores := api.Group("/users/:user_id/stores")
 	{
 		stores.POST("", h.createStore)
 		stores.PATCH("/:store_id", h.updateStore)

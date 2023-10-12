@@ -10,7 +10,7 @@ import (
 )
 
 func (h *Handler) initUserMenusRoutes(api *gin.RouterGroup) {
-	menus := api.Group("/menus")
+	menus := api.Group("/users/:user_id/menus")
 	{
 		menus.POST("", h.createMenu)
 		menus.PATCH("/:menu_id", h.updateMenu)
