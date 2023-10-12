@@ -19,6 +19,22 @@ func NewStoresRepo(db *gorm.DB, rt *RepoTools) *StoresRepo {
 	}
 }
 
+func (r *StoresRepo) deleteSeats(tx *gorm.DB, storeId string) error {
+	return tx.Where("store_id = ?", storeId).Delete(&domain.Seat{}).Error
+}
+
+func (r *StoresRepo) deleteStoreOpeningHours(tx *gorm.DB, storeId string) error {
+	return tx.Where("store_id = ?", storeId).Delete(&domain.StoreOpeningHour{}).Error
+}
+
+func (r *StoresRepo) createStoreOpeningHours(tx *gorm.DB, store domain.Store) error {
+	for i := range store.StoreOpeningHours {
+		store.StoreOpeningHours[i].StoreId = store.Id
+	}
+
+	return tx.Create(&store.StoreOpeningHours).Error
+}
+
 func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 	db := r.db.WithContext(ctx)
 
@@ -48,15 +64,11 @@ func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 			return err
 		}
 
-		if err := tx.Where("store_id = ?", store.Id).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
+		if err := r.deleteStoreOpeningHours(tx, store.Id); err != nil {
 			return err
 		}
 
-		for i := range store.StoreOpeningHours {
-			store.StoreOpeningHours[i].StoreId = store.Id
-		}
-
-		if err := tx.Create(&store.StoreOpeningHours).Error; err != nil {
+		if err := r.createStoreOpeningHours(tx, store); err != nil {
 			return err
 		}
 
@@ -80,11 +92,11 @@ func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) 
 			return err
 		}
 
-		if err := tx.Where("store_id = ?", storeId).Delete(&domain.Seat{}).Error; err != nil {
+		if err := r.deleteSeats(tx, storeId); err != nil {
 			return err
 		}
 
-		if err := tx.Where("store_id = ?", storeId).Delete(&domain.StoreOpeningHour{}).Error; err != nil {
+		if err := r.deleteStoreOpeningHours(tx, storeId); err != nil {
 			return err
 		}
 
