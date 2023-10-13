@@ -68,8 +68,10 @@ func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 			return err
 		}
 
-		if err := r.createStoreOpeningHours(tx, store); err != nil {
-			return err
+		if len(store.StoreOpeningHours) != 0 {
+			if err := r.createStoreOpeningHours(tx, store); err != nil {
+				return err
+			}
 		}
 
 		if err := tx.Model(&domain.Store{}).Where("user_id = ? AND id = ?", store.UserId, store.Id).Updates(&store).Error; err != nil {
