@@ -22,12 +22,3 @@ func (s *SeatsService) GetById(ctx context.Context, storeId string, seatId int) 
 
 	return seat, nil
 }
-
-func (s *SeatsService) LoadImage() (domain.BinaryData, error) {
-	data, err := s.repo.LoadImage()
-	if err != nil {
-		return data, err
-	}
-
-	return data, nil
-}

@@ -41,7 +41,6 @@ type Categories interface {
 
 type Seats interface {
 	GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error)
-	LoadImage() (domain.BinaryData, error)
 }
 
 type Menus interface {
@@ -107,6 +106,27 @@ func (*RepoTools) CheckUserAccountExist(tx *gorm.DB, userId string, userAccount 
 	return nil
 }
 
+func (*RepoTools) UploadImage(tx *gorm.DB, imageBytes []byte) error {
+	var data domain.BinaryData
+	data.BinData = imageBytes
+
+	if err := tx.Create(&data).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*RepoTools) LoadImage(tx *gorm.DB, imageId int) (domain.BinaryData, error) {
+	var data domain.BinaryData
+
+	if err := tx.Where("id = ?", imageId).First(&data).Error; err != nil {
+		return data, err
+	}
+
+	return data, nil
+}
+
 func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
 	return &Repositories{
 		OTP:        NewOTPRepo(db),
@@ -117,3 +137,22 @@ func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
 		Menus:      NewMenusRepo(db, rt),
 	}
 }
+
+// func loadImage() ([]byte, error) {
+// 	var imageBytes []byte
+// 	// 開啟圖片
+// 	file, err := os.Open("C:/Users/phzen/Desktop/LINE_ALBUM_Lucky_230917_1.jpg")
+// 	if err != nil {
+
+// 		return imageBytes, err
+// 	}
+// 	defer file.Close()
+
+// 	// 轉為 bytes
+// 	imageBytes, err = io.ReadAll(file)
+// 	if err != nil {
+// 		return imageBytes, err
+// 	}
+
+// 	return imageBytes, nil
+// }

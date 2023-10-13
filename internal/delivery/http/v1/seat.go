@@ -19,13 +19,7 @@ func (h *Handler) initUserSeatsRoutes(api *gin.RouterGroup) {
 }
 
 func (h *Handler) createSeat(c *gin.Context) {
-	data, err := h.services.Seats.LoadImage()
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, data)
+	c.IndentedJSON(http.StatusOK, nil)
 }
 
 func (h *Handler) updateSeat(c *gin.Context) {
