@@ -65,6 +65,7 @@ type Stores interface {
 
 type Seats interface {
 	GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error)
+	LoadImage() (domain.BinaryData, error)
 }
 
 type Categories interface {

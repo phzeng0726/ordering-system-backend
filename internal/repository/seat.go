@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"ordering-system-backend/internal/domain"
 	"os"
@@ -21,7 +22,7 @@ func NewSeatsRepo(db *gorm.DB, rt *RepoTools) *SeatsRepo {
 	}
 }
 
-func imageTesting() ([]byte, error) {
+func loadImage() ([]byte, error) {
 	var imageBytes []byte
 	// 開啟圖片
 	file, err := os.Open("C:/Users/phzen/Desktop/LINE_ALBUM_Lucky_230917_1.jpg")
@@ -40,21 +41,45 @@ func imageTesting() ([]byte, error) {
 	return imageBytes, nil
 }
 
-func (r *SeatsRepo) GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error) {
-	var seat domain.Seat
+func (r *SeatsRepo) insertImage(ctx context.Context) error {
 	var data domain.BinaryData
-	bytes, err := imageTesting()
+	bytes, err := loadImage()
 	if err != nil {
-		return seat, err
+		return err
 	}
 
 	data.BinData = bytes
 	db := r.db.WithContext(ctx)
 
 	if err := db.Create(&data).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *SeatsRepo) LoadImage() (domain.BinaryData, error) {
+	var data domain.BinaryData
+
+	if err := r.db.Where("id = ?", 1).First(&data).Error; err != nil {
+		return data, err
+	}
+
+	return data, nil
+}
+
+func (r *SeatsRepo) GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error) {
+	var seat domain.Seat
+	// if err := r.insertImage(ctx); err != nil {
+	// 	return seat, err
+	// }
+
+	data, err := r.LoadImage()
+	if err != nil {
 		return seat, err
 	}
 
+	fmt.Println(data)
 	return seat, nil
 }
 
