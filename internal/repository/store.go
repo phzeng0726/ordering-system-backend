@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -58,6 +59,8 @@ func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 
 func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 	db := r.db.WithContext(ctx)
+
+	fmt.Println(store)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := r.rt.CheckStoreExist(tx, store.UserId, store.Id, nil); err != nil {
