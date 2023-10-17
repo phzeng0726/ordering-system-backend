@@ -30,6 +30,9 @@ type MenuItem struct {
 	Price       int      `gorm:"column:price;" json:"price"`
 	CategoryId  int      `gorm:"column:category_id;" json:"-"` // 外鍵欄位名稱
 	Category    Category `gorm:"foreignKey:CategoryId;references:id;" json:"category"`
+	ImageId     int      `gorm:"column:image_id;" json:"-"` // 外鍵欄位名稱
+	Image       Image    `gorm:"foreignKey:ImageId;references:id;" json:"-"`
+	ImageBytes  []byte   `gorm:"-" json:"imageBytes"`
 }
 
 func (MenuItemMapping) TableName() string {

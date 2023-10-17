@@ -27,6 +27,9 @@ func (s *MenusService) Create(ctx context.Context, input CreateMenuInput) (strin
 				Quantity:    mi.Quantity,
 				Price:       mi.Price,
 				CategoryId:  mi.CategoryId,
+				Image: domain.Image{
+					BytesData: mi.ImageBytes,
+				},
 			},
 		)
 	}
@@ -56,6 +59,9 @@ func (s *MenusService) Update(ctx context.Context, input UpdateMenuInput) error 
 				Quantity:    mi.Quantity,
 				Price:       mi.Price,
 				CategoryId:  mi.CategoryId,
+				Image: domain.Image{
+					BytesData: mi.ImageBytes,
+				},
 			},
 		)
 	}
@@ -99,6 +105,7 @@ func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, langua
 		}
 
 		// key: menuId, value: menuItems
+		mim.MenuItem.ImageBytes = mim.MenuItem.Image.BytesData
 		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
 		menuItemsIdMap[mim.MenuId] = append(menuItemsIdMap[mim.MenuId], mim.MenuItem)
 	}
@@ -120,6 +127,7 @@ func (s *MenusService) GetById(ctx context.Context, userId string, menuId string
 
 	menu = menuItemMappings[0].Menu
 	for _, mim := range menuItemMappings {
+		mim.MenuItem.ImageBytes = mim.MenuItem.Image.BytesData
 		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
 		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
 	}

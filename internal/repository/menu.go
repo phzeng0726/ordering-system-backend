@@ -145,6 +145,7 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageI
 		}
 
 		if err := tx.Preload("Menu").
+			Preload("MenuItem.Image").
 			Preload("MenuItem.Category").
 			Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
 			Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).Find(&menuItemMappings).Error; err != nil {
@@ -168,6 +169,7 @@ func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, l
 	db := r.db.WithContext(ctx)
 
 	if err := db.Preload("Menu").
+		Preload("MenuItem.Image").
 		Preload("MenuItem.Category").
 		Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
 		Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {

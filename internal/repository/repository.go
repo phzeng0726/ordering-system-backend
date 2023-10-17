@@ -107,8 +107,8 @@ func (*RepoTools) CheckUserAccountExist(tx *gorm.DB, userId string, userAccount 
 }
 
 func (*RepoTools) UploadImage(tx *gorm.DB, imageBytes []byte) error {
-	var data domain.BinaryData
-	data.BinData = imageBytes
+	var data domain.Image
+	data.BytesData = imageBytes
 
 	if err := tx.Create(&data).Error; err != nil {
 		return err
@@ -117,8 +117,8 @@ func (*RepoTools) UploadImage(tx *gorm.DB, imageBytes []byte) error {
 	return nil
 }
 
-func (*RepoTools) LoadImage(tx *gorm.DB, imageId int) (domain.BinaryData, error) {
-	var data domain.BinaryData
+func (*RepoTools) LoadImage(tx *gorm.DB, imageId int) (domain.Image, error) {
+	var data domain.Image
 
 	if err := tx.Where("id = ?", imageId).First(&data).Error; err != nil {
 		return data, err

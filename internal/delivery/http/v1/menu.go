@@ -21,18 +21,26 @@ func (h *Handler) initUserMenusRoutes(api *gin.RouterGroup) {
 }
 
 type createMenuInput struct {
-	StoreId     string                `json:"storeId" binding:"required"`
-	Title       string                `json:"title" binding:"required"`
-	Description string                `json:"description"`
-	MenuItems   []createMenuItemInput `json:"menuItems" binding:"required"`
+	StoreId     string          `json:"storeId" binding:"required"`
+	Title       string          `json:"title" binding:"required"`
+	Description string          `json:"description"`
+	MenuItems   []menuItemInput `json:"menuItems" binding:"required"`
 }
 
-type createMenuItemInput struct {
+type menuItemInput struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description"`
 	Quantity    *int   `json:"quantity" binding:"required"`
 	Price       *int   `json:"price" binding:"required"`
 	CategoryId  *int   `json:"categoryId" binding:"required"`
+	ImageBytes  []byte `json:"imageBytes"`
+}
+
+type updateMenuInput struct {
+	StoreId     string          `json:"storeId" binding:"required"`
+	Title       string          `json:"title" binding:"required"`
+	Description string          `json:"description"`
+	MenuItems   []menuItemInput `json:"menuItems" binding:"required"`
 }
 
 func (h *Handler) createMenu(c *gin.Context) {
@@ -44,14 +52,15 @@ func (h *Handler) createMenu(c *gin.Context) {
 		return
 	}
 
-	var menuItems []service.CreateMenuItemInput
+	var menuItems []service.MenuItemInput
 	for _, mi := range inp.MenuItems {
-		menuItems = append(menuItems, service.CreateMenuItemInput{
+		menuItems = append(menuItems, service.MenuItemInput{
 			Title:       mi.Title,
 			Description: mi.Description,
 			Quantity:    *mi.Quantity,
 			Price:       *mi.Price,
 			CategoryId:  *mi.CategoryId,
+			ImageBytes:  mi.ImageBytes,
 		})
 	}
 
@@ -72,7 +81,7 @@ func (h *Handler) createMenu(c *gin.Context) {
 }
 
 func (h *Handler) updateMenu(c *gin.Context) {
-	var inp createMenuInput
+	var inp updateMenuInput
 	userId := c.Param("user_id")
 	menuId := c.Param("menu_id")
 
@@ -82,14 +91,15 @@ func (h *Handler) updateMenu(c *gin.Context) {
 		return
 	}
 
-	var menuItems []service.CreateMenuItemInput
+	var menuItems []service.MenuItemInput
 	for _, mi := range inp.MenuItems {
-		menuItems = append(menuItems, service.CreateMenuItemInput{
+		menuItems = append(menuItems, service.MenuItemInput{
 			Title:       mi.Title,
 			Description: mi.Description,
 			Quantity:    *mi.Quantity,
 			Price:       *mi.Price,
 			CategoryId:  *mi.CategoryId,
+			ImageBytes:  mi.ImageBytes,
 		})
 	}
 

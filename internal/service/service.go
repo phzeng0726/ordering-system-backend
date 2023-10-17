@@ -76,15 +76,16 @@ type CreateMenuInput struct {
 	StoreId     string
 	Title       string
 	Description string
-	MenuItems   []CreateMenuItemInput
+	MenuItems   []MenuItemInput
 }
 
-type CreateMenuItemInput struct {
+type MenuItemInput struct {
 	Title       string
 	Description string
 	Quantity    int
 	Price       int
 	CategoryId  int
+	ImageBytes  []byte
 }
 
 type UpdateMenuInput struct {
@@ -93,7 +94,7 @@ type UpdateMenuInput struct {
 	StoreId     string
 	Title       string
 	Description string
-	MenuItems   []CreateMenuItemInput
+	MenuItems   []MenuItemInput
 }
 
 type Menus interface {
