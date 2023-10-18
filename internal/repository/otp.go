@@ -12,20 +12,15 @@ import (
 )
 
 const (
-	sender         = "mgc881017@gmail.com"
+	senderEmail    = "mgc881017@gmail.com"
 	senderPassword = "wsdt nnwk hpgh zaoj"
-	smtpHost       = "smtp.gmail.com"
-	smtpPort       = "587"
-	expireTime     = 30 // 30分鐘
-
 )
 
 func sendVerificationMail(code string, recipient string) error {
-	// Create an instance of the Mailgun Client
-	auth := smtp.PlainAuth("", sender, senderPassword, smtpHost)
-
-	// Receiver email address.
-	to := []string{recipient}
+	// Configuration
+	smtpServer := "smtp.gmail.com"
+	smtpPort := "587"
+	expireTime := 30 // Mins
 
 	// Message.
 	subject := "Account Verification Code"
@@ -34,11 +29,15 @@ func sendVerificationMail(code string, recipient string) error {
 	Dear User,<br><br>Your verification Code is:<br><br>%s<br><br>This code will expire in %d minutes, so please use it as soon as possible to activate your account.<br>
 	If you did not request this code, please ignore this email.<br><br><br>Best regards,<br>PiPi Ordering System
 	`, codeHTML, expireTime)
+	msgStyle := "MIME-version: 1.0\r\n" + "Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n"
 
-	msg := []byte("Subject: " + subject + "\r\n" + "MIME-version: 1.0\r\n" + "Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n" + message)
+	// Connect to SMTP server
+	auth := smtp.PlainAuth("", senderEmail, senderPassword, smtpServer)
+	to := []string{recipient}
+	msg := []byte("Subject: " + subject + "\r\n" + msgStyle + message)
 
 	// Sending email.
-	if err := smtp.SendMail(smtpHost+":"+smtpPort, auth, sender, to, msg); err != nil {
+	if err := smtp.SendMail(smtpServer+":"+smtpPort, auth, senderEmail, to, msg); err != nil {
 		return err
 	}
 
