@@ -4,49 +4,44 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/smtp"
 	"ordering-system-backend/internal/domain"
 	otp "ordering-system-backend/pkg/otp"
-	"time"
 
-	"github.com/mailgun/mailgun-go/v4"
 	"gorm.io/gorm"
 )
 
 const (
-	mailDomain    = "sandbox6a4dcc235c40420bb28f1e2b7c7c72df.mailgun.org"
-	privateAPIKey = "677baac0b688af79dc3eac11105625a0-4b98b89f-598eb6b9"
-	sender        = "pipi_ordering@noreply.pipi.ordering.com"
-	expireTime    = 30 // 30分鐘
+	sender         = "mgc881017@gmail.com"
+	senderPassword = "wsdt nnwk hpgh zaoj"
+	smtpHost       = "smtp.gmail.com"
+	smtpPort       = "587"
+	expireTime     = 30 // 30分鐘
 
 )
 
 func sendVerificationMail(code string, recipient string) error {
 	// Create an instance of the Mailgun Client
-	mg := mailgun.NewMailgun(mailDomain, privateAPIKey)
+	auth := smtp.PlainAuth("", sender, senderPassword, smtpHost)
 
+	// Receiver email address.
+	to := []string{recipient}
+
+	// Message.
 	subject := "Account Verification Code"
 	codeHTML := fmt.Sprintf("<span style=\"font-size: 24px; font-weight: bold;\">%s</span>", code)
-	body := fmt.Sprintf(`
+	message := fmt.Sprintf(`
 	Dear User,<br><br>Your verification Code is:<br><br>%s<br><br>This code will expire in %d minutes, so please use it as soon as possible to activate your account.<br>
 	If you did not request this code, please ignore this email.<br><br><br>Best regards,<br>PiPi Ordering System
 	`, codeHTML, expireTime)
 
-	// The message object allows you to add attachments and Bcc recipients
-	message := mg.NewMessage(sender, subject, body, recipient)
-	message.SetHtml(body)
+	msg := []byte("Subject: " + subject + "\r\n" + "MIME-version: 1.0\r\n" + "Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n" + message)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	// Send the message with a 10 second timeout
-	resp, id, err := mg.Send(ctx, message)
-
-	if err != nil {
-		fmt.Println(err)
+	// Sending email.
+	if err := smtp.SendMail(smtpHost+":"+smtpPort, auth, sender, to, msg); err != nil {
 		return err
 	}
 
-	fmt.Printf("ID: %s Resp: %s\n", id, resp)
 	return nil
 }
 
