@@ -68,7 +68,7 @@ func (r *OTPRepo) Create(ctx context.Context, token string, email string) error 
 		}
 
 		if err := sendVerificationMail(code, email); err != nil {
-			return errors.New("invalid email for mailgun")
+			return err
 		}
 
 		return nil
