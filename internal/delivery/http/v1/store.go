@@ -24,32 +24,6 @@ func (h *Handler) initUserStoresRoutes(api *gin.RouterGroup) {
 	}
 }
 
-func (h *Handler) createStoreMenuReference(c *gin.Context) {
-	userId := c.Param("user_id")
-	storeId := c.Param("store_id")
-	menuId := c.Param("menu_id")
-
-	if err := h.services.Stores.CreateMenuReference(c.Request.Context(), userId, storeId, menuId); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, nil)
-}
-
-func (h *Handler) updateStoreMenuReference(c *gin.Context) {
-	userId := c.Param("user_id")
-	storeId := c.Param("store_id")
-	menuId := c.Param("menu_id")
-
-	if err := h.services.Stores.UpdateMenuReference(c.Request.Context(), userId, storeId, menuId); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, nil)
-}
-
 func (h *Handler) createStore(c *gin.Context) {
 	var inp domain.Store
 	userId := c.Param("user_id")
@@ -125,4 +99,32 @@ func (h *Handler) getStoreByStoreId(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, store)
+}
+
+// Store Menu Reference
+
+func (h *Handler) createStoreMenuReference(c *gin.Context) {
+	userId := c.Param("user_id")
+	storeId := c.Param("store_id")
+	menuId := c.Param("menu_id")
+
+	if err := h.services.Stores.CreateMenuReference(c.Request.Context(), userId, storeId, menuId); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, nil)
+}
+
+func (h *Handler) updateStoreMenuReference(c *gin.Context) {
+	userId := c.Param("user_id")
+	storeId := c.Param("store_id")
+	menuId := c.Param("menu_id")
+
+	if err := h.services.Stores.UpdateMenuReference(c.Request.Context(), userId, storeId, menuId); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, nil)
 }

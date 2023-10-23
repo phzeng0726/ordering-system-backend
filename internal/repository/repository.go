@@ -26,13 +26,13 @@ type Users interface {
 
 type Stores interface {
 	Create(ctx context.Context, store domain.Store) error
-	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
-	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	Update(ctx context.Context, store domain.Store) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
 	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
-
+	// Store Menu Reference
+	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
+	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	// 不含UserId
 	GetAll(ctx context.Context) ([]domain.Store, error)
 }

@@ -37,25 +37,6 @@ func (r *StoresRepo) createStoreOpeningHours(tx *gorm.DB, store domain.Store) er
 	return tx.Create(&store.StoreOpeningHours).Error
 }
 
-func (r *StoresRepo) checkUserStoreMenuExist(tx *gorm.DB, userId string, storeMenuMapping domain.StoreMenuMapping) error {
-	// 確認該User存在
-	if err := r.rt.CheckUserExist(tx, userId); err != nil {
-		return err
-	}
-
-	// 確認該User擁有此StoreId
-	if err := r.rt.CheckStoreExist(tx, userId, storeMenuMapping.StoreId, nil); err != nil {
-		return err
-	}
-
-	// 確認該User擁有此MenuId
-	if err := r.rt.CheckMenuExist(tx, userId, storeMenuMapping.MenuId, nil); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 	db := r.db.WithContext(ctx)
 
@@ -66,54 +47,6 @@ func (r *StoresRepo) Create(ctx context.Context, store domain.Store) error {
 
 		// 確認該User存在，才可新增Store
 		if err := tx.Create(&store).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *StoresRepo) CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error {
-	db := r.db.WithContext(ctx)
-
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		// 確認user、store、menu存在
-		if err := r.checkUserStoreMenuExist(tx, userId, storeMenuMapping); err != nil {
-			return err
-		}
-
-		// 新增Reference
-		if err := tx.Create(&storeMenuMapping).Error; err != nil {
-			if strings.Contains(err.Error(), "store_id_UNIQUE") {
-				return errors.New("reference has already existed")
-			}
-
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *StoresRepo) UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error {
-	db := r.db.WithContext(ctx)
-
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		// 確認user、store、menu存在
-		if err := r.checkUserStoreMenuExist(tx, userId, storeMenuMapping); err != nil {
-			return err
-		}
-
-		// 新增Reference
-		if err := tx.Model(&domain.StoreMenuMapping{}).Where("store_id = ?", storeMenuMapping.StoreId).Updates(&storeMenuMapping).Error; err != nil {
 			return err
 		}
 
@@ -226,4 +159,73 @@ func (r *StoresRepo) GetAll(ctx context.Context) ([]domain.Store, error) {
 	}
 
 	return stores, nil
+}
+
+// Store Menu Reference
+
+func (r *StoresRepo) checkUserStoreMenuExist(tx *gorm.DB, userId string, storeMenuMapping domain.StoreMenuMapping) error {
+	// 確認該User存在
+	if err := r.rt.CheckUserExist(tx, userId); err != nil {
+		return err
+	}
+
+	// 確認該User擁有此StoreId
+	if err := r.rt.CheckStoreExist(tx, userId, storeMenuMapping.StoreId, nil); err != nil {
+		return err
+	}
+
+	// 確認該User擁有此MenuId
+	if err := r.rt.CheckMenuExist(tx, userId, storeMenuMapping.MenuId, nil); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *StoresRepo) CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		// 確認user、store、menu存在
+		if err := r.checkUserStoreMenuExist(tx, userId, storeMenuMapping); err != nil {
+			return err
+		}
+
+		// 新增Reference
+		if err := tx.Create(&storeMenuMapping).Error; err != nil {
+			if strings.Contains(err.Error(), "store_id_UNIQUE") {
+				return errors.New("reference has already existed")
+			}
+
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *StoresRepo) UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		// 確認user、store、menu存在
+		if err := r.checkUserStoreMenuExist(tx, userId, storeMenuMapping); err != nil {
+			return err
+		}
+
+		// 新增Reference
+		if err := tx.Model(&domain.StoreMenuMapping{}).Where("store_id = ?", storeMenuMapping.StoreId).Updates(&storeMenuMapping).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
