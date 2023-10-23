@@ -54,7 +54,9 @@ type Users interface {
 
 type Stores interface {
 	Create(ctx context.Context, store domain.Store) (string, error)
+	CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
 	Update(ctx context.Context, store domain.Store) error
+	UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
 	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)

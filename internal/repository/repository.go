@@ -26,6 +26,8 @@ type Users interface {
 
 type Stores interface {
 	Create(ctx context.Context, store domain.Store) error
+	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
+	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	Update(ctx context.Context, store domain.Store) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
@@ -90,6 +92,22 @@ func (*RepoTools) CheckStoreExist(tx *gorm.DB, userId string, storeId string, st
 	return nil
 }
 
+func (*RepoTools) CheckMenuExist(tx *gorm.DB, userId string, menuId string, menu *domain.Menu) error {
+	// 沒有傳入指針時，代表外部不需要使用到
+	if menu == nil {
+		menu = &domain.Menu{}
+	}
+
+	if err := tx.Where("user_id = ? AND id = ?", userId, menuId).First(&menu).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// userId避免print在log上
+			return fmt.Errorf("no menu found with id %s for this user id", menuId)
+		}
+		return err
+	}
+
+	return nil
+}
 func (*RepoTools) CheckUserAccountExist(tx *gorm.DB, userId string, userAccount *domain.UserAccount) error {
 	// 沒有傳入指針時，代表外部不需要使用到
 	if userAccount == nil {

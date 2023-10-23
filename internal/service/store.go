@@ -24,9 +24,32 @@ func (s *StoresService) Create(ctx context.Context, store domain.Store) (string,
 
 	return store.Id, nil
 }
+func (s *StoresService) CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error {
+	var storeMenuMapping domain.StoreMenuMapping
+	storeMenuMapping.StoreId = storeId
+	storeMenuMapping.MenuId = menuId
+
+	if err := s.repo.CreateMenuReference(ctx, userId, storeMenuMapping); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (s *StoresService) Update(ctx context.Context, store domain.Store) error {
 	if err := s.repo.Update(ctx, store); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *StoresService) UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error {
+	var storeMenuMapping domain.StoreMenuMapping
+	storeMenuMapping.StoreId = storeId
+	storeMenuMapping.MenuId = menuId
+
+	if err := s.repo.UpdateMenuReference(ctx, userId, storeMenuMapping); err != nil {
 		return err
 	}
 
