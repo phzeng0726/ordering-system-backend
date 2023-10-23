@@ -229,3 +229,33 @@ func (r *StoresRepo) UpdateMenuReference(ctx context.Context, userId string, sto
 
 	return nil
 }
+
+func (r *StoresRepo) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error) {
+	var storeMenuMapping domain.StoreMenuMapping
+	var menuItemMappings []domain.MenuItemMapping
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("store_id = ?", storeId).First(&storeMenuMapping).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Preload("Menu").
+			Preload("MenuItem.Image").
+			Preload("MenuItem.Category").
+			Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
+			Where("menu_id = ?", storeMenuMapping.MenuId).Find(&menuItemMappings).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return menuItemMappings, err
+	}
+
+	if len(menuItemMappings) == 0 {
+		return menuItemMappings, errors.New("menu with items not found")
+	}
+
+	return menuItemMappings, nil
+}

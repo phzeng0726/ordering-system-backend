@@ -89,3 +89,20 @@ func (s *StoresService) UpdateMenuReference(ctx context.Context, userId string, 
 
 	return nil
 }
+
+func (s *StoresService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error) {
+	var menu domain.Menu
+	menuItemMappings, err := s.repo.GetMenuByStoreId(ctx, userId, storeId, languageId)
+	if err != nil {
+		return menu, err
+	}
+
+	menu = menuItemMappings[0].Menu
+	for _, mim := range menuItemMappings {
+		mim.MenuItem.ImageBytes = mim.MenuItem.Image.BytesData
+		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
+		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
+	}
+
+	return menu, nil
+}

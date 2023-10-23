@@ -33,6 +33,7 @@ type Stores interface {
 	// Store Menu Reference
 	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
+	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error)
 	// 不含UserId
 	GetAll(ctx context.Context) ([]domain.Store, error)
 }

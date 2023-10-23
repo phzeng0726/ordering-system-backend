@@ -61,6 +61,7 @@ type Stores interface {
 	// Store Menu Reference
 	CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
 	UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
+	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error)
 	// 不含UserId
 	GetAll(ctx context.Context) ([]domain.Store, error)
 }
