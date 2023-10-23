@@ -3,7 +3,6 @@ package v1
 import (
 	"net/http"
 	"ordering-system-backend/internal/domain"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,13 +15,6 @@ func (h *Handler) initUserStoresRoutes(api *gin.RouterGroup) {
 		stores.DELETE("/:store_id", h.deleteStore)
 		stores.GET("/:store_id", h.getStoreByStoreId)
 		stores.GET("", h.getAllStoresByUserId)
-	}
-
-	storesAndMenus := api.Group("/users/:user_id/stores/:store_id/menus")
-	{
-		storesAndMenus.GET("", h.getMenuByStoreId)
-		storesAndMenus.POST("/:menu_id", h.createStoreMenuReference)
-		storesAndMenus.PATCH("/:menu_id", h.updateStoreMenuReference)
 	}
 }
 
@@ -101,51 +93,4 @@ func (h *Handler) getStoreByStoreId(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, store)
-}
-
-// Store Menu Reference
-
-func (h *Handler) createStoreMenuReference(c *gin.Context) {
-	userId := c.Param("user_id")
-	storeId := c.Param("store_id")
-	menuId := c.Param("menu_id")
-
-	if err := h.services.Stores.CreateMenuReference(c.Request.Context(), userId, storeId, menuId); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, nil)
-}
-
-func (h *Handler) updateStoreMenuReference(c *gin.Context) {
-	userId := c.Param("user_id")
-	storeId := c.Param("store_id")
-	menuId := c.Param("menu_id")
-
-	if err := h.services.Stores.UpdateMenuReference(c.Request.Context(), userId, storeId, menuId); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, nil)
-}
-
-func (h *Handler) getMenuByStoreId(c *gin.Context) {
-	userId := c.Param("user_id")
-	storeId := c.Param("store_id")
-	languageIdStr := c.Query("language")
-	languageId, err := strconv.Atoi(languageIdStr)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "language parameter is missing or invalid syntax"})
-		return
-	}
-
-	menu, err := h.services.Stores.GetMenuByStoreId(c.Request.Context(), userId, storeId, languageId)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, menu)
 }

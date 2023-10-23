@@ -30,10 +30,6 @@ type Stores interface {
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
 	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
-	// Store Menu Reference
-	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
-	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error)
 	// 不含UserId
 	GetAll(ctx context.Context) ([]domain.Store, error)
 }
@@ -54,6 +50,12 @@ type Menus interface {
 	GetById(ctx context.Context, userId string, menuId string, languageId int) ([]domain.MenuItemMapping, error)
 }
 
+type StoreMenus interface {
+	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
+	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
+	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error)
+}
+
 type Repositories struct {
 	Users      Users
 	OTP        OTP
@@ -61,6 +63,7 @@ type Repositories struct {
 	Seats      Seats
 	Categories Categories
 	Menus      Menus
+	StoreMenus StoreMenus
 }
 
 type RepoTools struct{}
@@ -154,6 +157,7 @@ func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
 		Seats:      NewSeatsRepo(db, rt),
 		Categories: NewCategoriesRepo(db, rt),
 		Menus:      NewMenusRepo(db, rt),
+		StoreMenus: NewStoreMenusRepo(db, rt),
 	}
 }
 

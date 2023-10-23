@@ -33,13 +33,3 @@ type StoreOpeningHour struct {
 	OpenTime  dt.Time `gorm:"column:open_time" json:"openTime"`
 	CloseTime dt.Time `gorm:"column:close_time" json:"closeTime"`
 }
-
-type StoreMenuMapping struct {
-	Id      int    `gorm:"column:id;not null;primaryKey;" json:"-"`
-	StoreId string `gorm:"column:store_id;" json:"storeId"`
-	MenuId  string `gorm:"column:menu_id;" json:"menuId"`
-}
-
-func (StoreMenuMapping) TableName() string {
-	return "store_menu_mapping"
-}
