@@ -75,7 +75,6 @@ type Categories interface {
 
 type CreateMenuInput struct {
 	UserId      string
-	StoreId     string
 	Title       string
 	Description string
 	MenuItems   []MenuItemInput
@@ -93,7 +92,6 @@ type MenuItemInput struct {
 type UpdateMenuInput struct {
 	UserId      string
 	MenuId      string
-	StoreId     string
 	Title       string
 	Description string
 	MenuItems   []MenuItemInput

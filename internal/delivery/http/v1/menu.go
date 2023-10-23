@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 	"ordering-system-backend/internal/service"
 	"strconv"
@@ -21,7 +20,6 @@ func (h *Handler) initUserMenusRoutes(api *gin.RouterGroup) {
 }
 
 type createMenuInput struct {
-	StoreId     string          `json:"storeId" binding:"required"`
 	Title       string          `json:"title" binding:"required"`
 	Description string          `json:"description"`
 	MenuItems   []menuItemInput `json:"menuItems" binding:"required"`
@@ -37,7 +35,6 @@ type menuItemInput struct {
 }
 
 type updateMenuInput struct {
-	StoreId     string          `json:"storeId" binding:"required"`
 	Title       string          `json:"title" binding:"required"`
 	Description string          `json:"description"`
 	MenuItems   []menuItemInput `json:"menuItems" binding:"required"`
@@ -66,7 +63,6 @@ func (h *Handler) createMenu(c *gin.Context) {
 
 	menuId, err := h.services.Menus.Create(c.Request.Context(), service.CreateMenuInput{
 		UserId:      userId,
-		StoreId:     inp.StoreId,
 		Title:       inp.Title,
 		Description: inp.Description,
 		MenuItems:   menuItems,
@@ -85,7 +81,6 @@ func (h *Handler) updateMenu(c *gin.Context) {
 	userId := c.Param("user_id")
 	menuId := c.Param("menu_id")
 
-	fmt.Println(menuId)
 	if err := c.BindJSON(&inp); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -106,7 +101,6 @@ func (h *Handler) updateMenu(c *gin.Context) {
 	err := h.services.Menus.Update(c.Request.Context(), service.UpdateMenuInput{
 		UserId:      userId,
 		MenuId:      menuId,
-		StoreId:     inp.StoreId,
 		Title:       inp.Title,
 		Description: inp.Description,
 		MenuItems:   menuItems,
