@@ -58,10 +58,6 @@ type Stores interface {
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
 	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
-	// Store Menu Reference
-	CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
-	UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error)
 	// 不含UserId
 	GetAll(ctx context.Context) ([]domain.Store, error)
 }
@@ -106,6 +102,12 @@ type Menus interface {
 	GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error)
 }
 
+type StoreMenus interface {
+	CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
+	UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
+	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error)
+}
+
 type Services struct {
 	Users      Users
 	OTP        OTP
@@ -113,6 +115,7 @@ type Services struct {
 	Seats      Seats
 	Categories Categories
 	Menus      Menus
+	StoreMenus StoreMenus
 }
 
 type Deps struct {
@@ -126,6 +129,7 @@ func NewServices(deps Deps) *Services {
 	menusService := NewMenusService(deps.Repos.Menus)
 	storesService := NewStoresService(deps.Repos.Stores)
 	seatsService := NewSeatsService(deps.Repos.Seats)
+	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus)
 
 	return &Services{
 		Users:      usersService,
@@ -134,5 +138,6 @@ func NewServices(deps Deps) *Services {
 		Categories: categoriesService,
 		Menus:      menusService,
 		Seats:      seatsService,
+		StoreMenus: storeMenusService,
 	}
 }
