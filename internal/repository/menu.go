@@ -161,10 +161,6 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageI
 		return menuItemMappings, err
 	}
 
-	if len(menuItemMappings) == 0 {
-		return menuItemMappings, errors.New("menu with items not found")
-	}
-
 	return menuItemMappings, nil
 }
 
@@ -181,7 +177,7 @@ func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, l
 	}
 
 	if len(menuItemMappings) == 0 {
-		return menuItemMappings, errors.New("menu with items not found")
+		return menuItemMappings, errors.New("menu not found")
 	}
 
 	return menuItemMappings, nil
