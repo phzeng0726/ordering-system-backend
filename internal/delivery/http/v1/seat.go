@@ -19,19 +19,19 @@ func (h *Handler) initUserSeatsRoutes(api *gin.RouterGroup) {
 }
 
 func (h *Handler) createSeat(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (h *Handler) updateSeat(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (h *Handler) deleteSeat(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (h *Handler) getAllSeatsByStoreId(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (h *Handler) getSeatBySeatId(c *gin.Context) {

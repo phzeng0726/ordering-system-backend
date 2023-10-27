@@ -13,6 +13,7 @@ func (h *Handler) initStoreMenusRoutes(api *gin.RouterGroup) {
 		storesAndMenus.GET("", h.getMenuByStoreId)
 		storesAndMenus.POST("/:menu_id", h.createStoreMenuReference)
 		storesAndMenus.PATCH("/:menu_id", h.updateStoreMenuReference)
+		storesAndMenus.DELETE("", h.deleteStoreMenuReference)
 	}
 }
 
@@ -26,7 +27,7 @@ func (h *Handler) createStoreMenuReference(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (h *Handler) updateStoreMenuReference(c *gin.Context) {
@@ -39,7 +40,19 @@ func (h *Handler) updateStoreMenuReference(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
+}
+
+func (h *Handler) deleteStoreMenuReference(c *gin.Context) {
+	userId := c.Param("user_id")
+	storeId := c.Param("store_id")
+
+	if err := h.services.StoreMenus.DeleteMenuReference(c.Request.Context(), userId, storeId); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (h *Handler) getMenuByStoreId(c *gin.Context) {

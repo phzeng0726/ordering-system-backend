@@ -38,6 +38,14 @@ func (s *StoreMenusService) UpdateMenuReference(ctx context.Context, userId stri
 	return nil
 }
 
+func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId string, storeId string) error {
+	if err := s.repo.DeleteMenuReference(ctx, userId, storeId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error) {
 	var menu domain.Menu
 	menuItemMappings, err := s.repo.GetMenuByStoreId(ctx, userId, storeId, languageId)

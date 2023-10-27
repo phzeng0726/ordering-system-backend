@@ -19,13 +19,13 @@ func (h *Handler) initUserCategoryRoutes(api *gin.RouterGroup) {
 }
 
 func (h *Handler) createCategory(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 func (h *Handler) updateCategory(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 func (h *Handler) deleteCategory(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }
 func (h *Handler) getAllCategoriesByUserId(c *gin.Context) {
 	userId := c.Param("user_id")
@@ -45,5 +45,5 @@ func (h *Handler) getAllCategoriesByUserId(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menus)
 }
 func (h *Handler) getCategoryById(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, nil)
+	c.IndentedJSON(http.StatusOK, true)
 }

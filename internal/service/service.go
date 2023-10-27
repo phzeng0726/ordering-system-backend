@@ -105,6 +105,7 @@ type Menus interface {
 type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
 	UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
+	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
 	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error)
 }
 

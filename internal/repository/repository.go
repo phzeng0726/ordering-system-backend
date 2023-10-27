@@ -53,6 +53,7 @@ type Menus interface {
 type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
+	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
 	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error)
 }
 
@@ -160,22 +161,3 @@ func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
 		StoreMenus: NewStoreMenusRepo(db, rt),
 	}
 }
-
-// func loadImage() ([]byte, error) {
-// 	var imageBytes []byte
-// 	// 開啟圖片
-// 	file, err := os.Open("C:/Users/phzen/Desktop/LINE_ALBUM_Lucky_230917_1.jpg")
-// 	if err != nil {
-
-// 		return imageBytes, err
-// 	}
-// 	defer file.Close()
-
-// 	// 轉為 bytes
-// 	imageBytes, err = io.ReadAll(file)
-// 	if err != nil {
-// 		return imageBytes, err
-// 	}
-
-// 	return imageBytes, nil
-// }

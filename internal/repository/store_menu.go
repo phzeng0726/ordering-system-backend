@@ -88,6 +88,24 @@ func (r *StoreMenusRepo) UpdateMenuReference(ctx context.Context, userId string,
 	return nil
 }
 
+func (r *StoreMenusRepo) DeleteMenuReference(ctx context.Context, userId string, storeId string) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		// TODO 是否有需要留著userId
+		// 刪除Reference
+		if err := tx.Where("store_id = ?", storeId).Delete(&domain.StoreMenuMapping{}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *StoreMenusRepo) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error) {
 	var storeMenuMapping domain.StoreMenuMapping
 	var menuItemMappings []domain.MenuItemMapping
