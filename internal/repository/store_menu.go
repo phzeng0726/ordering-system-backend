@@ -112,7 +112,7 @@ func (r *StoreMenusRepo) GetMenuByStoreId(ctx context.Context, userId string, st
 	}
 
 	if len(menuItemMappings) == 0 {
-		return menuItemMappings, errors.New("menu with items not found")
+		return menuItemMappings, errors.New("menu not found")
 	}
 
 	return menuItemMappings, nil
