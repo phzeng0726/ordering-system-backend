@@ -123,6 +123,10 @@ func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) er
 			return err
 		}
 
+		if err := tx.Where("menu_id = ?", menuId).Delete(&domain.StoreMenuMapping{}).Error; err != nil {
+			return err
+		}
+
 		if err := tx.Where("id = ?", menuId).Delete(&domain.Menu{}).Error; err != nil {
 			return err
 		}

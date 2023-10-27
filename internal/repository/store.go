@@ -102,6 +102,10 @@ func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) 
 			return err
 		}
 
+		if err := tx.Where("store_id = ?", storeId).Delete(&domain.StoreMenuMapping{}).Error; err != nil {
+			return err
+		}
+
 		if err := tx.Where("user_id = ? AND id = ?", userId, storeId).Delete(&domain.Store{}).Error; err != nil {
 			return err
 		}
