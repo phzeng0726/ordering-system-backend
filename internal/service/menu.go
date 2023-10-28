@@ -115,6 +115,20 @@ func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, langua
 		menus[i].MenuItems = menuItemsIdMap[menu.Id]
 	}
 
+	// 撈出所有
+	tempMenus, err := s.repo.TempGetAllByUserId(ctx, userId, languageId)
+	if err != nil {
+		return menus, err
+	}
+
+	// 沒有menuItems的也要放進來
+	for _, tm := range tempMenus {
+		if _, ok := menuMap[tm.Id]; !ok {
+			tm.MenuItems = []domain.MenuItem{}
+			menus = append(menus, tm)
+		}
+	}
+
 	return menus, nil
 }
 
