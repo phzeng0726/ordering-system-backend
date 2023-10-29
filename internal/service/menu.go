@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
 
@@ -139,12 +140,30 @@ func (s *MenusService) GetById(ctx context.Context, userId string, menuId string
 		return menu, err
 	}
 
-	menu = menuItemMappings[0].Menu
-	for _, mim := range menuItemMappings {
-		mim.MenuItem.ImageBytes = mim.MenuItem.Image.BytesData
-		mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
-		menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
+	if len(menuItemMappings) != 0 {
+		menu = menuItemMappings[0].Menu
+		for _, mim := range menuItemMappings {
+			mim.MenuItem.ImageBytes = mim.MenuItem.Image.BytesData
+			mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
+			menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
+		}
+		return menu, nil
 	}
 
-	return menu, nil
+	// 撈出所有
+	tempMenus, err := s.repo.TempGetAllByUserId(ctx, userId, languageId)
+	if err != nil {
+		return menu, err
+	}
+
+	if len(tempMenus) != 0 {
+		for _, m := range tempMenus {
+			if m.Id == menuId {
+				m.MenuItems = []domain.MenuItem{}
+				return m, nil
+			}
+		}
+	}
+
+	return menu, errors.New("menu not found")
 }

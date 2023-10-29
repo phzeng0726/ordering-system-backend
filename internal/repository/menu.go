@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -138,6 +137,7 @@ func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) er
 
 	return nil
 }
+
 func (r *MenusRepo) TempGetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
 	var menus []domain.Menu
 	db := r.db.WithContext(ctx)
@@ -198,9 +198,9 @@ func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, l
 		return menuItemMappings, err
 	}
 
-	if len(menuItemMappings) == 0 {
-		return menuItemMappings, errors.New("menu not found")
-	}
+	// if len(menuItemMappings) == 0 {
+	// 	return menuItemMappings, errors.New("menu not found")
+	// }
 
 	return menuItemMappings, nil
 }
