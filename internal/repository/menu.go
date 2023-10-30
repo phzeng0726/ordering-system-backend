@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -139,6 +138,28 @@ func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) er
 	return nil
 }
 
+func (r *MenusRepo) TempGetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
+	var menus []domain.Menu
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := r.rt.CheckUserExist(tx, userId); err != nil {
+			return err
+		}
+
+		if err := tx.Where("user_id = ?", userId).
+			Find(&menus).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return menus, err
+	}
+
+	return menus, nil
+}
+
 func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.MenuItemMapping, error) {
 	var menuItemMappings []domain.MenuItemMapping
 	db := r.db.WithContext(ctx)
@@ -152,7 +173,8 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageI
 			Preload("MenuItem.Image").
 			Preload("MenuItem.Category").
 			Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
-			Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).Find(&menuItemMappings).Error; err != nil {
+			Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).
+			Find(&menuItemMappings).Error; err != nil {
 			return err
 		}
 
@@ -176,9 +198,9 @@ func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, l
 		return menuItemMappings, err
 	}
 
-	if len(menuItemMappings) == 0 {
-		return menuItemMappings, errors.New("menu not found")
-	}
+	// if len(menuItemMappings) == 0 {
+	// 	return menuItemMappings, errors.New("menu not found")
+	// }
 
 	return menuItemMappings, nil
 }
