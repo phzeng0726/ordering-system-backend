@@ -19,6 +19,16 @@ func NewSeatsRepo(db *gorm.DB, rt *RepoTools) *SeatsRepo {
 	}
 }
 
+func (r *SeatsRepo) Create(ctx context.Context, seat domain.Seat) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Create(&seat).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *SeatsRepo) GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error) {
 	var seat domain.Seat
 	db := r.db.WithContext(ctx)

@@ -2,6 +2,7 @@ package v1
 
 import (
 	"net/http"
+	"ordering-system-backend/internal/domain"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,29 @@ func (h *Handler) initUserSeatsRoutes(api *gin.RouterGroup) {
 	}
 }
 
+type createSeatInput struct {
+	Description string `json:"description"`
+}
+
 func (h *Handler) createSeat(c *gin.Context) {
+	var inp createSeatInput
+	storeId := c.Param("store_id")
+
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	seat := domain.Seat{
+		StoreId:     storeId,
+		Description: inp.Description,
+	}
+
+	if err := h.services.Seats.Create(c.Request.Context(), seat); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
 
