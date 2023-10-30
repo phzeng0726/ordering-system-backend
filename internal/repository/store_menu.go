@@ -106,6 +106,32 @@ func (r *StoreMenusRepo) DeleteMenuReference(ctx context.Context, userId string,
 	return nil
 }
 
+func (r *StoreMenusRepo) TempGetAllByUserId(ctx context.Context, userId string, storeId string) (domain.Menu, error) {
+	var storeMenuMapping domain.StoreMenuMapping
+	var menu domain.Menu
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := r.rt.CheckUserExist(tx, userId); err != nil {
+			return err
+		}
+		if err := tx.Where("store_id = ?", storeId).First(&storeMenuMapping).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("id = ?", storeMenuMapping.MenuId).
+			First(&menu).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return menu, err
+	}
+
+	return menu, nil
+}
+
 func (r *StoreMenusRepo) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error) {
 	var storeMenuMapping domain.StoreMenuMapping
 	var menuItemMappings []domain.MenuItemMapping
@@ -127,10 +153,6 @@ func (r *StoreMenusRepo) GetMenuByStoreId(ctx context.Context, userId string, st
 		return nil
 	}); err != nil {
 		return menuItemMappings, err
-	}
-
-	if len(menuItemMappings) == 0 {
-		return menuItemMappings, errors.New("menu not found")
 	}
 
 	return menuItemMappings, nil

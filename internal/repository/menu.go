@@ -198,9 +198,5 @@ func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, l
 		return menuItemMappings, err
 	}
 
-	// if len(menuItemMappings) == 0 {
-	// 	return menuItemMappings, errors.New("menu not found")
-	// }
-
 	return menuItemMappings, nil
 }
