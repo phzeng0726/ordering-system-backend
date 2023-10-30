@@ -88,6 +88,7 @@ func (s *MenusService) Delete(ctx context.Context, userId string, menuId string)
 	return nil
 }
 
+// TODO Refactor
 func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
 	menus := make([]domain.Menu, 0)
 	menuItemMappings, err := s.repo.GetAllByUserId(ctx, userId, languageId)
@@ -133,6 +134,7 @@ func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, langua
 	return menus, nil
 }
 
+// TODO Refactor
 func (s *MenusService) GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error) {
 	var menu domain.Menu
 	menuItemMappings, err := s.repo.GetById(ctx, userId, menuId, languageId)
