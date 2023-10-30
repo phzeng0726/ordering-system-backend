@@ -23,6 +23,10 @@ type createSeatInput struct {
 	Description string `json:"description"`
 }
 
+type updateSeatInput struct {
+	Description string `json:"description"`
+}
+
 func (h *Handler) createSeat(c *gin.Context) {
 	var inp createSeatInput
 	storeId := c.Param("store_id")
@@ -46,6 +50,31 @@ func (h *Handler) createSeat(c *gin.Context) {
 }
 
 func (h *Handler) updateSeat(c *gin.Context) {
+	var inp updateSeatInput
+	storeId := c.Param("store_id")
+	seatIdStr := c.Param("seat_id")
+	seatId, err := strconv.Atoi(seatIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	seat := domain.Seat{
+		Id:          seatId,
+		StoreId:     storeId,
+		Description: inp.Description,
+	}
+
+	if err := h.services.Seats.Update(c.Request.Context(), seat); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
 

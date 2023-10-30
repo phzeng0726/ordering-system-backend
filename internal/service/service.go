@@ -64,6 +64,7 @@ type Stores interface {
 
 type Seats interface {
 	Create(ctx context.Context, seat domain.Seat) error
+	Update(ctx context.Context, seat domain.Seat) error
 	GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error)
 }
 
