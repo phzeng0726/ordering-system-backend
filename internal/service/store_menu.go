@@ -61,7 +61,7 @@ func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string,
 			mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
 			menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
 		}
-
+		return menu, nil
 	}
 
 	// 撈出

@@ -30,6 +30,15 @@ func (s *SeatsService) Update(ctx context.Context, seat domain.Seat) error {
 	return nil
 }
 
+func (s *SeatsService) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.Seat, error) {
+	seats, err := s.repo.GetAllByStoreId(ctx, storeId)
+	if err != nil {
+		return seats, err
+	}
+
+	return seats, nil
+}
+
 func (s *SeatsService) GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error) {
 	seat, err := s.repo.GetById(ctx, storeId, seatId)
 	if err != nil {

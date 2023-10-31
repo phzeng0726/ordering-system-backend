@@ -39,6 +39,17 @@ func (r *SeatsRepo) Update(ctx context.Context, seat domain.Seat) error {
 	return nil
 }
 
+func (r *SeatsRepo) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.Seat, error) {
+	var seats []domain.Seat
+	db := r.db.WithContext(ctx)
+
+	if err := db.Where("store_id = ?", storeId).Find(&seats).Error; err != nil {
+		return seats, err
+	}
+
+	return seats, nil
+}
+
 func (r *SeatsRepo) GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error) {
 	var seat domain.Seat
 	db := r.db.WithContext(ctx)

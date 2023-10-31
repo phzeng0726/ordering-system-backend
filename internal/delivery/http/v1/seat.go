@@ -83,7 +83,16 @@ func (h *Handler) deleteSeat(c *gin.Context) {
 }
 
 func (h *Handler) getAllSeatsByStoreId(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, true)
+	storeId := c.Param("store_id")
+
+	seats, err := h.services.Seats.GetAllByStoreId(c.Request.Context(), storeId)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, seats)
 }
 
 func (h *Handler) getSeatBySeatId(c *gin.Context) {
