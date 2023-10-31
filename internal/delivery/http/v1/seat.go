@@ -20,11 +20,11 @@ func (h *Handler) initUserSeatsRoutes(api *gin.RouterGroup) {
 }
 
 type createSeatInput struct {
-	Description string `json:"description"`
+	Title string `json:"title"`
 }
 
 type updateSeatInput struct {
-	Description string `json:"description"`
+	Title string `json:"title"`
 }
 
 func (h *Handler) createSeat(c *gin.Context) {
@@ -37,8 +37,8 @@ func (h *Handler) createSeat(c *gin.Context) {
 	}
 
 	seat := domain.Seat{
-		StoreId:     storeId,
-		Description: inp.Description,
+		StoreId: storeId,
+		Title:   inp.Title,
 	}
 
 	if err := h.services.Seats.Create(c.Request.Context(), seat); err != nil {
@@ -65,9 +65,9 @@ func (h *Handler) updateSeat(c *gin.Context) {
 	}
 
 	seat := domain.Seat{
-		Id:          seatId,
-		StoreId:     storeId,
-		Description: inp.Description,
+		Id:      seatId,
+		StoreId: storeId,
+		Title:   inp.Title,
 	}
 
 	if err := h.services.Seats.Update(c.Request.Context(), seat); err != nil {
