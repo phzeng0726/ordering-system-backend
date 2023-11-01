@@ -20,11 +20,11 @@ func (h *Handler) initUserSeatsRoutes(api *gin.RouterGroup) {
 }
 
 type createSeatInput struct {
-	Title string `json:"title"`
+	Title string `json:"title" binding:"required"`
 }
 
 type updateSeatInput struct {
-	Title string `json:"title"`
+	Title string `json:"title" binding:"required"`
 }
 
 func (h *Handler) createSeat(c *gin.Context) {
@@ -79,6 +79,19 @@ func (h *Handler) updateSeat(c *gin.Context) {
 }
 
 func (h *Handler) deleteSeat(c *gin.Context) {
+	storeId := c.Param("store_id")
+	seatIdStr := c.Param("seat_id")
+	seatId, err := strconv.Atoi(seatIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := h.services.Seats.Delete(c.Request.Context(), storeId, seatId); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
 

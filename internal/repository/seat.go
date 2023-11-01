@@ -39,6 +39,16 @@ func (r *SeatsRepo) Update(ctx context.Context, seat domain.Seat) error {
 	return nil
 }
 
+func (r *SeatsRepo) Delete(ctx context.Context, storeId string, seatId int) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Where("id = ? AND store_id = ?", seatId, storeId).Delete(&domain.Seat{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *SeatsRepo) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.Seat, error) {
 	var seats []domain.Seat
 	db := r.db.WithContext(ctx)

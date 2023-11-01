@@ -30,6 +30,14 @@ func (s *SeatsService) Update(ctx context.Context, seat domain.Seat) error {
 	return nil
 }
 
+func (s *SeatsService) Delete(ctx context.Context, storeId string, seatId int) error {
+	if err := s.repo.Delete(ctx, storeId, seatId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *SeatsService) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.Seat, error) {
 	seats, err := s.repo.GetAllByStoreId(ctx, storeId)
 	if err != nil {
