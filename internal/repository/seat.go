@@ -46,7 +46,6 @@ func (r *SeatsRepo) Delete(ctx context.Context, storeId string, seatId int) erro
 			return err
 		}
 
-		// 確認該User存在，才可新增Store
 		if err := tx.Where("id = ?", seatId).Delete(&domain.Seat{}).Error; err != nil {
 			return err
 		}
