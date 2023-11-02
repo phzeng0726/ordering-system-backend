@@ -86,6 +86,17 @@ func (*RepoTools) CheckUserExist(tx *gorm.DB, userId string) error {
 	return nil
 }
 
+func (*RepoTools) CheckStoreSeatExist(tx *gorm.DB, storeId string, seatId int) error {
+	if err := tx.Where("id = ?", seatId).First(&domain.Seat{}).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("seat id not found")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (*RepoTools) CheckStoreExist(tx *gorm.DB, userId string, storeId string, store *domain.Store) error {
 	// 沒有傳入指針時，代表外部不需要使用到
 	if store == nil {

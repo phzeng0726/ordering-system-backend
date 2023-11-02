@@ -41,8 +41,18 @@ func (r *SeatsRepo) Update(ctx context.Context, seat domain.Seat) error {
 
 func (r *SeatsRepo) Delete(ctx context.Context, storeId string, seatId int) error {
 	db := r.db.WithContext(ctx)
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := r.rt.CheckStoreSeatExist(tx, storeId, seatId); err != nil {
+			return err
+		}
 
-	if err := db.Where("id = ? AND store_id = ?", seatId, storeId).Delete(&domain.Seat{}).Error; err != nil {
+		// 確認該User存在，才可新增Store
+		if err := tx.Where("id = ?", seatId).Delete(&domain.Seat{}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return err
 	}
 
