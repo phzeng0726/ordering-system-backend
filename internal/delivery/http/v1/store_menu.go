@@ -15,6 +15,10 @@ func (h *Handler) initStoreMenusRoutes(api *gin.RouterGroup) {
 		storesAndMenus.PATCH("/:menu_id", h.updateStoreMenuReference)
 		storesAndMenus.DELETE("", h.deleteStoreMenuReference)
 	}
+	storesAndMenusWithoutUser := api.Group("/stores/:store_id/menus")
+	{
+		storesAndMenusWithoutUser.GET("", h.getMenuByStoreId)
+	}
 }
 
 func (h *Handler) createStoreMenuReference(c *gin.Context) {
@@ -56,7 +60,7 @@ func (h *Handler) deleteStoreMenuReference(c *gin.Context) {
 }
 
 func (h *Handler) getMenuByStoreId(c *gin.Context) {
-	userId := c.Param("user_id")
+	userId := c.Param("user_id") // 商家無userId
 	storeId := c.Param("store_id")
 	languageIdStr := c.Query("language")
 	languageId, err := strconv.Atoi(languageIdStr)
