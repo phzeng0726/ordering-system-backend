@@ -17,7 +17,8 @@ func InitConfig() {
 		UserName: "root",
 		Password: "0000",
 		DBName:   "ordering_db",
-		Host:     "169.254.52.127",
-		Port:     "8080",
+		Host:     "172.20.10.3",
+		// Host:     "169.254.52.127",
+		Port: "8080",
 	}
 }

@@ -92,7 +92,6 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 
 func (r *UsersRepo) Update(ctx context.Context, user domain.User) error {
 	db := r.db.WithContext(ctx)
-
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := r.rt.CheckUserAccountExist(tx, user.Id, nil); err != nil {
 			return err
