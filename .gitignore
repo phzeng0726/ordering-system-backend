@@ -1,2 +1,3 @@
 *.exe
 firebase_credential.json
+set_env.bat
