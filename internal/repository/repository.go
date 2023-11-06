@@ -63,22 +63,19 @@ type StoreMenus interface {
 	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error)
 }
 
-type OrderTicket interface {
-	Create(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
-	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
-	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
-	TempGetAllByUserId(ctx context.Context, userId string, storeId string) (domain.Menu, error)
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error)
+type OrderTickets interface {
+	Create(ctx context.Context, ticket domain.OrderTicket) error
 }
 
 type Repositories struct {
-	Users      Users
-	OTP        OTP
-	Stores     Stores
-	Seats      Seats
-	Categories Categories
-	Menus      Menus
-	StoreMenus StoreMenus
+	Users        Users
+	OTP          OTP
+	Stores       Stores
+	Seats        Seats
+	Categories   Categories
+	Menus        Menus
+	StoreMenus   StoreMenus
+	OrderTickets OrderTickets
 }
 
 type RepoTools struct{}
@@ -177,12 +174,13 @@ func (*RepoTools) LoadImage(tx *gorm.DB, imageId int) (domain.Image, error) {
 
 func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
 	return &Repositories{
-		OTP:        NewOTPRepo(db),
-		Users:      NewUsersRepo(db, rt),
-		Stores:     NewStoresRepo(db, rt),
-		Seats:      NewSeatsRepo(db, rt),
-		Categories: NewCategoriesRepo(db, rt),
-		Menus:      NewMenusRepo(db, rt),
-		StoreMenus: NewStoreMenusRepo(db, rt),
+		OTP:          NewOTPRepo(db),
+		Users:        NewUsersRepo(db, rt),
+		Stores:       NewStoresRepo(db, rt),
+		Seats:        NewSeatsRepo(db, rt),
+		Categories:   NewCategoriesRepo(db, rt),
+		Menus:        NewMenusRepo(db, rt),
+		StoreMenus:   NewStoreMenusRepo(db, rt),
+		OrderTickets: NewOrderTicketsRepo(db, rt),
 	}
 }
