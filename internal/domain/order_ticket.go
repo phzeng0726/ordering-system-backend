@@ -17,7 +17,7 @@ type OrderTicket struct {
 
 type OrderTicketItem struct {
 	Id           int     `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
-	OrderId      int     `gorm:"column:order_id;" json:"orderId"`
+	OrderId      int     `gorm:"column:order_id;" json:"-"`
 	ProductId    int     `gorm:"column:product_id;" json:"productId"`
 	ProductName  string  `gorm:"column:product_name;" json:"productName"`
 	ProductPrice float64 `gorm:"column:product_price;" json:"productPrice"`

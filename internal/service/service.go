@@ -127,8 +127,13 @@ type OrderTicketItemInput struct {
 	Quantity     int
 }
 
+type UpdateOrderTicketInput struct {
+	OrderStatus string
+}
+
 type OrderTickets interface {
 	Create(ctx context.Context, input CreateOrderTicketInput) error
+	Update(ctx context.Context, storeId string, ticketId int, input UpdateOrderTicketInput) error
 	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error)
 }
 

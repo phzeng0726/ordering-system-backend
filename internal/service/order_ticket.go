@@ -50,6 +50,19 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 	return nil
 }
 
+func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticketId int, input UpdateOrderTicketInput) error {
+	orderTicket := domain.OrderTicket{
+		Id:          ticketId,
+		OrderStatus: input.OrderStatus,
+	}
+
+	if err := s.repo.Update(ctx, storeId, orderTicket); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *OrderTicketsService) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error) {
 	orderTickets, err := s.repo.GetAllByStoreId(ctx, storeId)
 	if err != nil {

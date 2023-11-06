@@ -35,6 +35,21 @@ func (r *OrderTicketsRepo) Create(ctx context.Context, ticket domain.OrderTicket
 	return nil
 }
 
+func (r *OrderTicketsRepo) Update(ctx context.Context, storeId string, ticket domain.OrderTicket) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&domain.OrderTicket{}).Where("id = ?", ticket.Id).Updates(ticket).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *OrderTicketsRepo) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error) {
 	var orderTickets []domain.OrderTicket
 	var seatIds []int

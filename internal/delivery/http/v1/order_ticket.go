@@ -3,6 +3,7 @@ package v1
 import (
 	"net/http"
 	"ordering-system-backend/internal/service"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,6 +36,10 @@ type createOrderTicketItemInput struct {
 	Quantity     *int     `json:"quantity" binding:"required"`
 }
 
+type updateOrderTicketInput struct {
+	OrderStatus string `json:"orderStatus" binding:"required"`
+}
+
 func (h *Handler) createTicket(c *gin.Context) {
 	var inp createOrderTicketInput
 
@@ -53,21 +58,41 @@ func (h *Handler) createTicket(c *gin.Context) {
 		})
 	}
 
-	err := h.services.OrderTickets.Create(c.Request.Context(), service.CreateOrderTicketInput{
+	if err := h.services.OrderTickets.Create(c.Request.Context(), service.CreateOrderTicketInput{
 		SeatId:     inp.SeatId,
 		UserId:     inp.UserId,
 		TotalPrice: *inp.TotalPrice,
 		OrderItems: orderItems,
-	})
-
-	if err != nil {
+	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
 
 func (h *Handler) updateTicket(c *gin.Context) {
+	var inp updateOrderTicketInput
+	storeId := c.Param("store_id")
+	ticketIdStr := c.Param("ticket_id")
+	ticketId, err := strconv.Atoi(ticketIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := h.services.OrderTickets.Update(c.Request.Context(), storeId, ticketId, service.UpdateOrderTicketInput{
+		OrderStatus: inp.OrderStatus,
+	}); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
 

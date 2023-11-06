@@ -65,6 +65,7 @@ type StoreMenus interface {
 
 type OrderTickets interface {
 	Create(ctx context.Context, ticket domain.OrderTicket) error
+	Update(ctx context.Context, storeId string, ticket domain.OrderTicket) error
 	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error)
 }
 
