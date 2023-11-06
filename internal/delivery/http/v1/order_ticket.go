@@ -97,6 +97,19 @@ func (h *Handler) updateTicket(c *gin.Context) {
 }
 
 func (h *Handler) deleteTicket(c *gin.Context) {
+	storeId := c.Param("store_id")
+	ticketIdStr := c.Param("ticket_id")
+	ticketId, err := strconv.Atoi(ticketIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := h.services.OrderTickets.Delete(c.Request.Context(), storeId, ticketId); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
 

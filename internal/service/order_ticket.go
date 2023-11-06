@@ -63,6 +63,14 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 	return nil
 }
 
+func (s *OrderTicketsService) Delete(ctx context.Context, storeId string, ticketId int) error {
+	if err := s.repo.Delete(ctx, storeId, ticketId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *OrderTicketsService) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error) {
 	orderTickets, err := s.repo.GetAllByStoreId(ctx, storeId)
 	if err != nil {

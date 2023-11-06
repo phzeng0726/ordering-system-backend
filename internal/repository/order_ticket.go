@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -40,6 +41,29 @@ func (r *OrderTicketsRepo) Update(ctx context.Context, storeId string, ticket do
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&domain.OrderTicket{}).Where("id = ?", ticket.Id).Updates(ticket).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *OrderTicketsRepo) Delete(ctx context.Context, storeId string, ticketId int) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("id = ?", ticketId).First(&domain.OrderTicket{}).Error; err != nil {
+			return errors.New("order ticket not found")
+		}
+
+		if err := tx.Where("order_id = ?", ticketId).Delete(&domain.OrderTicketItem{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("id = ?", ticketId).Delete(&domain.OrderTicket{}).Error; err != nil {
 			return err
 		}
 

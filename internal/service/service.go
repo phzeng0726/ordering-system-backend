@@ -134,6 +134,7 @@ type UpdateOrderTicketInput struct {
 type OrderTickets interface {
 	Create(ctx context.Context, input CreateOrderTicketInput) error
 	Update(ctx context.Context, storeId string, ticketId int, input UpdateOrderTicketInput) error
+	Delete(ctx context.Context, storeId string, ticketId int) error
 	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error)
 }
 
