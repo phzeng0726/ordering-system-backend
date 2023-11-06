@@ -22,9 +22,10 @@ func (h *Handler) initUserMenusRoutes(api *gin.RouterGroup) {
 type createMenuInput struct {
 	Title       string          `json:"title" binding:"required"`
 	Description string          `json:"description"`
-	MenuItems   []menuItemInput `json:"menuItems" binding:"required"`
+	MenuItems   []menuItemInput `json:"menuItems" binding:"required,dive,required"`
 }
 
+// 有可能為0的數值，要加*
 type menuItemInput struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description"`
@@ -37,7 +38,7 @@ type menuItemInput struct {
 type updateMenuInput struct {
 	Title       string          `json:"title" binding:"required"`
 	Description string          `json:"description"`
-	MenuItems   []menuItemInput `json:"menuItems" binding:"required"`
+	MenuItems   []menuItemInput `json:"menuItems" binding:"required,dive,required"`
 }
 
 func (h *Handler) createMenu(c *gin.Context) {

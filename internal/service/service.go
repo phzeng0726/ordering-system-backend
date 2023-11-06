@@ -113,14 +113,40 @@ type StoreMenus interface {
 	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error)
 }
 
+type CreateOrderTicketInput struct {
+	SeatId     int
+	UserId     string
+	TotalPrice float64
+	OrderItems []OrderTicketItemInput
+}
+
+type OrderTicketItemInput struct {
+	ProductId    int
+	ProductName  string
+	ProductPrice float64
+	Quantity     int
+}
+
+type UpdateOrderTicketInput struct {
+	OrderStatus string
+}
+
+type OrderTickets interface {
+	Create(ctx context.Context, input CreateOrderTicketInput) error
+	Update(ctx context.Context, storeId string, ticketId int, input UpdateOrderTicketInput) error
+	Delete(ctx context.Context, storeId string, ticketId int) error
+	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error)
+}
+
 type Services struct {
-	Users      Users
-	OTP        OTP
-	Stores     Stores
-	Seats      Seats
-	Categories Categories
-	Menus      Menus
-	StoreMenus StoreMenus
+	Users        Users
+	OTP          OTP
+	Stores       Stores
+	Seats        Seats
+	Categories   Categories
+	Menus        Menus
+	StoreMenus   StoreMenus
+	OrderTickets OrderTickets
 }
 
 type Deps struct {
@@ -135,14 +161,16 @@ func NewServices(deps Deps) *Services {
 	storesService := NewStoresService(deps.Repos.Stores)
 	seatsService := NewSeatsService(deps.Repos.Seats)
 	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus)
+	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets)
 
 	return &Services{
-		Users:      usersService,
-		OTP:        OTPService,
-		Stores:     storesService,
-		Categories: categoriesService,
-		Menus:      menusService,
-		Seats:      seatsService,
-		StoreMenus: storeMenusService,
+		Users:        usersService,
+		OTP:          OTPService,
+		Stores:       storesService,
+		Categories:   categoriesService,
+		Menus:        menusService,
+		Seats:        seatsService,
+		StoreMenus:   storeMenusService,
+		OrderTickets: orderTicketsService,
 	}
 }
