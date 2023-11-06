@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"time"
 )
 
@@ -21,4 +22,32 @@ type OrderTicketItem struct {
 	ProductName  string  `gorm:"column:product_name;" json:"productName"`
 	ProductPrice float64 `gorm:"column:product_price;" json:"productPrice"`
 	Quantity     int     `gorm:"column:quantity;" json:"quantity"`
+}
+
+// golang沒有enum
+type OrderStatus int
+
+const (
+	Open OrderStatus = iota
+	InProgress
+	Cancelled
+	Done
+)
+
+func OrderStatusConverter(orderStatus OrderStatus) (string, error) {
+	var orderStatusStr string
+
+	if orderStatus == Open {
+		orderStatusStr = "open"
+	} else if orderStatus == InProgress {
+		orderStatusStr = "inProgress"
+	} else if orderStatus == Cancelled {
+		orderStatusStr = "cancelled"
+	} else if orderStatus == Done {
+		orderStatusStr = "done"
+	} else {
+		return orderStatusStr, errors.New("order status not available")
+	}
+
+	return orderStatusStr, nil
 }

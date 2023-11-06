@@ -19,28 +19,12 @@ func NewOrderTicketsRepo(db *gorm.DB, rt *RepoTools) *OrderTicketsRepo {
 	}
 }
 
-func (r *OrderTicketsRepo) createOrderItems(tx *gorm.DB, orderId int, orderItems []domain.OrderTicketItem) error {
-	for _, oi := range orderItems {
-		oi.OrderId = orderId
-
-		if err := tx.Create(&oi).Error; err != nil {
-			return err
-		}
-
-	}
-
-	return nil
-}
-
 func (r *OrderTicketsRepo) Create(ctx context.Context, ticket domain.OrderTicket) error {
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
+		// 因為有設fKey，會自動幫忙create orderItems
 		if err := tx.Create(&ticket).Error; err != nil {
-			return err
-		}
-
-		if err := r.createOrderItems(tx, ticket.Id, ticket.OrderTicketItems); err != nil {
 			return err
 		}
 

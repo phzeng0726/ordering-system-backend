@@ -17,6 +17,10 @@ func NewOrderTicketsService(repo repository.OrderTickets) *OrderTicketsService {
 func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicketInput) error {
 	var orderItems []domain.OrderTicketItem
 	var totalPrice float64
+	orderStatus, err := domain.OrderStatusConverter(domain.Open) // 預設create時為open
+	if err != nil {
+		return err
+	}
 
 	for _, oi := range input.OrderItems {
 		orderItems = append(
@@ -32,11 +36,10 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 	}
 
 	orderTicket := domain.OrderTicket{
-		Id:               0,
 		SeatId:           input.SeatId,
 		UserId:           input.UserId,
 		TotalPrice:       totalPrice,
-		OrderStatus:      "open",
+		OrderStatus:      orderStatus,
 		OrderTicketItems: orderItems,
 	}
 
