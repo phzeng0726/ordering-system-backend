@@ -46,3 +46,12 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 
 	return nil
 }
+
+func (s *OrderTicketsService) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error) {
+	orderTickets, err := s.repo.GetAllByStoreId(ctx, storeId)
+	if err != nil {
+		return orderTickets, err
+	}
+
+	return orderTickets, nil
+}

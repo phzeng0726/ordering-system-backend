@@ -129,6 +129,7 @@ type OrderTicketItemInput struct {
 
 type OrderTickets interface {
 	Create(ctx context.Context, input CreateOrderTicketInput) error
+	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error)
 }
 
 type Services struct {

@@ -50,3 +50,33 @@ func (r *OrderTicketsRepo) Create(ctx context.Context, ticket domain.OrderTicket
 	}
 	return nil
 }
+
+func (r *OrderTicketsRepo) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error) {
+	var orderTickets []domain.OrderTicket
+	var seatIds []int
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		// 獲取該商店所有的seatId
+		querySeatIds := "SELECT ss.id" +
+			" FROM stores s" +
+			" JOIN store_seats ss ON ss.store_id = s.id" +
+			" WHERE s.id = ?"
+
+		if err := tx.Raw(querySeatIds, storeId).Scan(&seatIds).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Preload("OrderTicketItems").
+			Where("seat_id IN (?)", seatIds).
+			Find(&orderTickets).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return orderTickets, err
+	}
+
+	return orderTickets, nil
+}

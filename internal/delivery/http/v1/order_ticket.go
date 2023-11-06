@@ -76,5 +76,13 @@ func (h *Handler) deleteTicket(c *gin.Context) {
 }
 
 func (h *Handler) getAllTicketsByStoreId(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, true)
+	storeId := c.Param("store_id")
+
+	orderTickets, err := h.services.OrderTickets.GetAllByStoreId(c.Request.Context(), storeId)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, orderTickets)
 }
