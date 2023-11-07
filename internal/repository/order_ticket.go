@@ -76,22 +76,23 @@ func (r *OrderTicketsRepo) Delete(ctx context.Context, storeId string, ticketId 
 
 func (r *OrderTicketsRepo) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error) {
 	var orderTickets []domain.OrderTicket
-	var seatIds []int
+	var seats []domain.Seat
+	seatMap := make(map[int]string)
+
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		// 獲取該商店所有的seatId
-		querySeatIds := "SELECT ss.id" +
-			" FROM stores s" +
-			" JOIN store_seats ss ON ss.store_id = s.id" +
-			" WHERE s.id = ?"
-
-		if err := tx.Raw(querySeatIds, storeId).Scan(&seatIds).Error; err != nil {
+		// 獲取商店的所有座位
+		if err := tx.Where("store_id = ?", storeId).Find(&seats).Error; err != nil {
 			return err
 		}
+		for _, seat := range seats {
+			seatMap[seat.Id] = seat.Title
+		}
 
+		// 以座位查詢訂單
 		if err := tx.Preload("OrderTicketItems").
-			Where("seat_id IN (?)", seatIds).
+			Where("seat_id IN (SELECT id FROM store_seats WHERE store_id = ?)", storeId).
 			Find(&orderTickets).Error; err != nil {
 			return err
 		}
@@ -99,6 +100,11 @@ func (r *OrderTicketsRepo) GetAllByStoreId(ctx context.Context, storeId string) 
 		return nil
 	}); err != nil {
 		return orderTickets, err
+	}
+
+	// 將seatTitle寫進orderTicket的return json structure，方便frontend使用
+	for i, orderTicket := range orderTickets {
+		orderTickets[i].SeatTitle = seatMap[orderTicket.SeatId]
 	}
 
 	return orderTickets, nil

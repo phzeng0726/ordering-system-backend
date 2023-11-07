@@ -116,7 +116,6 @@ type StoreMenus interface {
 type CreateOrderTicketInput struct {
 	SeatId     int
 	UserId     string
-	TotalPrice float64
 	OrderItems []OrderTicketItemInput
 }
 

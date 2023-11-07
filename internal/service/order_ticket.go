@@ -4,6 +4,8 @@ import (
 	"context"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
+
+	"github.com/pkg/errors"
 )
 
 type OrderTicketsService struct {
@@ -20,6 +22,10 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 	orderStatus, err := domain.OrderStatusConverter(domain.Open) // 預設create時為open
 	if err != nil {
 		return err
+	}
+
+	if len(input.OrderItems) == 0 {
+		return errors.New("order items cannot be empty")
 	}
 
 	for _, oi := range input.OrderItems {
