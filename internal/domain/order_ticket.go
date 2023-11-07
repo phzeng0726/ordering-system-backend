@@ -8,6 +8,7 @@ import (
 type OrderTicket struct {
 	Id               int               `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
 	SeatId           int               `gorm:"column:seat_id;" json:"seatId"`
+	SeatTitle        string            `gorm:"-" json:"seatTitle"`
 	UserId           string            `gorm:"column:user_id;" json:"userId,omitempty"`
 	TotalPrice       float64           `gorm:"column:total_price;" json:"totalPrice"`
 	OrderStatus      string            `gorm:"column:order_status;" json:"orderStatus"`

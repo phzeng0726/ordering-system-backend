@@ -25,7 +25,6 @@ func (h *Handler) initOrderTicketRoutes(api *gin.RouterGroup) {
 type createOrderTicketInput struct {
 	SeatId     int                          `json:"seatId" binding:"required"`
 	UserId     string                       `json:"userId" binding:"required"`
-	TotalPrice *float64                     `json:"totalPrice" binding:"required"`
 	OrderItems []createOrderTicketItemInput `json:"orderItems" binding:"required,dive,required"`
 }
 
@@ -61,7 +60,6 @@ func (h *Handler) createTicket(c *gin.Context) {
 	if err := h.services.OrderTickets.Create(c.Request.Context(), service.CreateOrderTicketInput{
 		SeatId:     inp.SeatId,
 		UserId:     inp.UserId,
-		TotalPrice: *inp.TotalPrice,
 		OrderItems: orderItems,
 	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
