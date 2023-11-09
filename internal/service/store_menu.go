@@ -61,16 +61,17 @@ func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string,
 			mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
 			menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
 		}
+
 		return menu, nil
-	}
+	} else {
+		// 撈出
+		menu, err = s.repo.TempGetAllByUserId(ctx, userId, storeId)
+		if err != nil {
+			return menu, err
+		}
 
-	// 撈出
-	menu, err = s.repo.TempGetAllByUserId(ctx, userId, storeId)
-	if err != nil {
-		return menu, err
+		menu.MenuItems = []domain.MenuItem{}
 	}
-
-	menu.MenuItems = []domain.MenuItem{}
 
 	return menu, nil
 }
