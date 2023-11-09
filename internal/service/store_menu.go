@@ -46,31 +46,10 @@ func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId stri
 	return nil
 }
 
-// TODO Refactor
-func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error) {
-	var menu domain.Menu
-	menuItemMappings, err := s.repo.GetMenuByStoreId(ctx, userId, storeId, languageId)
+func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
+	menu, err := s.repo.GetMenuByStoreId(ctx, userId, storeId, languageId, userType)
 	if err != nil {
 		return menu, err
-	}
-
-	if len(menuItemMappings) != 0 {
-		menu = menuItemMappings[0].Menu
-		for _, mim := range menuItemMappings {
-			mim.MenuItem.ImageBytes = mim.MenuItem.Image.BytesData
-			mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
-			menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
-		}
-
-		return menu, nil
-	} else {
-		// 撈出
-		menu, err = s.repo.TempGetAllByUserId(ctx, userId, storeId)
-		if err != nil {
-			return menu, err
-		}
-
-		menu.MenuItems = []domain.MenuItem{}
 	}
 
 	return menu, nil

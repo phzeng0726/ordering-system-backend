@@ -59,8 +59,7 @@ type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
-	TempGetAllByUserId(ctx context.Context, userId string, storeId string) (domain.Menu, error)
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error)
+	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
 }
 
 type OrderTickets interface {
@@ -105,7 +104,30 @@ func (*RepoTools) CheckStoreSeatExist(tx *gorm.DB, storeId string, seatId int) e
 	return nil
 }
 
-func (*RepoTools) CheckStoreExist(tx *gorm.DB, userId string, storeId string, store *domain.Store) error {
+func (*RepoTools) GetStoreInfo(tx *gorm.DB, storeId string, store *domain.Store) error {
+	// 沒有傳入指針時，代表外部不需要使用到
+	if store == nil {
+		store = &domain.Store{}
+	}
+
+	if err := tx.Where("id = ?", storeId).First(&store).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// userId避免print在log上
+			return fmt.Errorf("no store found with id %s", storeId)
+		}
+		return err
+	}
+
+	if err := tx.Where("store_id = ?", storeId).Find(&store.StoreOpeningHours).Error; err != nil {
+		return err
+	}
+
+	fmt.Println(store)
+
+	return nil
+}
+
+func (*RepoTools) CheckUserStoreExist(tx *gorm.DB, userId string, storeId string, store *domain.Store) error {
 	// 沒有傳入指針時，代表外部不需要使用到
 	if store == nil {
 		store = &domain.Store{}
@@ -122,7 +144,7 @@ func (*RepoTools) CheckStoreExist(tx *gorm.DB, userId string, storeId string, st
 	return nil
 }
 
-func (*RepoTools) CheckMenuExist(tx *gorm.DB, userId string, menuId string, menu *domain.Menu) error {
+func (*RepoTools) CheckUserMenuExist(tx *gorm.DB, userId string, menuId string, menu *domain.Menu) error {
 	// 沒有傳入指針時，代表外部不需要使用到
 	if menu == nil {
 		menu = &domain.Menu{}

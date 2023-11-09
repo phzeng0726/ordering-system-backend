@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"ordering-system-backend/internal/domain"
 	"strings"
 
@@ -28,12 +29,12 @@ func (r *StoreMenusRepo) checkUserStoreMenuExist(tx *gorm.DB, userId string, sto
 	}
 
 	// 確認該User擁有此StoreId
-	if err := r.rt.CheckStoreExist(tx, userId, storeMenuMapping.StoreId, nil); err != nil {
+	if err := r.rt.CheckUserStoreExist(tx, userId, storeMenuMapping.StoreId, nil); err != nil {
 		return err
 	}
 
 	// 確認該User擁有此MenuId
-	if err := r.rt.CheckMenuExist(tx, userId, storeMenuMapping.MenuId, nil); err != nil {
+	if err := r.rt.CheckUserMenuExist(tx, userId, storeMenuMapping.MenuId, nil); err != nil {
 		return err
 	}
 
@@ -106,33 +107,8 @@ func (r *StoreMenusRepo) DeleteMenuReference(ctx context.Context, userId string,
 	return nil
 }
 
-func (r *StoreMenusRepo) TempGetAllByUserId(ctx context.Context, userId string, storeId string) (domain.Menu, error) {
-	var storeMenuMapping domain.StoreMenuMapping
+func (r *StoreMenusRepo) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
 	var menu domain.Menu
-	db := r.db.WithContext(ctx)
-
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserExist(tx, userId); err != nil {
-			return err
-		}
-		if err := tx.Where("store_id = ?", storeId).First(&storeMenuMapping).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Where("id = ?", storeMenuMapping.MenuId).
-			First(&menu).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		return menu, err
-	}
-
-	return menu, nil
-}
-
-func (r *StoreMenusRepo) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) ([]domain.MenuItemMapping, error) {
 	var storeMenuMapping domain.StoreMenuMapping
 	var menuItemMappings []domain.MenuItemMapping
 	db := r.db.WithContext(ctx)
@@ -142,18 +118,49 @@ func (r *StoreMenusRepo) GetMenuByStoreId(ctx context.Context, userId string, st
 			return err
 		}
 
+		// 以menuId下去撈menuItems
 		if err := tx.Preload("Menu").
 			Preload("MenuItem.Image").
 			Preload("MenuItem.Category").
 			Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
 			Where("menu_id = ?", storeMenuMapping.MenuId).Find(&menuItemMappings).Error; err != nil {
+			fmt.Print("hi")
 			return err
+
+		}
+
+		// 找不到menuItems的話，只回傳menu
+		if len(menuItemMappings) == 0 {
+			if err := tx.Where("id = ?", storeMenuMapping.MenuId).
+				First(&menu).Error; err != nil {
+				return err
+			}
+
+			menu.MenuItems = []domain.MenuItem{}
+		} else {
+			// 否則處理menuItems為格式化資料
+			menu = menuItemMappings[0].Menu
+			for _, mim := range menuItemMappings {
+				mim.MenuItem.ImageBytes = mim.MenuItem.Image.BytesData
+				mim.MenuItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
+				menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
+			}
+
+		}
+
+		// 撈取商店資訊，供客戶端使用
+		if userType == 1 {
+			var store domain.Store
+			if err := r.rt.GetStoreInfo(tx, storeId, &store); err != nil {
+				return err
+			}
+			menu.Store = &store
 		}
 
 		return nil
 	}); err != nil {
-		return menuItemMappings, err
+		return menu, err
 	}
 
-	return menuItemMappings, nil
+	return menu, nil
 }

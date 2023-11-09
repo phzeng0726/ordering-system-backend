@@ -60,7 +60,7 @@ func (r *StoresRepo) Update(ctx context.Context, store domain.Store) error {
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckStoreExist(tx, store.UserId, store.Id, nil); err != nil {
+		if err := r.rt.CheckUserStoreExist(tx, store.UserId, store.Id, nil); err != nil {
 			return err
 		}
 
@@ -90,7 +90,7 @@ func (r *StoresRepo) Delete(ctx context.Context, userId string, storeId string) 
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckStoreExist(tx, userId, storeId, nil); err != nil {
+		if err := r.rt.CheckUserStoreExist(tx, userId, storeId, nil); err != nil {
 			return err
 		}
 
@@ -135,7 +135,7 @@ func (r *StoresRepo) GetByStoreId(ctx context.Context, userId string, storeId st
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckStoreExist(tx, userId, storeId, &store); err != nil {
+		if err := r.rt.CheckUserStoreExist(tx, userId, storeId, &store); err != nil {
 			return err
 		}
 
