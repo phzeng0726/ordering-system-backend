@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	firebase "firebase.google.com/go"
@@ -10,8 +11,17 @@ import (
 	"google.golang.org/api/option"
 )
 
-func Init() (*auth.Client, error) {
-	opt := option.WithCredentialsFile("firebase_credential.json")
+func Init(userType int) (*auth.Client, error) {
+	var opt option.ClientOption
+
+	if userType == 0 {
+		opt = option.WithCredentialsFile("firebase_credential.json")
+	} else if userType == 1 {
+		opt = option.WithCredentialsFile("client_firebase_credential.json")
+	} else {
+		return nil, errors.New("userType not available for firebase init method")
+	}
+
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		return nil, err

@@ -62,7 +62,7 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		client, err := firebase_auth.Init()
+		client, err := firebase_auth.Init(*userAccount.UserType)
 		if err != nil {
 			return err
 		}
@@ -197,7 +197,7 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 			return err
 		}
 
-		client, err := firebase_auth.Init()
+		client, err := firebase_auth.Init(*userAccount.UserType)
 		if err != nil {
 			return err
 		}
@@ -275,7 +275,7 @@ func (r *UsersRepo) ResetPassword(ctx context.Context, userId string, newPasswor
 			return err
 		}
 
-		client, err := firebase_auth.Init()
+		client, err := firebase_auth.Init(*userAccount.UserType)
 		if err != nil {
 			return err
 		}
