@@ -69,7 +69,14 @@ func (h *Handler) getMenuByStoreId(c *gin.Context) {
 		return
 	}
 
-	menu, err := h.services.StoreMenus.GetMenuByStoreId(c.Request.Context(), userId, storeId, languageId)
+	userTypeStr := c.Query("userType")
+	userType, err := strconv.Atoi(userTypeStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "userType parameter is missing or invalid syntax"})
+		return
+	}
+
+	menu, err := h.services.StoreMenus.GetMenuByStoreId(c.Request.Context(), userId, storeId, languageId, userType)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

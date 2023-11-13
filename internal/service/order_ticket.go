@@ -4,6 +4,7 @@ import (
 	"context"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
+	"ordering-system-backend/internal/utils"
 
 	"github.com/pkg/errors"
 )
@@ -19,7 +20,7 @@ func NewOrderTicketsService(repo repository.OrderTickets) *OrderTicketsService {
 func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicketInput) error {
 	var orderItems []domain.OrderTicketItem
 	var totalPrice float64
-	orderStatus, err := domain.OrderStatusConverter(domain.Open) // 預設create時為open
+	orderStatus, err := utils.OrderStatusConverter(domain.Open) // 預設create時為open
 	if err != nil {
 		return err
 	}

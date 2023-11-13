@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"time"
 )
 
@@ -34,21 +33,3 @@ const (
 	Cancelled
 	Done
 )
-
-func OrderStatusConverter(orderStatus OrderStatus) (string, error) {
-	var orderStatusStr string
-
-	if orderStatus == Open {
-		orderStatusStr = "open"
-	} else if orderStatus == InProgress {
-		orderStatusStr = "inProgress"
-	} else if orderStatus == Cancelled {
-		orderStatusStr = "cancelled"
-	} else if orderStatus == Done {
-		orderStatusStr = "done"
-	} else {
-		return orderStatusStr, errors.New("order status not available")
-	}
-
-	return orderStatusStr, nil
-}
