@@ -188,6 +188,14 @@ func (r *UsersRepo) deleteCategories(tx *gorm.DB, userId string) error {
 	return nil
 }
 
+func (r *UsersRepo) deleteFCMTokens(tx *gorm.DB, userId string) error {
+	if err := tx.Where("user_id = ?", userId).Delete(&domain.FCMToken{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
@@ -211,6 +219,10 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 		}
 
 		if err := r.deleteCategories(tx, userId); err != nil {
+			return err
+		}
+
+		if err := r.deleteFCMTokens(tx, userId); err != nil {
 			return err
 		}
 
