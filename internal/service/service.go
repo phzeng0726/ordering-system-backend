@@ -137,6 +137,16 @@ type OrderTickets interface {
 	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error)
 }
 
+type CreateTokenInput struct {
+	UserId string
+	Token  string
+}
+
+type FCMTokens interface {
+	Create(ctx context.Context, input CreateTokenInput) error
+	GetByUserId(ctx context.Context, userId string) (string, error)
+}
+
 type Services struct {
 	Users        Users
 	OTP          OTP
@@ -146,6 +156,7 @@ type Services struct {
 	Menus        Menus
 	StoreMenus   StoreMenus
 	OrderTickets OrderTickets
+	FCMTokens    FCMTokens
 }
 
 type Deps struct {
@@ -153,23 +164,15 @@ type Deps struct {
 }
 
 func NewServices(deps Deps) *Services {
-	usersService := NewUsersService(deps.Repos.Users)
-	OTPService := NewOTPService(deps.Repos.OTP)
-	categoriesService := NewCategoriesService(deps.Repos.Categories)
-	menusService := NewMenusService(deps.Repos.Menus)
-	storesService := NewStoresService(deps.Repos.Stores)
-	seatsService := NewSeatsService(deps.Repos.Seats)
-	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus)
-	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets)
-
 	return &Services{
-		Users:        usersService,
-		OTP:          OTPService,
-		Stores:       storesService,
-		Categories:   categoriesService,
-		Menus:        menusService,
-		Seats:        seatsService,
-		StoreMenus:   storeMenusService,
-		OrderTickets: orderTicketsService,
+		Users:        NewUsersService(deps.Repos.Users),
+		OTP:          NewOTPService(deps.Repos.OTP),
+		Stores:       NewStoresService(deps.Repos.Stores),
+		Categories:   NewCategoriesService(deps.Repos.Categories),
+		Menus:        NewMenusService(deps.Repos.Menus),
+		Seats:        NewSeatsService(deps.Repos.Seats),
+		StoreMenus:   NewStoreMenusService(deps.Repos.StoreMenus),
+		OrderTickets: NewOrderTicketsService(deps.Repos.OrderTickets),
+		FCMTokens:    NewFCMTokensService(deps.Repos.FCMTokens),
 	}
 }

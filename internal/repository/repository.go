@@ -69,6 +69,11 @@ type OrderTickets interface {
 	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error)
 }
 
+type FCMTokens interface {
+	Create(ctx context.Context, token domain.FCMToken) error
+	GetByUserId(ctx context.Context, userId string) (string, error)
+}
+
 type Repositories struct {
 	Users        Users
 	OTP          OTP
@@ -78,6 +83,7 @@ type Repositories struct {
 	Menus        Menus
 	StoreMenus   StoreMenus
 	OrderTickets OrderTickets
+	FCMTokens    FCMTokens
 }
 
 type RepoTools struct{}
@@ -207,5 +213,6 @@ func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
 		Menus:        NewMenusRepo(db, rt),
 		StoreMenus:   NewStoreMenusRepo(db, rt),
 		OrderTickets: NewOrderTicketsRepo(db, rt),
+		FCMTokens:    NewFCMTokensRepo(db, rt),
 	}
 }
