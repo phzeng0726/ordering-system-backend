@@ -73,6 +73,7 @@ type FCMTokens interface {
 	Create(ctx context.Context, token domain.FCMToken) error
 	Delete(ctx context.Context, token domain.FCMToken) error
 	GetByUserId(ctx context.Context, userId string) (string, error)
+	GetAllBySeatId(ctx context.Context, seatId int) ([]string, error) // For client user
 }
 
 type Repositories struct {

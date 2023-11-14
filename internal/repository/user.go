@@ -119,8 +119,8 @@ func (r *UsersRepo) deleteMenus(tx *gorm.DB, userId string) error {
 
 	sqlQuery := "SELECT mim.menu_id, mim.menu_item_id" +
 		" FROM menus m" +
-		" JOIN menu_item_mapping mim ON mim.menu_id = m.id" +
-		" JOIN menu_items mi ON mi.id = mim.menu_item_id" +
+		" INNER JOIN menu_item_mapping mim ON mim.menu_id = m.id" +
+		" INNER JOIN menu_items mi ON mi.id = mim.menu_item_id" +
 		" WHERE m.user_id = ?;"
 	queryParams := []interface{}{userId}
 

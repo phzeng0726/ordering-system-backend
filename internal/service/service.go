@@ -138,13 +138,13 @@ type OrderTickets interface {
 }
 
 type CreateTokenInput struct {
-	UserId string
-	Token  string
+	UserId      string
+	DeviceToken string
 }
 
 type DeleteTokenInput struct {
-	UserId string
-	Token  string
+	UserId      string
+	DeviceToken string
 }
 
 type FCMTokens interface {
@@ -178,7 +178,7 @@ func NewServices(deps Deps) *Services {
 		Menus:        NewMenusService(deps.Repos.Menus),
 		Seats:        NewSeatsService(deps.Repos.Seats),
 		StoreMenus:   NewStoreMenusService(deps.Repos.StoreMenus),
-		OrderTickets: NewOrderTicketsService(deps.Repos.OrderTickets),
+		OrderTickets: NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens),
 		FCMTokens:    NewFCMTokensService(deps.Repos.FCMTokens),
 	}
 }

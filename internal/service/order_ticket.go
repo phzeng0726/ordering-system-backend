@@ -2,19 +2,35 @@ package service
 
 import (
 	"context"
+	"errors"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
 	"ordering-system-backend/internal/utils"
-
-	"github.com/pkg/errors"
+	"ordering-system-backend/pkg/notification"
 )
 
 type OrderTicketsService struct {
-	repo repository.OrderTickets
+	orderRepo repository.OrderTickets
+	fcmRepo   repository.FCMTokens
 }
 
-func NewOrderTicketsService(repo repository.OrderTickets) *OrderTicketsService {
-	return &OrderTicketsService{repo: repo}
+func NewOrderTicketsService(orderRepo repository.OrderTickets, fcmRepo repository.FCMTokens) *OrderTicketsService {
+	return &OrderTicketsService{orderRepo: orderRepo, fcmRepo: fcmRepo}
+}
+
+func (s *OrderTicketsService) pushFirebaseNotification(deviceTokens []string) error {
+	// Push FCM Token
+	fcmClient, err := notification.Init()
+	if err != nil {
+		return err
+	}
+	err = notification.SendPushNotification(fcmClient, deviceTokens)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicketInput) error {
@@ -50,7 +66,19 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 		OrderTicketItems: orderItems,
 	}
 
-	if err := s.repo.Create(ctx, orderTicket); err != nil {
+	// 建立 OrderTicket
+	if err := s.orderRepo.Create(ctx, orderTicket); err != nil {
+		return err
+	}
+
+	// 撈取該SeatId的商家，並獲取該商家的所有Device Token
+	deviceTokens, err := s.fcmRepo.GetAllBySeatId(ctx, input.SeatId)
+	if err != nil {
+		return err
+	}
+
+	// 以 FCM 通知刷新頁面
+	if err := s.pushFirebaseNotification(deviceTokens); err != nil {
 		return err
 	}
 
@@ -63,7 +91,7 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 		OrderStatus: input.OrderStatus,
 	}
 
-	if err := s.repo.Update(ctx, storeId, orderTicket); err != nil {
+	if err := s.orderRepo.Update(ctx, storeId, orderTicket); err != nil {
 		return err
 	}
 
@@ -71,7 +99,7 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 }
 
 func (s *OrderTicketsService) Delete(ctx context.Context, storeId string, ticketId int) error {
-	if err := s.repo.Delete(ctx, storeId, ticketId); err != nil {
+	if err := s.orderRepo.Delete(ctx, storeId, ticketId); err != nil {
 		return err
 	}
 
@@ -79,7 +107,7 @@ func (s *OrderTicketsService) Delete(ctx context.Context, storeId string, ticket
 }
 
 func (s *OrderTicketsService) GetAllByStoreId(ctx context.Context, storeId string) ([]domain.OrderTicket, error) {
-	orderTickets, err := s.repo.GetAllByStoreId(ctx, storeId)
+	orderTickets, err := s.orderRepo.GetAllByStoreId(ctx, storeId)
 	if err != nil {
 		return orderTickets, err
 	}
