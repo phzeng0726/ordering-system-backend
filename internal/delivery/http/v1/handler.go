@@ -29,6 +29,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 		h.initUserStoresRoutes(v1)
 		h.initUserSeatsRoutes(v1)
 		h.initStoreMenusRoutes(v1)
+		h.initFCMTokensRoutes(v1) // FCM
 
 		// For 客戶
 		h.initOrderTicketRoutes(v1)
