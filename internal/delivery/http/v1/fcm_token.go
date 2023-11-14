@@ -40,7 +40,7 @@ func (h *Handler) createToken(c *gin.Context) {
 }
 
 func (h *Handler) getToken(c *gin.Context) {
-	userId := c.Param("user_id")
+	userId := c.Query("userId")
 
 	token, err := h.services.FCMTokens.GetByUserId(c.Request.Context(), userId)
 	if err != nil {

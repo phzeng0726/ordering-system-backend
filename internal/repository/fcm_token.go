@@ -33,7 +33,7 @@ func (r *FCMTokensRepo) GetByUserId(ctx context.Context, userId string) (string,
 	var fcmToken domain.FCMToken
 	db := r.db.WithContext(ctx)
 
-	if err := db.Where("user_id = ?", userId).First(&fcmToken).Error; err != nil {
+	if err := db.Where("user_id = ?", userId).Order("created_at desc").First(&fcmToken).Error; err != nil {
 		return fcmToken.Token, nil
 	}
 
