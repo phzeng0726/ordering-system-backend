@@ -8,10 +8,10 @@ import "time"
 // not null;
 // primaryKey;
 type FCMToken struct {
-	Id        int       `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
-	UserId    string    `gorm:"column:user_id;" json:"userId"`
-	Token     string    `gorm:"column:token;" json:"token"`
-	CreatedAt time.Time `gorm:"column:created_at;" json:"createdAt"`
+	Id          int       `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
+	UserId      string    `gorm:"column:user_id;" json:"userId"`
+	DeviceToken string    `gorm:"column:token;" json:"token"`
+	CreatedAt   time.Time `gorm:"column:created_at;" json:"createdAt"`
 }
 
 func (FCMToken) TableName() string {

@@ -18,13 +18,13 @@ func (h *Handler) initFCMTokensRoutes(api *gin.RouterGroup) {
 }
 
 type createTokenInput struct {
-	UserId string `json:"userId" binding:"required"`
-	Token  string `json:"token" binding:"required"`
+	UserId      string `json:"userId" binding:"required"`
+	DeviceToken string `json:"token" binding:"required"`
 }
 
 type deleteTokenInput struct {
-	UserId string `json:"userId" binding:"required"`
-	Token  string `json:"token" binding:"required"`
+	UserId      string `json:"userId" binding:"required"`
+	DeviceToken string `json:"token" binding:"required"`
 }
 
 func (h *Handler) createToken(c *gin.Context) {
@@ -36,8 +36,8 @@ func (h *Handler) createToken(c *gin.Context) {
 	}
 
 	if err := h.services.FCMTokens.Create(c.Request.Context(), service.CreateTokenInput{
-		UserId: inp.UserId,
-		Token:  inp.Token,
+		UserId:      inp.UserId,
+		DeviceToken: inp.DeviceToken,
 	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -67,8 +67,8 @@ func (h *Handler) deleteToken(c *gin.Context) {
 	}
 
 	if err := h.services.FCMTokens.Delete(c.Request.Context(), service.DeleteTokenInput{
-		UserId: inp.UserId,
-		Token:  inp.Token,
+		UserId:      inp.UserId,
+		DeviceToken: inp.DeviceToken,
 	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

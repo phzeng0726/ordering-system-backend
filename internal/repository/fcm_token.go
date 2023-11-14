@@ -32,7 +32,7 @@ func (r *FCMTokensRepo) Create(ctx context.Context, token domain.FCMToken) error
 func (r *FCMTokensRepo) Delete(ctx context.Context, token domain.FCMToken) error {
 	db := r.db.WithContext(ctx)
 
-	if err := db.Where("user_id = ? AND token = ?", token.UserId, token.Token).Delete(&token).Error; err != nil {
+	if err := db.Where("user_id = ? AND token = ?", token.UserId, token.DeviceToken).Delete(&token).Error; err != nil {
 		return err
 	}
 
@@ -43,9 +43,33 @@ func (r *FCMTokensRepo) GetByUserId(ctx context.Context, userId string) (string,
 	var fcmToken domain.FCMToken
 	db := r.db.WithContext(ctx)
 
-	if err := db.Where("user_id = ?", userId).Order("created_at desc").First(&fcmToken).Error; err != nil {
-		return fcmToken.Token, nil
+	if err := db.Where("user_id = ?", userId).Order("created_at DESC").First(&fcmToken).Error; err != nil {
+		return fcmToken.DeviceToken, nil
 	}
 
-	return fcmToken.Token, nil
+	return fcmToken.DeviceToken, nil
+}
+
+func (r *FCMTokensRepo) GetAllBySeatId(ctx context.Context, seatId int) ([]string, error) {
+	var fcmTokens []domain.FCMToken
+	var deviceTokens []string
+	db := r.db.WithContext(ctx)
+
+	sqlQuery := "SELECT ft.*" +
+		" FROM fcm_tokens ft" +
+		" INNER JOIN stores s ON ft.user_id = s.user_id" +
+		" INNER JOIN store_seats ss ON s.id = ss.store_id" +
+		" WHERE ss.id = ?" +
+		" ORDER BY ft.created_at DESC;"
+	queryParams := []interface{}{seatId}
+
+	if err := db.Raw(sqlQuery, queryParams...).Scan(&fcmTokens).Error; err != nil {
+		return deviceTokens, err
+	}
+
+	for _, f := range fcmTokens {
+		deviceTokens = append(deviceTokens, f.DeviceToken)
+	}
+
+	return deviceTokens, nil
 }

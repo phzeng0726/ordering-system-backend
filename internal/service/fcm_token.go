@@ -16,8 +16,8 @@ func NewFCMTokensService(repo repository.FCMTokens) *FCMTokensService {
 
 func (s *FCMTokensService) Create(ctx context.Context, input CreateTokenInput) error {
 	fcmToken := domain.FCMToken{
-		UserId: input.UserId,
-		Token:  input.Token,
+		UserId:      input.UserId,
+		DeviceToken: input.DeviceToken,
 	}
 
 	if err := s.repo.Create(ctx, fcmToken); err != nil {
@@ -29,8 +29,8 @@ func (s *FCMTokensService) Create(ctx context.Context, input CreateTokenInput) e
 
 func (s *FCMTokensService) Delete(ctx context.Context, input DeleteTokenInput) error {
 	fcmToken := domain.FCMToken{
-		UserId: input.UserId,
-		Token:  input.Token,
+		UserId:      input.UserId,
+		DeviceToken: input.DeviceToken,
 	}
 
 	if err := s.repo.Delete(ctx, fcmToken); err != nil {
