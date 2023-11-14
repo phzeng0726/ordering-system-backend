@@ -71,6 +71,7 @@ type OrderTickets interface {
 
 type FCMTokens interface {
 	Create(ctx context.Context, token domain.FCMToken) error
+	Delete(ctx context.Context, token domain.FCMToken) error
 	GetByUserId(ctx context.Context, userId string) (string, error)
 }
 

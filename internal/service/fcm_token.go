@@ -27,6 +27,19 @@ func (s *FCMTokensService) Create(ctx context.Context, input CreateTokenInput) e
 	return nil
 }
 
+func (s *FCMTokensService) Delete(ctx context.Context, input DeleteTokenInput) error {
+	fcmToken := domain.FCMToken{
+		UserId: input.UserId,
+		Token:  input.Token,
+	}
+
+	if err := s.repo.Delete(ctx, fcmToken); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *FCMTokensService) GetByUserId(ctx context.Context, userId string) (string, error) {
 	menu, err := s.repo.GetByUserId(ctx, userId)
 	if err != nil {

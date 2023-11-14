@@ -11,11 +11,18 @@ func (h *Handler) initFCMTokensRoutes(api *gin.RouterGroup) {
 	fcmTokens := api.Group("/fcm-tokens")
 	{
 		fcmTokens.POST("", h.createToken)
+		fcmTokens.DELETE("", h.deleteToken)
 		fcmTokens.GET("", h.getToken)
+
 	}
 }
 
 type createTokenInput struct {
+	UserId string `json:"userId" binding:"required"`
+	Token  string `json:"token" binding:"required"`
+}
+
+type deleteTokenInput struct {
 	UserId string `json:"userId" binding:"required"`
 	Token  string `json:"token" binding:"required"`
 }
@@ -49,4 +56,23 @@ func (h *Handler) getToken(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, token)
+}
+
+func (h *Handler) deleteToken(c *gin.Context) {
+	var inp deleteTokenInput
+
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := h.services.FCMTokens.Delete(c.Request.Context(), service.DeleteTokenInput{
+		UserId: inp.UserId,
+		Token:  inp.Token,
+	}); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, true)
 }

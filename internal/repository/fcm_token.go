@@ -29,6 +29,16 @@ func (r *FCMTokensRepo) Create(ctx context.Context, token domain.FCMToken) error
 	return nil
 }
 
+func (r *FCMTokensRepo) Delete(ctx context.Context, token domain.FCMToken) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Where("user_id = ? AND token = ?", token.UserId, token.Token).Delete(&token).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *FCMTokensRepo) GetByUserId(ctx context.Context, userId string) (string, error) {
 	var fcmToken domain.FCMToken
 	db := r.db.WithContext(ctx)

@@ -142,8 +142,14 @@ type CreateTokenInput struct {
 	Token  string
 }
 
+type DeleteTokenInput struct {
+	UserId string
+	Token  string
+}
+
 type FCMTokens interface {
 	Create(ctx context.Context, input CreateTokenInput) error
+	Delete(ctx context.Context, input DeleteTokenInput) error
 	GetByUserId(ctx context.Context, userId string) (string, error)
 }
 
