@@ -178,7 +178,7 @@ func NewServices(deps Deps) *Services {
 		Menus:        NewMenusService(deps.Repos.Menus),
 		Seats:        NewSeatsService(deps.Repos.Seats),
 		StoreMenus:   NewStoreMenusService(deps.Repos.StoreMenus),
-		OrderTickets: NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens),
+		OrderTickets: NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats),
 		FCMTokens:    NewFCMTokensService(deps.Repos.FCMTokens),
 	}
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
 	"ordering-system-backend/internal/utils"
@@ -12,19 +13,20 @@ import (
 type OrderTicketsService struct {
 	orderRepo repository.OrderTickets
 	fcmRepo   repository.FCMTokens
+	seatRepo  repository.Seats
 }
 
-func NewOrderTicketsService(orderRepo repository.OrderTickets, fcmRepo repository.FCMTokens) *OrderTicketsService {
-	return &OrderTicketsService{orderRepo: orderRepo, fcmRepo: fcmRepo}
+func NewOrderTicketsService(orderRepo repository.OrderTickets, fcmRepo repository.FCMTokens, seatRepo repository.Seats) *OrderTicketsService {
+	return &OrderTicketsService{orderRepo: orderRepo, fcmRepo: fcmRepo, seatRepo: seatRepo}
 }
 
-func (s *OrderTicketsService) pushFirebaseNotification(deviceTokens []string) error {
+func (s *OrderTicketsService) pushFirebaseNotification(deviceTokens []string, storeId string) error {
 	// Push FCM Token
 	fcmClient, err := notification.Init()
 	if err != nil {
 		return err
 	}
-	err = notification.SendPushNotification(fcmClient, deviceTokens)
+	err = notification.SendPushNotification(fcmClient, deviceTokens, storeId)
 
 	if err != nil {
 		return err
@@ -77,8 +79,14 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 		return err
 	}
 
+	seat, err := s.seatRepo.GetSeatBySeatId(ctx, input.SeatId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Send message to store:", seat.StoreId)
 	// 以 FCM 通知刷新頁面
-	if err := s.pushFirebaseNotification(deviceTokens); err != nil {
+	if err := s.pushFirebaseNotification(deviceTokens, seat.StoreId); err != nil {
 		return err
 	}
 

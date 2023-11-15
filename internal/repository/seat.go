@@ -79,3 +79,14 @@ func (r *SeatsRepo) GetById(ctx context.Context, storeId string, seatId int) (do
 
 	return seat, nil
 }
+
+func (r *SeatsRepo) GetSeatBySeatId(ctx context.Context, seatId int) (domain.Seat, error) {
+	var seat domain.Seat
+	db := r.db.WithContext(ctx)
+
+	if err := db.Where("id = ?", seatId).First(&seat).Error; err != nil {
+		return seat, err
+	}
+
+	return seat, nil
+}

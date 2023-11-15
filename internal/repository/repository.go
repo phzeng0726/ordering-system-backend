@@ -44,6 +44,7 @@ type Seats interface {
 	Delete(ctx context.Context, storeId string, seatId int) error
 	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.Seat, error)
 	GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error)
+	GetSeatBySeatId(ctx context.Context, seatId int) (domain.Seat, error)
 }
 
 type Menus interface {

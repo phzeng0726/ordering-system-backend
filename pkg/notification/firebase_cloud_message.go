@@ -25,11 +25,11 @@ func Init() (*messaging.Client, error) {
 	return client, nil
 }
 
-func SendPushNotification(client *messaging.Client, deviceTokens []string) error {
+func SendPushNotification(client *messaging.Client, deviceTokens []string, storeId string) error {
 	response, err := client.SendMulticast(context.Background(), &messaging.MulticastMessage{
 		Notification: &messaging.Notification{
-			Title: "Congratulations!!",
-			Body:  "You have just implement push notification",
+			Title: "NEW_ORDER_TICKET",
+			Body:  storeId,
 		},
 		Tokens: deviceTokens,
 	})
