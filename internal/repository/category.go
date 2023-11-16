@@ -93,8 +93,15 @@ func (r *CategoriesRepo) Delete(ctx context.Context, categoryId int) error {
 	return nil
 }
 
-func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.CategoryUserMapping, error) {
-	var categoryUserMappings []domain.CategoryUserMapping
+func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error) {
+	type result struct {
+		Id         int
+		Identifier string
+		IsDefault  *bool
+		Title      string
+	}
+	var res []result
+	var categories []domain.Category
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
@@ -102,17 +109,31 @@ func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, lang
 			return err
 		}
 
-		if err := tx.Preload("Category").
-			Preload("Category.CategoryLanguage", "language_id = ?", languageId).
-			Where("user_id = ?", userId).
-			Find(&categoryUserMappings).Error; err != nil {
+		sqlQuery := "SELECT c.*, cl.title" +
+			" FROM category_user_mapping cum" +
+			" INNER JOIN categories c on cum.category_id = c.id" +
+			" INNER JOIN category_language cl on c.id = cl.category_id" +
+			" WHERE cum.user_id = ?" +
+			" AND cl.language_id = ? OR cl.language_id IS NULL;"
+		queryParams := []interface{}{userId, languageId}
+
+		if err := tx.Raw(sqlQuery, queryParams...).Scan(&res).Error; err != nil {
 			return err
+		}
+
+		for _, r := range res {
+			categories = append(categories, domain.Category{
+				Id:         r.Id,
+				Identifier: r.Identifier,
+				IsDefault:  r.IsDefault,
+				Title:      r.Title,
+			})
 		}
 
 		return nil
 	}); err != nil {
-		return categoryUserMappings, err
+		return categories, err
 	}
 
-	return categoryUserMappings, nil
+	return categories, nil
 }
