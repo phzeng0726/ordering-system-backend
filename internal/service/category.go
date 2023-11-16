@@ -56,6 +56,14 @@ func (s *CategoriesService) Update(ctx context.Context, userId string, input Upd
 	return nil
 }
 
+func (s *CategoriesService) Delete(ctx context.Context, userId string, categoryId int) error {
+	if err := s.repo.Delete(ctx, userId, categoryId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *CategoriesService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error) {
 	var categories []domain.Category
 

@@ -77,6 +77,19 @@ func (h *Handler) updateCategory(c *gin.Context) {
 }
 
 func (h *Handler) deleteCategory(c *gin.Context) {
+	userId := c.Param("user_id")
+	categoryIdStr := c.Param("category_id")
+	categoryId, err := strconv.Atoi(categoryIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "category parameter is missing or invalid syntax"})
+		return
+	}
+
+	if err := h.services.Categories.Delete(c.Request.Context(), userId, categoryId); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
 

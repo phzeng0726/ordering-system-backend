@@ -84,6 +84,7 @@ type UpdateCategoryInput struct {
 type Categories interface {
 	Create(ctx context.Context, userId string, input CreateCategoryInput) error
 	Update(ctx context.Context, userId string, input UpdateCategoryInput) error
+	Delete(ctx context.Context, userId string, categoryId int) error
 	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error)
 }
 

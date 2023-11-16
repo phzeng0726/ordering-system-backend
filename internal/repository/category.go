@@ -47,29 +47,40 @@ func (r *CategoriesRepo) Create(ctx context.Context, category domain.Category, c
 	return nil
 }
 
-func (r *CategoriesRepo) Update(ctx context.Context, userId string, category domain.Category, categoryLanguage domain.CategoryLanguage) error {
+func (r *CategoriesRepo) checkCategoryPermission(tx *gorm.DB, userId string, categoryId int) error {
 	var tempCategory domain.Category
-	var tempCategoryUserMappings []domain.CategoryUserMapping
+	var tempCategoryUserMapping domain.CategoryUserMapping
+
+	// 確認category存在
+	if err := tx.Where("id = ?", categoryId).First(&tempCategory).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("category not found")
+		}
+		return err
+	}
+
+	// 系統預設的category無法變更、刪除
+	if *tempCategory.IsDefault {
+		return errors.New("default category cannot be edit")
+	}
+
+	// 確認該category屬於該user
+	if err := tx.Where("category_id = ? AND user_id = ?", categoryId, userId).First(&tempCategoryUserMapping).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("category id not exist with user id")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (r *CategoriesRepo) Update(ctx context.Context, userId string, category domain.Category, categoryLanguage domain.CategoryLanguage) error {
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("id = ?", category.Id).First(&tempCategory).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("category not found")
-			}
-			return err
-		}
-
-		// 系統預設category無法update
-		if *tempCategory.IsDefault {
-			return errors.New("cannot update default category")
-		}
-
-		// 確認該category屬於該user
-		if err := tx.Where("category_id = ? AND user_id = ?", category.Id, userId).First(&tempCategoryUserMappings).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("category id not exist with user id")
-			}
+		// 確認category存在、非default，且為該user所擁有
+		if err := r.checkCategoryPermission(tx, userId, category.Id); err != nil {
 			return err
 		}
 
@@ -89,7 +100,32 @@ func (r *CategoriesRepo) Update(ctx context.Context, userId string, category dom
 	return nil
 }
 
-func (r *CategoriesRepo) Delete(ctx context.Context, categoryId int) error {
+func (r *CategoriesRepo) Delete(ctx context.Context, userId string, categoryId int) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		// 確認category存在、非default，且為該user所擁有
+		if err := r.checkCategoryPermission(tx, userId, categoryId); err != nil {
+			return err
+		}
+
+		if err := tx.Where("category_id = ?", categoryId).Delete(&domain.CategoryUserMapping{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("category_id = ?", categoryId).Delete(&domain.CategoryLanguage{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("id = ?", categoryId).Delete(&domain.Category{}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
 	return nil
 }
 

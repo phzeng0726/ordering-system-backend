@@ -37,7 +37,7 @@ type Stores interface {
 type Categories interface {
 	Create(ctx context.Context, category domain.Category, categoryLanguage domain.CategoryLanguage, categoryUserMapping domain.CategoryUserMapping) error
 	Update(ctx context.Context, userId string, category domain.Category, categoryLanguage domain.CategoryLanguage) error
-	Delete(ctx context.Context, categoryId int) error
+	Delete(ctx context.Context, userId string, categoryId int) error
 	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.CategoryUserMapping, error)
 }
 
