@@ -14,6 +14,30 @@ func NewCategoriesService(repo repository.Categories) *CategoriesService {
 	return &CategoriesService{repo: repo}
 }
 
+func (s *CategoriesService) Create(ctx context.Context, userId string, input CreateCategoryInput) error {
+	isDefault := false
+
+	category := domain.Category{
+		Identifier: input.Identifier,
+		IsDefault:  &isDefault,
+	}
+
+	categoryLanguage := domain.CategoryLanguage{
+		LanguageId: input.LanguageId,
+		Title:      input.Title,
+	}
+
+	categoryUserMapping := domain.CategoryUserMapping{
+		UserId: userId,
+	}
+
+	if err := s.repo.Create(ctx, category, categoryLanguage, categoryUserMapping); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *CategoriesService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error) {
 	var categories []domain.Category
 

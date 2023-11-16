@@ -70,7 +70,14 @@ type Seats interface {
 	GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error)
 }
 
+type CreateCategoryInput struct {
+	Title      string
+	LanguageId int
+	Identifier string
+}
+
 type Categories interface {
+	Create(ctx context.Context, userId string, input CreateCategoryInput) error
 	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error)
 }
 
