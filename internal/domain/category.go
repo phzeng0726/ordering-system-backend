@@ -3,7 +3,7 @@ package domain
 type Category struct {
 	Id               int              `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
 	Identifier       string           `gorm:"column:identifier;" json:"identifier"`
-	IsDefault        *bool            `gorm:"column:is_default;" json:"-"`
+	IsDefault        *bool            `gorm:"column:is_default;" json:"isDefault"`
 	Title            string           `gorm:"-" json:"title"`
 	CategoryLanguage CategoryLanguage `gorm:"foreignKey:Id;references:category_id;" json:"-"`
 }
@@ -19,7 +19,7 @@ type CategoryUserMapping struct {
 type CategoryLanguage struct {
 	Id         int    `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"-"`
 	CategoryId int    `gorm:"column:category_id;" json:"-"`
-	LanguageId int    `gorm:"column:language_id;" json:"languageId"`
+	LanguageId *int   `gorm:"column:language_id;" json:"languageId"`
 	Title      string `gorm:"column:title;" json:"title"`
 }
 

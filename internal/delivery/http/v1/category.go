@@ -21,7 +21,11 @@ func (h *Handler) initUserCategoryRoutes(api *gin.RouterGroup) {
 
 type createCategoryInput struct {
 	Title      string `json:"title" binding:"required"`
-	LanguageId int    `json:"languageId" binding:"required"`
+	Identifier string `json:"identifier"`
+}
+
+type updateCategoryInput struct {
+	Title      string `json:"title" binding:"required"`
 	Identifier string `json:"identifier"`
 }
 
@@ -36,7 +40,6 @@ func (h *Handler) createCategory(c *gin.Context) {
 
 	if err := h.services.Categories.Create(c.Request.Context(), userId, service.CreateCategoryInput{
 		Title:      inp.Title,
-		LanguageId: inp.LanguageId,
 		Identifier: inp.Identifier,
 	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -45,12 +48,38 @@ func (h *Handler) createCategory(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, true)
 }
+
 func (h *Handler) updateCategory(c *gin.Context) {
+	var inp updateCategoryInput
+	userId := c.Param("user_id")
+	categoryIdStr := c.Param("category_id")
+	categoryId, err := strconv.Atoi(categoryIdStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "category parameter is missing or invalid syntax"})
+		return
+	}
+
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := h.services.Categories.Update(c.Request.Context(), userId, service.UpdateCategoryInput{
+		CategoryId: categoryId,
+		Title:      inp.Title,
+		Identifier: inp.Identifier,
+	}); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
+
 func (h *Handler) deleteCategory(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
+
 func (h *Handler) getAllCategoriesByUserId(c *gin.Context) {
 	userId := c.Param("user_id")
 	languageIdStr := c.Query("language")
