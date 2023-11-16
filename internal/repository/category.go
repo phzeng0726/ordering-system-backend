@@ -103,3 +103,11 @@ func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, lang
 
 	return categoryUserMappings, nil
 }
+
+// GetAllByUserId 也可寫這樣
+// SELECT c.*, cl.title
+// FROM category_user_mapping cum
+// INNER JOIN categories c on cum.category_id = c.id
+// INNER JOIN category_language cl on c.id = cl.category_id
+// WHERE cum.user_id = ?
+// AND (cl.language_id IS NULL OR cl.language_id = ?);
