@@ -8,6 +8,7 @@ type Category struct {
 	CategoryLanguage CategoryLanguage `gorm:"foreignKey:Id;references:category_id;" json:"-"`
 }
 
+// 下面兩個本來用Preload，但改成raw scan，暫時沒用到
 type CategoryUserMapping struct {
 	Id         int      `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
 	CategoryId int      `gorm:"column:category_id;" json:"-"`
