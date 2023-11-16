@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"log"
 	"ordering-system-backend/internal/domain"
 	firebase_auth "ordering-system-backend/pkg/auth"
 	"strings"
@@ -141,6 +142,11 @@ func (r *UsersRepo) deleteMenus(tx *gorm.DB, userId string) error {
 		return err
 	}
 
+	// 查詢和刪除相關的 store_menu_mapping
+	if err := tx.Where("store_id IN (SELECT id FROM stores WHERE user_id = ?)", userId).Delete(&domain.StoreMenuMapping{}).Error; err != nil {
+		return err
+	}
+
 	if err := tx.Where("user_id = ?", userId).Delete(&domain.Menu{}).Error; err != nil {
 		return err
 	}
@@ -154,8 +160,29 @@ func (r *UsersRepo) deleteStores(tx *gorm.DB, userId string) error {
 		return err
 	}
 
+	// 查詢和刪除相關的 store_seats
+	if err := tx.Where("store_id IN (SELECT id FROM stores WHERE user_id = ?)", userId).Delete(&domain.Seat{}).Error; err != nil {
+		return err
+	}
+
 	// 刪除 stores 表中具有特定 user_id 的行
 	if err := tx.Where("user_id = ?", userId).Delete(&domain.Store{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UsersRepo) deleteCategories(tx *gorm.DB, userId string) error {
+	if err := tx.Where("user_id = ?", userId).Delete(&domain.CategoryUserMapping{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UsersRepo) deleteFCMTokens(tx *gorm.DB, userId string) error {
+	if err := tx.Where("user_id = ?", userId).Delete(&domain.FCMToken{}).Error; err != nil {
 		return err
 	}
 
@@ -180,22 +207,6 @@ func (r *UsersRepo) deleteUser(tx *gorm.DB, client *auth.Client, userAccount dom
 	return nil
 }
 
-func (r *UsersRepo) deleteCategories(tx *gorm.DB, userId string) error {
-	if err := tx.Where("user_id = ?", userId).Delete(&domain.CategoryUserMapping{}).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *UsersRepo) deleteFCMTokens(tx *gorm.DB, userId string) error {
-	if err := tx.Where("user_id = ?", userId).Delete(&domain.FCMToken{}).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
@@ -210,22 +221,27 @@ func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
 			return err
 		}
 
+		log.Println("Delete menu")
 		if err := r.deleteMenus(tx, userId); err != nil {
 			return err
 		}
 
+		log.Println("Delete store")
 		if err := r.deleteStores(tx, userId); err != nil {
 			return err
 		}
 
+		log.Println("Delete category")
 		if err := r.deleteCategories(tx, userId); err != nil {
 			return err
 		}
 
+		log.Println("Delete fcm token")
 		if err := r.deleteFCMTokens(tx, userId); err != nil {
 			return err
 		}
 
+		log.Println("Delete user")
 		if err := r.deleteUser(tx, client, userAccount, userId); err != nil {
 			return err
 		}
