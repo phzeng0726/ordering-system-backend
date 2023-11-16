@@ -22,9 +22,9 @@ func (s *CategoriesService) Create(ctx context.Context, userId string, input Cre
 		IsDefault:  &isDefault,
 	}
 
+	// Create的category沒有language id
 	categoryLanguage := domain.CategoryLanguage{
-		LanguageId: input.LanguageId,
-		Title:      input.Title,
+		Title: input.Title,
 	}
 
 	categoryUserMapping := domain.CategoryUserMapping{
@@ -32,6 +32,24 @@ func (s *CategoriesService) Create(ctx context.Context, userId string, input Cre
 	}
 
 	if err := s.repo.Create(ctx, category, categoryLanguage, categoryUserMapping); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *CategoriesService) Update(ctx context.Context, userId string, input UpdateCategoryInput) error {
+	category := domain.Category{
+		Id:         input.CategoryId,
+		Identifier: input.Identifier,
+	}
+
+	categoryLanguage := domain.CategoryLanguage{
+		CategoryId: input.CategoryId,
+		Title:      input.Title,
+	}
+
+	if err := s.repo.Update(ctx, userId, category, categoryLanguage); err != nil {
 		return err
 	}
 

@@ -72,12 +72,18 @@ type Seats interface {
 
 type CreateCategoryInput struct {
 	Title      string
-	LanguageId int
+	Identifier string
+}
+
+type UpdateCategoryInput struct {
+	CategoryId int
+	Title      string
 	Identifier string
 }
 
 type Categories interface {
 	Create(ctx context.Context, userId string, input CreateCategoryInput) error
+	Update(ctx context.Context, userId string, input UpdateCategoryInput) error
 	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error)
 }
 

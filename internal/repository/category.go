@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -46,32 +47,44 @@ func (r *CategoriesRepo) Create(ctx context.Context, category domain.Category, c
 	return nil
 }
 
-func (r *CategoriesRepo) Update(ctx context.Context, category domain.Category, categoryLanguage domain.CategoryLanguage, categoryUserMapping domain.CategoryUserMapping) error {
-	// db := r.db.WithContext(ctx)
+func (r *CategoriesRepo) Update(ctx context.Context, userId string, category domain.Category, categoryLanguage domain.CategoryLanguage) error {
+	var tempCategory domain.Category
+	var tempCategoryUserMappings []domain.CategoryUserMapping
+	db := r.db.WithContext(ctx)
 
-	// if err := db.Transaction(func(tx *gorm.DB) error {
-	// 	if err := tx.Model(&domain.Menu{}).Where("id = ?", menu.Id).Updates(updatedMenu).Error; err != nil {
-	// 		return err
-	// 	}
-	// 	// if err := tx.Create(&category).Error; err != nil {
-	// 	// 	return err
-	// 	// }
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("id = ?", category.Id).First(&tempCategory).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errors.New("category not found")
+			}
+			return err
+		}
 
-	// 	// categoryLanguage.CategoryId = category.Id
-	// 	// categoryUserMapping.CategoryId = category.Id
+		// 系統預設category無法update
+		if *tempCategory.IsDefault {
+			return errors.New("cannot update default category")
+		}
 
-	// 	// if err := tx.Create(&categoryLanguage).Error; err != nil {
-	// 	// 	return err
-	// 	// }
+		// 確認該category屬於該user
+		if err := tx.Where("category_id = ? AND user_id = ?", category.Id, userId).First(&tempCategoryUserMappings).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errors.New("category id not exist with user id")
+			}
+			return err
+		}
 
-	// 	// if err := tx.Create(&categoryUserMapping).Error; err != nil {
-	// 	// 	return err
-	// 	// }
+		if err := tx.Model(&domain.Category{}).Where("id = ?", category.Id).Updates(&category).Error; err != nil {
+			return err
+		}
 
-	// 	return nil
-	// }); err != nil {
-	// 	return err
-	// }
+		if err := tx.Model(&domain.CategoryLanguage{}).Where("category_id = ?", category.Id).Updates(&categoryLanguage).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
 
 	return nil
 }
