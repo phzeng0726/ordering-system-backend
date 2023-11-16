@@ -19,6 +19,67 @@ func NewCategoriesRepo(db *gorm.DB, rt *RepoTools) *CategoriesRepo {
 	}
 }
 
+func (r *CategoriesRepo) Create(ctx context.Context, category domain.Category, categoryLanguage domain.CategoryLanguage, categoryUserMapping domain.CategoryUserMapping) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&category).Error; err != nil {
+			return err
+		}
+
+		categoryLanguage.CategoryId = category.Id
+		categoryUserMapping.CategoryId = category.Id
+
+		if err := tx.Create(&categoryLanguage).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&categoryUserMapping).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *CategoriesRepo) Update(ctx context.Context, category domain.Category, categoryLanguage domain.CategoryLanguage, categoryUserMapping domain.CategoryUserMapping) error {
+	// db := r.db.WithContext(ctx)
+
+	// if err := db.Transaction(func(tx *gorm.DB) error {
+	// 	if err := tx.Model(&domain.Menu{}).Where("id = ?", menu.Id).Updates(updatedMenu).Error; err != nil {
+	// 		return err
+	// 	}
+	// 	// if err := tx.Create(&category).Error; err != nil {
+	// 	// 	return err
+	// 	// }
+
+	// 	// categoryLanguage.CategoryId = category.Id
+	// 	// categoryUserMapping.CategoryId = category.Id
+
+	// 	// if err := tx.Create(&categoryLanguage).Error; err != nil {
+	// 	// 	return err
+	// 	// }
+
+	// 	// if err := tx.Create(&categoryUserMapping).Error; err != nil {
+	// 	// 	return err
+	// 	// }
+
+	// 	return nil
+	// }); err != nil {
+	// 	return err
+	// }
+
+	return nil
+}
+
+func (r *CategoriesRepo) Delete(ctx context.Context, categoryId int) error {
+	return nil
+}
+
 func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.CategoryUserMapping, error) {
 	var categoryUserMappings []domain.CategoryUserMapping
 	db := r.db.WithContext(ctx)

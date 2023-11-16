@@ -2,6 +2,7 @@ package v1
 
 import (
 	"net/http"
+	"ordering-system-backend/internal/service"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,30 @@ func (h *Handler) initUserCategoryRoutes(api *gin.RouterGroup) {
 	}
 }
 
+type createCategoryInput struct {
+	Title      string `json:"title" binding:"required"`
+	LanguageId int    `json:"languageId" binding:"required"`
+	Identifier string `json:"identifier"`
+}
+
 func (h *Handler) createCategory(c *gin.Context) {
+	var inp createCategoryInput
+	userId := c.Param("user_id")
+
+	if err := c.BindJSON(&inp); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	if err := h.services.Categories.Create(c.Request.Context(), userId, service.CreateCategoryInput{
+		Title:      inp.Title,
+		LanguageId: inp.LanguageId,
+		Identifier: inp.Identifier,
+	}); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, true)
 }
 func (h *Handler) updateCategory(c *gin.Context) {
