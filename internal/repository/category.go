@@ -20,33 +20,6 @@ func NewCategoriesRepo(db *gorm.DB, rt *RepoTools) *CategoriesRepo {
 	}
 }
 
-func (r *CategoriesRepo) Create(ctx context.Context, category domain.Category, categoryLanguage domain.CategoryLanguage, categoryUserMapping domain.CategoryUserMapping) error {
-	db := r.db.WithContext(ctx)
-
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(&category).Error; err != nil {
-			return err
-		}
-
-		categoryLanguage.CategoryId = category.Id
-		categoryUserMapping.CategoryId = category.Id
-
-		if err := tx.Create(&categoryLanguage).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Create(&categoryUserMapping).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (r *CategoriesRepo) checkCategoryPermission(tx *gorm.DB, userId string, categoryId int) error {
 	var tempCategory domain.Category
 	var tempCategoryUserMapping domain.CategoryUserMapping
@@ -69,6 +42,33 @@ func (r *CategoriesRepo) checkCategoryPermission(tx *gorm.DB, userId string, cat
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("category id not exist with user id")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (r *CategoriesRepo) Create(ctx context.Context, category domain.Category, categoryLanguage domain.CategoryLanguage, categoryUserMapping domain.CategoryUserMapping) error {
+	db := r.db.WithContext(ctx)
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&category).Error; err != nil {
+			return err
+		}
+
+		categoryLanguage.CategoryId = category.Id
+		categoryUserMapping.CategoryId = category.Id
+
+		if err := tx.Create(&categoryLanguage).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&categoryUserMapping).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return err
 	}
 
