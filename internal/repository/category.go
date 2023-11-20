@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"ordering-system-backend/internal/domain"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -110,6 +111,7 @@ func (r *CategoriesRepo) Delete(ctx context.Context, userId string, categoryId i
 		}
 
 		if err := tx.Where("category_id = ?", categoryId).Delete(&domain.CategoryUserMapping{}).Error; err != nil {
+
 			return err
 		}
 
@@ -118,6 +120,9 @@ func (r *CategoriesRepo) Delete(ctx context.Context, userId string, categoryId i
 		}
 
 		if err := tx.Where("id = ?", categoryId).Delete(&domain.Category{}).Error; err != nil {
+			if strings.Contains(err.Error(), "menu_items_ibfk_1") {
+				return errors.New("category already in use by menu items")
+			}
 			return err
 		}
 
