@@ -10,12 +10,18 @@ import (
 )
 
 func Connect() *gorm.DB {
-	appConfig := config.Env
-	// 設定資料庫連線字串
-	// dsn := fmt.Sprintf("%s:%s@/%s?parseTime=true", appConfig.DBUser, appConfig.DBPassword, appConfig.DBName)
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", appConfig.DBUser, appConfig.DBPassword, appConfig.DBHost, appConfig.DBPort, appConfig.DBName)
+	var dsn string
 
-	fmt.Println(dsn)
+	appConfig := config.Env
+	fmt.Println(appConfig.Port)
+
+	// 設定資料庫連線字串，Host為空代表在Cloud Run跑，否則在local跑
+	if appConfig.Host == "" {
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", appConfig.DBUser, appConfig.DBPassword, appConfig.DBHost, appConfig.DBPort, appConfig.DBName)
+	} else {
+		dsn = fmt.Sprintf("%s:%s@/%s?parseTime=true", appConfig.DBUser, appConfig.DBPassword, appConfig.DBName)
+	}
+
 	conn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
