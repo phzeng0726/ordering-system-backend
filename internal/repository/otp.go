@@ -5,22 +5,20 @@ import (
 	"errors"
 	"fmt"
 	"net/smtp"
+	"ordering-system-backend/internal/config"
 	"ordering-system-backend/internal/domain"
 	otp "ordering-system-backend/pkg/otp"
 
 	"gorm.io/gorm"
 )
 
-const (
-	senderEmail    = "mgc881017@gmail.com"
-	senderPassword = "wsdt nnwk hpgh zaoj"
-)
-
 func sendVerificationMail(code string, recipient string) error {
+	appConfig := config.Env
+
 	// Configuration
 	smtpServer := "smtp.gmail.com"
 	smtpPort := "587"
-	expireTime := 30 // Mins
+	expireTime := 10 // Mins
 
 	// Message.
 	subject := "Account Verification Code"
@@ -32,12 +30,12 @@ func sendVerificationMail(code string, recipient string) error {
 	msgStyle := "MIME-version: 1.0\r\n" + "Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n"
 
 	// Connect to SMTP server
-	auth := smtp.PlainAuth("", senderEmail, senderPassword, smtpServer)
+	auth := smtp.PlainAuth("", appConfig.OTPSenderEmail, appConfig.OTPSenderPassword, smtpServer)
 	to := []string{recipient}
 	msg := []byte("Subject: " + subject + "\r\n" + msgStyle + message)
 
 	// Sending email.
-	if err := smtp.SendMail(smtpServer+":"+smtpPort, auth, senderEmail, to, msg); err != nil {
+	if err := smtp.SendMail(smtpServer+":"+smtpPort, auth, appConfig.OTPSenderEmail, to, msg); err != nil {
 		return err
 	}
 

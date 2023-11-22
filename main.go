@@ -8,7 +8,6 @@ import (
 	"ordering-system-backend/internal/service"
 )
 
-// D:\Users\phzen\AppData\Local\Programs\Microsoft VS Code\Code.exe
 func main() {
 	config.InitConfig()
 	conn := database.Connect()
