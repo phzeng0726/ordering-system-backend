@@ -3,6 +3,7 @@ package notification
 import (
 	"context"
 	"fmt"
+	"ordering-system-backend/internal/config"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
@@ -10,7 +11,16 @@ import (
 )
 
 func Init() (*messaging.Client, error) {
-	opt := option.WithCredentialsFile("../assets/firebase_credential.json")
+	var projectPath string
+
+	if config.Env.IsOnCloud {
+		projectPath = ""
+	} else {
+		projectPath = ".."
+	}
+
+	filePath := fmt.Sprintf(projectPath + "/assets/firebase_credential.json")
+	opt := option.WithCredentialsFile(filePath)
 
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
