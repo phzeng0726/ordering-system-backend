@@ -15,9 +15,9 @@ func Init(userType int) (*auth.Client, error) {
 	var opt option.ClientOption
 
 	if userType == 0 {
-		opt = option.WithCredentialsFile("firebase_credential.json")
+		opt = option.WithCredentialsFile("../firebase_credential.json")
 	} else if userType == 1 {
-		opt = option.WithCredentialsFile("client_firebase_credential.json")
+		opt = option.WithCredentialsFile("../client_firebase_credential.json")
 	} else {
 		return nil, errors.New("userType not available for firebase init method")
 	}
