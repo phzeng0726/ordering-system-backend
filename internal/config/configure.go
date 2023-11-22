@@ -37,6 +37,7 @@ type AppConfig struct {
 	Port              string
 	OTPSenderEmail    string
 	OTPSenderPassword string
+	IsOnCloud         bool
 }
 
 func InitConfig() {
@@ -50,5 +51,6 @@ func InitConfig() {
 		Port:              os.Getenv(keyPort),
 		OTPSenderEmail:    os.Getenv(keyOTPSenderEmail),
 		OTPSenderPassword: os.Getenv(keyOTPSenderPassword),
+		IsOnCloud:         os.Getenv(keyHost) == "", // Host沒有填的時候就是Cloud (GCP上不需要填Host)
 	}
 }
