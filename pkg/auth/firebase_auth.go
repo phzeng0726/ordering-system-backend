@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"ordering-system-backend/internal/config"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
@@ -12,15 +13,24 @@ import (
 )
 
 func Init(userType int) (*auth.Client, error) {
-	var opt option.ClientOption
+	var projectPath string
+	var filePath string
+
+	if config.Env.IsOnCloud {
+		projectPath = ""
+	} else {
+		projectPath = ".."
+	}
 
 	if userType == 0 {
-		opt = option.WithCredentialsFile("../firebase_credential.json")
+		filePath = fmt.Sprintf(projectPath + "/assets/firebase_credential.json")
 	} else if userType == 1 {
-		opt = option.WithCredentialsFile("../client_firebase_credential.json")
+		filePath = fmt.Sprintf(projectPath + "/assets/client_firebase_credential.json")
 	} else {
 		return nil, errors.New("userType not available for firebase init method")
 	}
+
+	opt := option.WithCredentialsFile(filePath)
 
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
@@ -61,7 +71,7 @@ func ResetPassword(client *auth.Client, uid string, newPassword string) error {
 		return err
 	}
 
-	fmt.Printf("Successfully created user: %v\n", u)
+	fmt.Printf("Successfully updated user password: %v\n", u)
 	return nil
 }
 

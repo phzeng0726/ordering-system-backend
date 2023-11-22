@@ -19,8 +19,10 @@ const (
 	keyDBName            = "DB_NAME"
 	keyDBUser            = "DB_USER"
 	keyDBPass            = "DB_PASS"
-	keyPort              = "PORT"
+	keyDBHost            = "DB_HOST"
+	keyDBPort            = "DB_PORT"
 	keyHost              = "HOST"
+	keyPort              = "PORT"
 	keyOTPSenderEmail    = "OTP_SENDER_EMAIL"
 	keyOTPSenderPassword = "OTP_SENDER_PASSWORD"
 )
@@ -29,10 +31,13 @@ type AppConfig struct {
 	DBName            string
 	DBUser            string
 	DBPassword        string
+	DBHost            string
+	DBPort            string
 	Host              string
 	Port              string
 	OTPSenderEmail    string
 	OTPSenderPassword string
+	IsOnCloud         bool
 }
 
 func InitConfig() {
@@ -40,9 +45,12 @@ func InitConfig() {
 		DBName:            os.Getenv(keyDBName),
 		DBUser:            os.Getenv(keyDBUser),
 		DBPassword:        os.Getenv(keyDBPass),
+		DBHost:            os.Getenv(keyDBHost),
+		DBPort:            os.Getenv(keyDBPort),
 		Host:              os.Getenv(keyHost),
 		Port:              os.Getenv(keyPort),
 		OTPSenderEmail:    os.Getenv(keyOTPSenderEmail),
 		OTPSenderPassword: os.Getenv(keyOTPSenderPassword),
+		IsOnCloud:         os.Getenv(keyHost) == "", // Host沒有填的時候就是Cloud (GCP上不需要填Host)
 	}
 }
