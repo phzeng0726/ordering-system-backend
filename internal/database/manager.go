@@ -12,8 +12,10 @@ import (
 func Connect() *gorm.DB {
 	appConfig := config.Env
 	// 設定資料庫連線字串
-	dsn := fmt.Sprintf("%s:%s@/%s?parseTime=true", appConfig.DBUser, appConfig.DBPassword, appConfig.DBName)
+	// dsn := fmt.Sprintf("%s:%s@/%s?parseTime=true", appConfig.DBUser, appConfig.DBPassword, appConfig.DBName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", appConfig.DBUser, appConfig.DBPassword, appConfig.DBHost, appConfig.DBPort, appConfig.DBName)
 
+	fmt.Println(dsn)
 	conn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {

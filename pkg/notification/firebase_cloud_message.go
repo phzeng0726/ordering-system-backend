@@ -10,7 +10,7 @@ import (
 )
 
 func Init() (*messaging.Client, error) {
-	opt := option.WithCredentialsFile("firebase_credential.json")
+	opt := option.WithCredentialsFile("../firebase_credential.json")
 
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {

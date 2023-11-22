@@ -20,8 +20,10 @@ func main() {
 
 	handlers := delivery.NewHandler(services)
 	router := handlers.Init()
-	if config.Env.Host == "" {
-		config.Env.Host = "localhost"
+
+	if config.Env.Port == "" {
+		config.Env.Port = "8080"
 	}
+
 	router.Run(config.Env.Host + ":" + config.Env.Port)
 }
