@@ -20,6 +20,7 @@ func main() {
 
 	handlers := delivery.NewHandler(services)
 	router := handlers.Init()
+
 	if config.Env.Host == "" {
 		config.Env.Host = "localhost"
 	}
