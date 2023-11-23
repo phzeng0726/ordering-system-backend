@@ -61,7 +61,7 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 	}
 
 	orderTicket := domain.OrderTicket{
-		SeatId:           input.SeatId,
+		SeatId:           &input.SeatId,
 		UserId:           input.UserId,
 		TotalPrice:       totalPrice,
 		OrderStatus:      orderStatus,
@@ -127,6 +127,14 @@ func (s *OrderTicketsService) GetAllByUserId(ctx context.Context, userId string)
 	orderTickets, err := s.orderRepo.GetAllByUserId(ctx, userId)
 	if err != nil {
 		return orderTickets, err
+	}
+
+	for i, orderTicket := range orderTickets {
+		if orderTicket.Seat != nil {
+			_seat := *orderTicket.Seat
+			orderTickets[i].StoreName = _seat.Store.Name
+		}
+
 	}
 
 	return orderTickets, nil
