@@ -12,7 +12,7 @@ type OrderTicket struct {
 	TotalPrice       float64           `gorm:"column:total_price;" json:"totalPrice"`
 	OrderStatus      string            `gorm:"column:order_status;" json:"orderStatus"`
 	CreatedAt        time.Time         `gorm:"column:created_at;" json:"createdAt"`
-	OrderTicketItems []OrderTicketItem `gorm:"foreignKey:OrderId;references:id" json:"orderTicketItems"`
+	OrderTicketItems []OrderTicketItem `gorm:"foreignKey:OrderId;references:id" json:"orderItems"`
 }
 
 type OrderTicketItem struct {
