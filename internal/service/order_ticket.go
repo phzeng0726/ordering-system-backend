@@ -20,13 +20,28 @@ func NewOrderTicketsService(orderRepo repository.OrderTickets, fcmRepo repositor
 	return &OrderTicketsService{orderRepo: orderRepo, fcmRepo: fcmRepo, seatRepo: seatRepo}
 }
 
-func (s *OrderTicketsService) pushFirebaseNotification(deviceTokens []string, storeId string) error {
+func (s *OrderTicketsService) pushFirebaseNotificationToStore(deviceTokens []string, storeId string) error {
 	// Push FCM Token
-	fcmClient, err := notification.Init()
+	fcmClient, err := notification.Init(0)
 	if err != nil {
 		return err
 	}
-	err = notification.SendPushNotification(fcmClient, deviceTokens, storeId)
+	err = notification.SendNotificationToStore(fcmClient, deviceTokens, storeId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *OrderTicketsService) pushFirebaseNotificationToClient(deviceTokens []string) error {
+	// Push FCM Token
+	fcmClient, err := notification.Init(1)
+	if err != nil {
+		return err
+	}
+	err = notification.SendNotificationToClient(fcmClient, deviceTokens)
 
 	if err != nil {
 		return err
@@ -85,8 +100,8 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 	}
 
 	fmt.Println("Send message to store:", seat.StoreId)
-	// 以 FCM 通知刷新頁面
-	if err := s.pushFirebaseNotification(deviceTokens, seat.StoreId); err != nil {
+	// 以 FCM 通知刷新頁面，因為一個store user有好幾個store，所以要特別抓出是哪個store收到更新
+	if err := s.pushFirebaseNotificationToStore(deviceTokens, seat.StoreId); err != nil {
 		return err
 	}
 
@@ -100,6 +115,16 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 	}
 
 	if err := s.orderRepo.Update(ctx, storeId, orderTicket); err != nil {
+		return err
+	}
+	// 以 ticketId 撈出userId，userId到fcm_token撈出device tokens
+	deviceTokens, err := s.fcmRepo.GetAllByTicketId(ctx, ticketId)
+	if err != nil {
+		return err
+	}
+
+	// 以 FCM 通知刷新頁面
+	if err := s.pushFirebaseNotificationToClient(deviceTokens); err != nil {
 		return err
 	}
 

@@ -78,7 +78,9 @@ type FCMTokens interface {
 	Create(ctx context.Context, token domain.FCMToken) error
 	Delete(ctx context.Context, token domain.FCMToken) error
 	GetByUserId(ctx context.Context, userId string) (string, error)
-	GetAllBySeatId(ctx context.Context, seatId int) ([]string, error) // For client user
+	GetAllBySeatId(ctx context.Context, seatId int) ([]string, error)     // For client user，用來通知store user
+	GetAllByTicketId(ctx context.Context, ticketId int) ([]string, error) // For store user，用來通知client user
+
 }
 
 type Repositories struct {
