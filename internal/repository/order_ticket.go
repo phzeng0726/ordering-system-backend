@@ -93,6 +93,7 @@ func (r *OrderTicketsRepo) GetAllByStoreId(ctx context.Context, storeId string) 
 		// 以座位查詢訂單
 		if err := tx.Preload("OrderTicketItems").
 			Where("seat_id IN (SELECT id FROM store_seats WHERE store_id = ?)", storeId).
+			Order("created_at DESC"). // 按 createdAt 降序排序
 			Find(&orderTickets).Error; err != nil {
 			return err
 		}
@@ -122,6 +123,7 @@ func (r *OrderTicketsRepo) GetAllByUserId(ctx context.Context, userId string) ([
 	if err := db.Preload("OrderTicketItems").
 		Preload("Seat.Store.StoreOpeningHours").
 		Where("user_id = ?", userId).
+		Order("created_at DESC"). // 按 createdAt 降序排序
 		Find(&orderTickets).Error; err != nil {
 		return orderTickets, err
 	}
