@@ -104,7 +104,10 @@ func (r *OrderTicketsRepo) GetAllByStoreId(ctx context.Context, storeId string) 
 
 	// 將seatTitle寫進orderTicket的return json structure，方便frontend使用
 	for i, orderTicket := range orderTickets {
-		orderTickets[i].SeatTitle = seatMap[orderTicket.SeatId]
+		if orderTicket.SeatId != nil {
+			orderTickets[i].SeatTitle = seatMap[*orderTicket.SeatId]
+		}
+
 	}
 
 	return orderTickets, nil
@@ -117,6 +120,7 @@ func (r *OrderTicketsRepo) GetAllByUserId(ctx context.Context, userId string) ([
 	db := r.db.WithContext(ctx)
 
 	if err := db.Preload("OrderTicketItems").
+		Preload("Seat.Store.StoreOpeningHours").
 		Where("user_id = ?", userId).
 		Find(&orderTickets).Error; err != nil {
 		return orderTickets, err
