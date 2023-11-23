@@ -51,11 +51,10 @@ func (r *FCMTokensRepo) GetByUserId(ctx context.Context, userId string) (string,
 }
 
 func (r *FCMTokensRepo) GetAllBySeatId(ctx context.Context, seatId int) ([]string, error) {
-	var fcmTokens []domain.FCMToken
 	var deviceTokens []string
 	db := r.db.WithContext(ctx)
 
-	sqlQuery := "SELECT ft.*" +
+	sqlQuery := "SELECT ft.token" +
 		" FROM fcm_tokens ft" +
 		" INNER JOIN stores s ON ft.user_id = s.user_id" +
 		" INNER JOIN store_seats ss ON s.id = ss.store_id" +
@@ -63,12 +62,26 @@ func (r *FCMTokensRepo) GetAllBySeatId(ctx context.Context, seatId int) ([]strin
 		" ORDER BY ft.created_at DESC;"
 	queryParams := []interface{}{seatId}
 
-	if err := db.Raw(sqlQuery, queryParams...).Scan(&fcmTokens).Error; err != nil {
+	if err := db.Raw(sqlQuery, queryParams...).Scan(&deviceTokens).Error; err != nil {
 		return deviceTokens, err
 	}
 
-	for _, f := range fcmTokens {
-		deviceTokens = append(deviceTokens, f.DeviceToken)
+	return deviceTokens, nil
+}
+
+func (r *FCMTokensRepo) GetAllByTicketId(ctx context.Context, ticketId int) ([]string, error) {
+	var deviceTokens []string
+	db := r.db.WithContext(ctx)
+
+	sqlQuery := "SELECT ft.token" +
+		" FROM fcm_tokens ft" +
+		" JOIN order_tickets ot ON ft.user_id = ot.user_id" +
+		" WHERE ot.id = ?" +
+		" ORDER BY ft.created_at DESC;"
+	queryParams := []interface{}{ticketId}
+
+	if err := db.Raw(sqlQuery, queryParams...).Scan(&deviceTokens).Error; err != nil {
+		return deviceTokens, err
 	}
 
 	return deviceTokens, nil
