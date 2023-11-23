@@ -122,3 +122,12 @@ func (s *OrderTicketsService) GetAllByStoreId(ctx context.Context, storeId strin
 
 	return orderTickets, nil
 }
+
+func (s *OrderTicketsService) GetAllByUserId(ctx context.Context, userId string) ([]domain.OrderTicket, error) {
+	orderTickets, err := s.orderRepo.GetAllByUserId(ctx, userId)
+	if err != nil {
+		return orderTickets, err
+	}
+
+	return orderTickets, nil
+}

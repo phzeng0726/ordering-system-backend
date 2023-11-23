@@ -12,6 +12,8 @@ func (h *Handler) initOrderTicketRoutes(api *gin.RouterGroup) {
 	tickets := api.Group("/order-tickets")
 	{
 		tickets.POST("", h.createTicket)
+		tickets.GET("", h.getAllTicketsByUserId)
+
 	}
 
 	ticketWithStores := api.Group("/stores/:store_id/order-tickets")
@@ -115,6 +117,18 @@ func (h *Handler) getAllTicketsByStoreId(c *gin.Context) {
 	storeId := c.Param("store_id")
 
 	orderTickets, err := h.services.OrderTickets.GetAllByStoreId(c.Request.Context(), storeId)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, orderTickets)
+}
+
+func (h *Handler) getAllTicketsByUserId(c *gin.Context) {
+	userId := c.Query("userId")
+
+	orderTickets, err := h.services.OrderTickets.GetAllByUserId(c.Request.Context(), userId)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

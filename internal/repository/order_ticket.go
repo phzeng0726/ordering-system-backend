@@ -109,3 +109,18 @@ func (r *OrderTicketsRepo) GetAllByStoreId(ctx context.Context, storeId string) 
 
 	return orderTickets, nil
 }
+
+// NOTE: OrderTicket的user有可能不在UserAccount內(匿名用戶)
+func (r *OrderTicketsRepo) GetAllByUserId(ctx context.Context, userId string) ([]domain.OrderTicket, error) {
+	var orderTickets []domain.OrderTicket
+
+	db := r.db.WithContext(ctx)
+
+	if err := db.Preload("OrderTicketItems").
+		Where("user_id = ?", userId).
+		Find(&orderTickets).Error; err != nil {
+		return orderTickets, err
+	}
+
+	return orderTickets, nil
+}
