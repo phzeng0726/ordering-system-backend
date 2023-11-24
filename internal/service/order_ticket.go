@@ -133,13 +133,14 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 }
 
 func (s *OrderTicketsService) Delete(ctx context.Context, storeId string, ticketId int) error {
-	if err := s.orderRepo.Delete(ctx, storeId, ticketId); err != nil {
-		return err
-	}
-
 	// 以 ticketId 撈出userId，userId到fcm_token撈出device tokens
 	deviceTokens, err := s.fcmRepo.GetAllByTicketId(ctx, ticketId)
 	if err != nil {
+		return err
+	}
+
+	// 先撈再刪
+	if err := s.orderRepo.Delete(ctx, storeId, ticketId); err != nil {
 		return err
 	}
 
