@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 	"ordering-system-backend/internal/domain"
-	firebase_auth "ordering-system-backend/pkg/auth"
+	firebase_auth "ordering-system-backend/pkg/firebase_core/auth"
 	"strings"
 
 	"firebase.google.com/go/auth"
