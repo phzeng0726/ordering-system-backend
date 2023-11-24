@@ -44,31 +44,10 @@ func Init(userType int) (*messaging.Client, error) {
 	return client, nil
 }
 
-func SendNotificationToStore(client *messaging.Client, deviceTokens []string, storeId string) error {
+func SendNotification(client *messaging.Client, deviceTokens []string, notification *messaging.Notification) error {
 	response, err := client.SendMulticast(context.Background(), &messaging.MulticastMessage{
-		Notification: &messaging.Notification{
-			Title: "NEW_ORDER_TICKET",
-			Body:  storeId,
-		},
-		Tokens: deviceTokens,
-	})
-
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Response success count : ", response.SuccessCount)
-	fmt.Println("Response failure count : ", response.FailureCount)
-	return nil
-}
-
-func SendNotificationToClient(client *messaging.Client, deviceTokens []string) error {
-	response, err := client.SendMulticast(context.Background(), &messaging.MulticastMessage{
-		Notification: &messaging.Notification{
-			Title: "NEW_ORDER_TICKET_STATUS",
-			Body:  "Update order ticket status",
-		},
-		Tokens: deviceTokens,
+		Notification: notification,
+		Tokens:       deviceTokens,
 	})
 
 	if err != nil {

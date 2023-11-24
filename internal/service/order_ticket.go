@@ -3,11 +3,12 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
 	"ordering-system-backend/internal/utils"
 	"ordering-system-backend/pkg/notification"
+
+	"firebase.google.com/go/messaging"
 )
 
 type OrderTicketsService struct {
@@ -20,33 +21,28 @@ func NewOrderTicketsService(orderRepo repository.OrderTickets, fcmRepo repositor
 	return &OrderTicketsService{orderRepo: orderRepo, fcmRepo: fcmRepo, seatRepo: seatRepo}
 }
 
-func (s *OrderTicketsService) pushFirebaseNotificationToStore(deviceTokens []string, storeId string) error {
+func (s *OrderTicketsService) pushFirebaseNotification(userType int, deviceTokens []string, storeId *string) error {
 	// Push FCM Token
-	fcmClient, err := notification.Init(0)
-	if err != nil {
-		return err
-	}
-	err = notification.SendNotificationToStore(fcmClient, deviceTokens, storeId)
-
+	fcmClient, err := notification.Init(userType)
 	if err != nil {
 		return err
 	}
 
-	return nil
-}
+	if storeId != nil {
+		err = notification.SendNotification(fcmClient, deviceTokens, &messaging.Notification{
+			Title: "NEW_ORDER_TICKET",
+			Body:  *storeId,
+		})
+	} else {
+		err = notification.SendNotification(fcmClient, deviceTokens, &messaging.Notification{
+			Title: "NEW_ORDER_TICKET_STATUS",
+			Body:  "Update order ticket status",
+		})
+	}
 
-func (s *OrderTicketsService) pushFirebaseNotificationToClient(deviceTokens []string) error {
-	// Push FCM Token
-	fcmClient, err := notification.Init(1)
 	if err != nil {
 		return err
 	}
-	err = notification.SendNotificationToClient(fcmClient, deviceTokens)
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -99,10 +95,12 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 		return err
 	}
 
-	fmt.Println("Send message to store:", seat.StoreId)
-	// 以 FCM 通知刷新頁面，因為一個store user有好幾個store，所以要特別抓出是哪個store收到更新
-	if err := s.pushFirebaseNotificationToStore(deviceTokens, seat.StoreId); err != nil {
-		return err
+	// 如果有Token的話才送
+	if len(deviceTokens) > 0 {
+		// 以 FCM 通知刷新頁面，因為一個store user有好幾個store，所以要特別抓出是哪個store收到更新
+		if err := s.pushFirebaseNotification(0, deviceTokens, &seat.StoreId); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -123,9 +121,12 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 		return err
 	}
 
-	// 以 FCM 通知刷新頁面
-	if err := s.pushFirebaseNotificationToClient(deviceTokens); err != nil {
-		return err
+	// 如果有Token的話才送
+	if len(deviceTokens) > 0 {
+		// 以 FCM 通知刷新頁面
+		if err := s.pushFirebaseNotification(1, deviceTokens, nil); err != nil {
+			return err
+		}
 	}
 
 	return nil
