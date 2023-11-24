@@ -23,28 +23,17 @@ func NewOrderTicketsService(orderRepo repository.OrderTickets, fcmRepo repositor
 	return &OrderTicketsService{orderRepo: orderRepo, fcmRepo: fcmRepo, seatRepo: seatRepo}
 }
 
-func (s *OrderTicketsService) pushFirebaseNotification(userType int, deviceTokens []string, storeId *string) error {
+func (s *OrderTicketsService) pushFirebaseNotification(userType int, deviceTokens []string, notification *messaging.Notification) error {
 	// Push FCM Token
 	fcmClient, err := firebase_fcm.Init(userType)
 	if err != nil {
 		return err
 	}
 
-	if storeId != nil {
-		err = firebase_fcm.SendNotification(fcmClient, deviceTokens, &messaging.Notification{
-			Title: "NEW_ORDER_TICKET",
-			Body:  *storeId,
-		})
-	} else {
-		err = firebase_fcm.SendNotification(fcmClient, deviceTokens, &messaging.Notification{
-			Title: "NEW_ORDER_TICKET_STATUS",
-			Body:  "Update order ticket status",
-		})
-	}
-
-	if err != nil {
+	if err := firebase_fcm.SendNotification(fcmClient, deviceTokens, notification); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -97,8 +86,11 @@ func (s *OrderTicketsService) Create(ctx context.Context, input CreateOrderTicke
 		return err
 	}
 
-	// 以 FCM 通知刷新頁面，因為一個store user有好幾個store，所以要特別抓出是哪個store收到更新，且如果Device Tokens為空的時候不報錯
-	if err := s.pushFirebaseNotification(0, deviceTokens, &seat.StoreId); err != nil {
+	// 以 FCM 通知商家刷新頁面，因為一個store user有好幾個store，所以要特別抓出是哪個store收到更新，且如果Device Tokens為空的時候不報錯
+	if err := s.pushFirebaseNotification(0, deviceTokens, &messaging.Notification{
+		Title: "NEW_ORDER_TICKET",
+		Body:  seat.StoreId,
+	}); err != nil {
 		if strings.Contains(err.Error(), "tokens must not be nil or empty") {
 			fmt.Println("empty device tokens")
 			return nil
@@ -118,14 +110,18 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 	if err := s.orderRepo.Update(ctx, storeId, orderTicket); err != nil {
 		return err
 	}
+
 	// 以 ticketId 撈出userId，userId到fcm_token撈出device tokens
 	deviceTokens, err := s.fcmRepo.GetAllByTicketId(ctx, ticketId)
 	if err != nil {
 		return err
 	}
 
-	// 以 FCM 通知刷新頁面，且如果Device Tokens為空的時候不報錯
-	if err := s.pushFirebaseNotification(1, deviceTokens, nil); err != nil {
+	// 以 FCM 通知客戶刷新頁面，且如果Device Tokens為空的時候不報錯
+	if err := s.pushFirebaseNotification(1, deviceTokens, &messaging.Notification{
+		Title: "UPDATE_ORDER_TICKET",
+		Body:  fmt.Sprintf("Order ticket number %d has been updated", ticketId),
+	}); err != nil {
 		if strings.Contains(err.Error(), "tokens must not be nil or empty") {
 			fmt.Println("empty device tokens")
 			return nil
@@ -138,6 +134,24 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 
 func (s *OrderTicketsService) Delete(ctx context.Context, storeId string, ticketId int) error {
 	if err := s.orderRepo.Delete(ctx, storeId, ticketId); err != nil {
+		return err
+	}
+
+	// 以 ticketId 撈出userId，userId到fcm_token撈出device tokens
+	deviceTokens, err := s.fcmRepo.GetAllByTicketId(ctx, ticketId)
+	if err != nil {
+		return err
+	}
+
+	// 以 FCM 通知客戶刷新頁面，且如果Device Tokens為空的時候不報錯
+	if err := s.pushFirebaseNotification(1, deviceTokens, &messaging.Notification{
+		Title: "DELETE_ORDER_TICKET",
+		Body:  fmt.Sprintf("Order ticket number %d has been deleted", ticketId),
+	}); err != nil {
+		if strings.Contains(err.Error(), "tokens must not be nil or empty") {
+			fmt.Println("empty device tokens")
+			return nil
+		}
 		return err
 	}
 
