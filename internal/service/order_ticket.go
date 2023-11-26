@@ -120,7 +120,7 @@ func (s *OrderTicketsService) Update(ctx context.Context, storeId string, ticket
 	// 以 FCM 通知客戶刷新頁面，且如果Device Tokens為空的時候不報錯
 	if err := s.pushFirebaseNotification(1, deviceTokens, &messaging.Notification{
 		Title: "UPDATE_ORDER_TICKET",
-		Body:  fmt.Sprintf("Order ticket number %d has been updated", ticketId),
+		Body:  fmt.Sprintf("%d", ticketId),
 	}); err != nil {
 		if strings.Contains(err.Error(), "tokens must not be nil or empty") {
 			fmt.Println("empty device tokens")
@@ -147,7 +147,7 @@ func (s *OrderTicketsService) Delete(ctx context.Context, storeId string, ticket
 	// 以 FCM 通知客戶刷新頁面，且如果Device Tokens為空的時候不報錯
 	if err := s.pushFirebaseNotification(1, deviceTokens, &messaging.Notification{
 		Title: "DELETE_ORDER_TICKET",
-		Body:  fmt.Sprintf("Order ticket number %d has been deleted", ticketId),
+		Body:  fmt.Sprintf("%d", ticketId),
 	}); err != nil {
 		if strings.Contains(err.Error(), "tokens must not be nil or empty") {
 			fmt.Println("empty device tokens")

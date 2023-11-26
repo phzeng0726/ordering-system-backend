@@ -144,7 +144,7 @@ func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, lang
 		}
 
 		if err := tx.Preload("Category").
-			Preload("Category.CategoryLanguage", "language_id = ? OR language_id IS NULL", languageId).
+			Preload("Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
 			Where("user_id = ?", userId).
 			Find(&categoryUserMappings).Error; err != nil {
 			return err
