@@ -25,5 +25,6 @@ func main() {
 		config.Env.Port = "8080"
 	}
 
+	// Host沒有填的時候就是Cloud (GCP上不需要填Host)
 	router.Run(config.Env.Host + ":" + config.Env.Port)
 }

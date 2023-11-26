@@ -122,7 +122,7 @@ func (r *StoreMenusRepo) GetMenuByStoreId(ctx context.Context, userId string, st
 		if err := tx.Preload("Menu").
 			Preload("MenuItem.Image").
 			Preload("MenuItem.Category").
-			Preload("MenuItem.Category.CategoryLanguage", "language_id = ?", languageId).
+			Preload("MenuItem.Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
 			Where("menu_id = ?", storeMenuMapping.MenuId).Find(&menuItemMappings).Error; err != nil {
 			fmt.Print("hi")
 			return err
