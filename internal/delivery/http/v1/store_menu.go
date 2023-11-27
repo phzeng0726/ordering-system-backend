@@ -13,7 +13,7 @@ func (h *Handler) initStoreMenusRoutes(api *gin.RouterGroup) {
 		storesAndMenus.GET("", h.getMenuByStoreId)
 		storesAndMenus.POST("/:menu_id", h.createStoreMenuReference)
 		storesAndMenus.PATCH("/:menu_id", h.updateStoreMenuReference)
-		storesAndMenus.DELETE("", h.deleteStoreMenuReference)
+		storesAndMenus.DELETE("/:menu_id", h.deleteStoreMenuReference) // App沒有實際使用，只是用來方便開發測試用
 	}
 	storesAndMenusWithoutUser := api.Group("/stores/:store_id/menus")
 	{
@@ -50,8 +50,9 @@ func (h *Handler) updateStoreMenuReference(c *gin.Context) {
 func (h *Handler) deleteStoreMenuReference(c *gin.Context) {
 	userId := c.Param("user_id")
 	storeId := c.Param("store_id")
+	menuId := c.Param("menu_id")
 
-	if err := h.services.StoreMenus.DeleteMenuReference(c.Request.Context(), userId, storeId); err != nil {
+	if err := h.services.StoreMenus.DeleteMenuReference(c.Request.Context(), userId, storeId, menuId); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}

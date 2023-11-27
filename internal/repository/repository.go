@@ -58,7 +58,7 @@ type Menus interface {
 type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
-	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
+	DeleteMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error)
 }
 
