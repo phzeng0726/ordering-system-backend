@@ -9,13 +9,11 @@ import (
 
 type MenusRepo struct {
 	db *gorm.DB
-	rt *RepoTools
 }
 
-func NewMenusRepo(db *gorm.DB, rt *RepoTools) *MenusRepo {
+func NewMenusRepo(db *gorm.DB) *MenusRepo {
 	return &MenusRepo{
 		db: db,
-		rt: rt,
 	}
 }
 
@@ -70,10 +68,6 @@ func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserExist(tx, menu.UserId); err != nil {
-			return err
-		}
-
 		if err := tx.Create(&menu).Error; err != nil {
 			return err
 		}
@@ -142,18 +136,8 @@ func (r *MenusRepo) TempGetAllByUserId(ctx context.Context, userId string, langu
 	var menus []domain.Menu
 	db := r.db.WithContext(ctx)
 
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserExist(tx, userId); err != nil {
-			return err
-		}
-
-		if err := tx.Where("user_id = ?", userId).
-			Find(&menus).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
+	if err := db.Where("user_id = ?", userId).
+		Find(&menus).Error; err != nil {
 		return menus, err
 	}
 
@@ -164,22 +148,12 @@ func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageI
 	var menuItemMappings []domain.MenuItemMapping
 	db := r.db.WithContext(ctx)
 
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserExist(tx, userId); err != nil {
-			return err
-		}
-
-		if err := tx.Preload("Menu").
-			Preload("MenuItem.Image").
-			Preload("MenuItem.Category").
-			Preload("MenuItem.Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
-			Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).
-			Find(&menuItemMappings).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
+	if err := db.Preload("Menu").
+		Preload("MenuItem.Image").
+		Preload("MenuItem.Category").
+		Preload("MenuItem.Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
+		Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).
+		Find(&menuItemMappings).Error; err != nil {
 		return menuItemMappings, err
 	}
 

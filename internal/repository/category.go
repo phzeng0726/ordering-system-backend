@@ -11,13 +11,11 @@ import (
 
 type CategoriesRepo struct {
 	db *gorm.DB
-	rt *RepoTools
 }
 
-func NewCategoriesRepo(db *gorm.DB, rt *RepoTools) *CategoriesRepo {
+func NewCategoriesRepo(db *gorm.DB) *CategoriesRepo {
 	return &CategoriesRepo{
 		db: db,
-		rt: rt,
 	}
 }
 

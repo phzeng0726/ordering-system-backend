@@ -10,15 +10,26 @@ import (
 )
 
 type MenusService struct {
-	repo repository.Menus
+	repo         repository.Menus
+	usersService UsersService
 }
 
-func NewMenusService(repo repository.Menus) *MenusService {
-	return &MenusService{repo: repo}
+func NewMenusService(repo repository.Menus, usersService UsersService) *MenusService {
+	return &MenusService{
+		repo:         repo,
+		usersService: usersService,
+	}
 }
 
 func (s *MenusService) Create(ctx context.Context, input CreateMenuInput) (string, error) {
 	var menuItems []domain.MenuItem
+	newMenuId := uuid.New().String()
+
+	// 確認使用者是否存在
+	if _, err := s.usersService.GetById(ctx, input.UserId); err != nil {
+		return newMenuId, err
+	}
+
 	for _, mi := range input.MenuItems {
 		menuItems = append(
 			menuItems,
@@ -36,7 +47,7 @@ func (s *MenusService) Create(ctx context.Context, input CreateMenuInput) (strin
 	}
 
 	menu := domain.Menu{
-		Id:          uuid.New().String(),
+		Id:          newMenuId,
 		UserId:      input.UserId,
 		Title:       input.Title,
 		Description: input.Description,
@@ -44,9 +55,10 @@ func (s *MenusService) Create(ctx context.Context, input CreateMenuInput) (strin
 	}
 
 	if err := s.repo.Create(ctx, menu); err != nil {
-		return menu.Id, err
+		return newMenuId, err
 	}
-	return menu.Id, nil
+
+	return newMenuId, nil
 }
 
 func (s *MenusService) Update(ctx context.Context, input UpdateMenuInput) error {
@@ -91,6 +103,12 @@ func (s *MenusService) Delete(ctx context.Context, userId string, menuId string)
 // TODO Refactor
 func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
 	menus := make([]domain.Menu, 0)
+
+	// 確認使用者是否存在
+	if _, err := s.usersService.GetById(ctx, userId); err != nil {
+		return menus, err
+	}
+
 	menuItemMappings, err := s.repo.GetAllByUserId(ctx, userId, languageId)
 	if err != nil {
 		return menus, err
@@ -150,6 +168,12 @@ func (s *MenusService) GetById(ctx context.Context, userId string, menuId string
 			menu.MenuItems = append(menu.MenuItems, mim.MenuItem)
 		}
 		return menu, nil
+	}
+
+	// TODO 重構
+	// 確認使用者是否存在
+	if _, err := s.usersService.GetById(ctx, userId); err != nil {
+		return menu, err
 	}
 
 	// 撈出所有

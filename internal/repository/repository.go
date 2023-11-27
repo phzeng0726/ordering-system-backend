@@ -83,6 +83,11 @@ type FCMTokens interface {
 
 }
 
+type Images interface {
+	Create(tx *gorm.DB, imageBytes []byte) error
+	GetById(tx *gorm.DB, imageId int) (domain.Image, error)
+}
+
 type Repositories struct {
 	Users        Users
 	OTP          OTP
@@ -93,20 +98,10 @@ type Repositories struct {
 	StoreMenus   StoreMenus
 	OrderTickets OrderTickets
 	FCMTokens    FCMTokens
+	Images       Images
 }
 
 type RepoTools struct{}
-
-func (*RepoTools) CheckUserExist(tx *gorm.DB, userId string) error {
-	if err := tx.Where("id = ?", userId).First(&domain.User{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("user id not found")
-		}
-		return err
-	}
-
-	return nil
-}
 
 func (*RepoTools) CheckStoreSeatExist(tx *gorm.DB, storeId string, seatId int) error {
 	if err := tx.Where("id = ?", seatId).First(&domain.Seat{}).Error; err != nil {
@@ -175,53 +170,18 @@ func (*RepoTools) CheckUserMenuExist(tx *gorm.DB, userId string, menuId string, 
 
 	return nil
 }
-func (*RepoTools) CheckUserAccountExist(tx *gorm.DB, userId string, userAccount *domain.UserAccount) error {
-	// 沒有傳入指針時，代表外部不需要使用到
-	if userAccount == nil {
-		userAccount = &domain.UserAccount{}
-	}
 
-	if err := tx.Where("id = ?", userId).First(&userAccount).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("user id not found")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) UploadImage(tx *gorm.DB, imageBytes []byte) error {
-	var data domain.Image
-	data.BytesData = imageBytes
-
-	if err := tx.Create(&data).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) LoadImage(tx *gorm.DB, imageId int) (domain.Image, error) {
-	var data domain.Image
-
-	if err := tx.Where("id = ?", imageId).First(&data).Error; err != nil {
-		return data, err
-	}
-
-	return data, nil
-}
-
-func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
+func NewRepositories(db *gorm.DB) *Repositories {
 	return &Repositories{
 		OTP:          NewOTPRepo(db),
-		Users:        NewUsersRepo(db, rt),
-		Stores:       NewStoresRepo(db, rt),
-		Seats:        NewSeatsRepo(db, rt),
-		Categories:   NewCategoriesRepo(db, rt),
-		Menus:        NewMenusRepo(db, rt),
-		StoreMenus:   NewStoreMenusRepo(db, rt),
-		OrderTickets: NewOrderTicketsRepo(db, rt),
-		FCMTokens:    NewFCMTokensRepo(db, rt),
+		Users:        NewUsersRepo(db),
+		Stores:       NewStoresRepo(db),
+		Seats:        NewSeatsRepo(db),
+		Categories:   NewCategoriesRepo(db),
+		Menus:        NewMenusRepo(db),
+		StoreMenus:   NewStoreMenusRepo(db),
+		OrderTickets: NewOrderTicketsRepo(db),
+		FCMTokens:    NewFCMTokensRepo(db),
+		Images:       NewImagesRepo(db),
 	}
 }

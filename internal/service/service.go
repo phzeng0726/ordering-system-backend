@@ -185,15 +185,25 @@ type Deps struct {
 }
 
 func NewServices(deps Deps) *Services {
+	usersService := NewUsersService(deps.Repos.Users)
+	otpService := NewOTPService(deps.Repos.OTP)
+	storesService := NewStoresService(deps.Repos.Stores, *usersService)
+	categoriesService := NewCategoriesService(deps.Repos.Categories)
+	menusService := NewMenusService(deps.Repos.Menus, *usersService)
+	seatsService := NewSeatsService(deps.Repos.Seats)
+	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus)
+	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats)
+	fcmTokensService := NewFCMTokensService(deps.Repos.FCMTokens)
+
 	return &Services{
-		Users:        NewUsersService(deps.Repos.Users),
-		OTP:          NewOTPService(deps.Repos.OTP),
-		Stores:       NewStoresService(deps.Repos.Stores),
-		Categories:   NewCategoriesService(deps.Repos.Categories),
-		Menus:        NewMenusService(deps.Repos.Menus),
-		Seats:        NewSeatsService(deps.Repos.Seats),
-		StoreMenus:   NewStoreMenusService(deps.Repos.StoreMenus),
-		OrderTickets: NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats),
-		FCMTokens:    NewFCMTokensService(deps.Repos.FCMTokens),
+		Users:        usersService,
+		OTP:          otpService,
+		Stores:       storesService,
+		Categories:   categoriesService,
+		Menus:        menusService,
+		Seats:        seatsService,
+		StoreMenus:   storeMenusService,
+		OrderTickets: orderTicketsService,
+		FCMTokens:    fcmTokensService,
 	}
 }

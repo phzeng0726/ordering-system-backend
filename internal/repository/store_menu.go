@@ -12,13 +12,11 @@ import (
 
 type StoreMenusRepo struct {
 	db *gorm.DB
-	rt *RepoTools
 }
 
-func NewStoreMenusRepo(db *gorm.DB, rt *RepoTools) *StoreMenusRepo {
+func NewStoreMenusRepo(db *gorm.DB) *StoreMenusRepo {
 	return &StoreMenusRepo{
 		db: db,
-		rt: rt,
 	}
 }
 

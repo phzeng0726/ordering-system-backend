@@ -11,9 +11,8 @@ import (
 func main() {
 	config.InitConfig()
 	conn := database.Connect()
-	rt := repository.RepoTools{}
 
-	repos := repository.NewRepositories(conn, &rt)
+	repos := repository.NewRepositories(conn)
 	services := service.NewServices(service.Deps{
 		Repos: repos,
 	})

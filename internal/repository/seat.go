@@ -9,13 +9,11 @@ import (
 
 type SeatsRepo struct {
 	db *gorm.DB
-	rt *RepoTools
 }
 
-func NewSeatsRepo(db *gorm.DB, rt *RepoTools) *SeatsRepo {
+func NewSeatsRepo(db *gorm.DB) *SeatsRepo {
 	return &SeatsRepo{
 		db: db,
-		rt: rt,
 	}
 }
 
