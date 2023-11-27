@@ -50,16 +50,15 @@ type Menus interface {
 	Create(ctx context.Context, menu domain.Menu) error
 	Update(ctx context.Context, menu domain.Menu) error
 	Delete(ctx context.Context, userId string, menuId string) error
-	TempGetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error)
-	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.MenuItemMapping, error)
-	GetById(ctx context.Context, userId string, menuId string, languageId int) ([]domain.MenuItemMapping, error)
+	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error)
+	GetByMenuId(ctx context.Context, menuId string, languageId int) (domain.Menu, error)
+	GetByStoreId(ctx context.Context, storeId string, languageId int) (domain.Menu, error)
 }
 
 type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	DeleteMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error)
 }
 
 type OrderTickets interface {

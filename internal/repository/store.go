@@ -48,7 +48,6 @@ func (r *StoresRepo) getStoreWithoutStoreOwnerId(tx *gorm.DB, storeId string) (d
 		return store, err
 	}
 
-	fmt.Println(store)
 	return store, nil
 }
 
@@ -157,7 +156,9 @@ func (r *StoresRepo) GetByStoreId(ctx context.Context, storeId string) (domain.S
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		store, err := r.getStoreWithoutStoreOwnerId(tx, storeId)
+		var err error
+
+		store, err = r.getStoreWithoutStoreOwnerId(tx, storeId)
 		if err != nil {
 			return err
 		}

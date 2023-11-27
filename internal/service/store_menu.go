@@ -9,12 +9,14 @@ import (
 type StoreMenusService struct {
 	storeMenusRepo repository.StoreMenus
 	storesRepo     repository.Stores
+	menusRepo      repository.Menus
 }
 
-func NewStoreMenusService(storeMenusRepo repository.StoreMenus, storesRepo repository.Stores) *StoreMenusService {
+func NewStoreMenusService(storeMenusRepo repository.StoreMenus, storesRepo repository.Stores, menusRepo repository.Menus) *StoreMenusService {
 	return &StoreMenusService{
 		storeMenusRepo: storeMenusRepo,
 		storesRepo:     storesRepo,
+		menusRepo:      menusRepo,
 	}
 }
 
@@ -53,12 +55,13 @@ func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId stri
 
 	return nil
 }
-
 func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
-	menu, err := s.storeMenusRepo.GetMenuByStoreId(ctx, userId, storeId, languageId)
+	menu, err := s.menusRepo.GetByStoreId(ctx, storeId, languageId)
 	if err != nil {
 		return menu, err
 	}
+
+	menuDataClean(&menu)
 
 	// 撈取商店資訊，供客戶端使用
 	if userType == 1 {
@@ -66,6 +69,7 @@ func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string,
 		if err != nil {
 			return menu, err
 		}
+
 		menu.Store = &store
 	}
 

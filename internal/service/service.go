@@ -189,7 +189,7 @@ func NewServices(deps Deps) *Services {
 	categoriesService := NewCategoriesService(deps.Repos.Categories, deps.Repos.Users)
 	menusService := NewMenusService(deps.Repos.Menus, deps.Repos.Users)
 	seatsService := NewSeatsService(deps.Repos.Seats)
-	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, deps.Repos.Stores)
+	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, deps.Repos.Stores, deps.Repos.Menus)
 	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats)
 	fcmTokensService := NewFCMTokensService(deps.Repos.FCMTokens)
 
