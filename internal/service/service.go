@@ -178,8 +178,31 @@ type Services struct {
 	FCMTokens    FCMTokens
 }
 
+type ServiceTools struct {
+}
+
+func (*ServiceTools) cleanMenuData(menu *domain.Menu) {
+	// 沒有menuItems的時候，回傳空的slice
+	if len(menu.MenuItemMappings) == 0 {
+		menu.MenuItems = []domain.MenuItem{}
+	} else {
+		// 否則將MenuItem資料Preload的各個項目，撈出需要的變數，處理成需要的格式
+		var menuItems []domain.MenuItem
+		for j, mim := range menu.MenuItemMappings {
+			tempItem := menu.MenuItemMappings[j].MenuItem
+			tempItem.ImageBytes = mim.MenuItem.Image.BytesData
+			tempItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
+			menuItems = append(menuItems, tempItem)
+		}
+
+		// 將該menu的menuItems取代為處理過的資料
+		menu.MenuItems = menuItems
+	}
+}
+
 type Deps struct {
 	Repos *repository.Repositories
+	Tools ServiceTools
 }
 
 func NewServices(deps Deps) *Services {
@@ -187,9 +210,9 @@ func NewServices(deps Deps) *Services {
 	otpService := NewOTPService(deps.Repos.OTP)
 	storesService := NewStoresService(deps.Repos.Stores, deps.Repos.Users)
 	categoriesService := NewCategoriesService(deps.Repos.Categories, deps.Repos.Users)
-	menusService := NewMenusService(deps.Repos.Menus, deps.Repos.Users)
+	menusService := NewMenusService(deps.Repos.Menus, deps.Repos.Users, deps.Tools)
 	seatsService := NewSeatsService(deps.Repos.Seats)
-	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, deps.Repos.Stores, deps.Repos.Menus)
+	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, deps.Repos.Stores, deps.Repos.Menus, deps.Tools)
 	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats)
 	fcmTokensService := NewFCMTokensService(deps.Repos.FCMTokens)
 

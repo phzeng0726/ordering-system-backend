@@ -10,13 +10,15 @@ type StoreMenusService struct {
 	storeMenusRepo repository.StoreMenus
 	storesRepo     repository.Stores
 	menusRepo      repository.Menus
+	tools          ServiceTools
 }
 
-func NewStoreMenusService(storeMenusRepo repository.StoreMenus, storesRepo repository.Stores, menusRepo repository.Menus) *StoreMenusService {
+func NewStoreMenusService(storeMenusRepo repository.StoreMenus, storesRepo repository.Stores, menusRepo repository.Menus, tools ServiceTools) *StoreMenusService {
 	return &StoreMenusService{
 		storeMenusRepo: storeMenusRepo,
 		storesRepo:     storesRepo,
 		menusRepo:      menusRepo,
+		tools:          tools,
 	}
 }
 
@@ -62,7 +64,7 @@ func (s *StoreMenusService) GetStoreMenuByStoreId(ctx context.Context, userId st
 		return menu, err
 	}
 
-	menuDataClean(&menu)
+	s.tools.cleanMenuData(&menu)
 
 	// 撈取商店資訊，供客戶端使用
 	if userType == 1 {

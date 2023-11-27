@@ -11,12 +11,14 @@ import (
 type MenusService struct {
 	menusRepo repository.Menus
 	usersRepo repository.Users
+	tools     ServiceTools
 }
 
-func NewMenusService(menusRepo repository.Menus, usersRepo repository.Users) *MenusService {
+func NewMenusService(menusRepo repository.Menus, usersRepo repository.Users, tools ServiceTools) *MenusService {
 	return &MenusService{
 		menusRepo: menusRepo,
 		usersRepo: usersRepo,
+		tools:     tools,
 	}
 }
 
@@ -99,25 +101,6 @@ func (s *MenusService) Delete(ctx context.Context, userId string, menuId string)
 	return nil
 }
 
-func menuDataClean(menu *domain.Menu) {
-	// 沒有menuItems的時候，回傳空的slice
-	if len(menu.MenuItemMappings) == 0 {
-		menu.MenuItems = []domain.MenuItem{}
-	} else {
-		// 否則將MenuItem資料Preload的各個項目，撈出需要的變數，處理成需要的格式
-		var menuItems []domain.MenuItem
-		for j, mim := range menu.MenuItemMappings {
-			tempItem := menu.MenuItemMappings[j].MenuItem
-			tempItem.ImageBytes = mim.MenuItem.Image.BytesData
-			tempItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
-			menuItems = append(menuItems, tempItem)
-		}
-
-		// 將該menu的menuItems取代為處理過的資料
-		menu.MenuItems = menuItems
-	}
-}
-
 func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
 	menus := make([]domain.Menu, 0)
 
@@ -134,7 +117,7 @@ func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, langua
 
 	// 進行資料處理
 	for i := range menus {
-		menuDataClean(&menus[i])
+		s.tools.cleanMenuData(&menus[i])
 	}
 
 	return menus, nil
@@ -155,7 +138,7 @@ func (s *MenusService) GetById(ctx context.Context, userId string, menuId string
 	}
 
 	// 進行資料處理
-	menuDataClean(&menu)
+	s.tools.cleanMenuData(&menu)
 
 	return menu, nil
 }
