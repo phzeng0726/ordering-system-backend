@@ -58,18 +58,10 @@ func (s *StoresService) GetAllByUserId(ctx context.Context, userId string) ([]do
 	return stores, nil
 }
 
-func (s *StoresService) GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error) {
-	store, err := s.repo.GetByStoreId(ctx, userId, storeId)
+func (s *StoresService) GetByStoreId(ctx context.Context, storeId string) (domain.Store, error) {
+	store, err := s.repo.GetByStoreId(ctx, storeId)
 	if err != nil {
 		return store, err
 	}
 	return store, nil
-}
-
-func (s *StoresService) GetAll(ctx context.Context) ([]domain.Store, error) {
-	stores, err := s.repo.GetAll(ctx)
-	if err != nil {
-		return stores, err
-	}
-	return stores, nil
 }

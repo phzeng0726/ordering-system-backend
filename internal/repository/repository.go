@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -29,9 +27,7 @@ type Stores interface {
 	Update(ctx context.Context, store domain.Store) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
-	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
-	// 不含UserId
-	GetAll(ctx context.Context) ([]domain.Store, error)
+	GetByStoreId(ctx context.Context, storeId string) (domain.Store, error)
 }
 
 type Categories interface {
@@ -63,7 +59,7 @@ type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
+	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int) (domain.Menu, error)
 }
 
 type OrderTickets interface {
@@ -99,76 +95,6 @@ type Repositories struct {
 	OrderTickets OrderTickets
 	FCMTokens    FCMTokens
 	Images       Images
-}
-
-type RepoTools struct{}
-
-func (*RepoTools) CheckStoreSeatExist(tx *gorm.DB, storeId string, seatId int) error {
-	if err := tx.Where("id = ?", seatId).First(&domain.Seat{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("seat id not found")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) GetStoreInfo(tx *gorm.DB, storeId string, store *domain.Store) error {
-	// 沒有傳入指針時，代表外部不需要使用到
-	if store == nil {
-		store = &domain.Store{}
-	}
-
-	if err := tx.Where("id = ?", storeId).First(&store).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// userId避免print在log上
-			return fmt.Errorf("no store found with id %s", storeId)
-		}
-		return err
-	}
-
-	if err := tx.Where("store_id = ?", storeId).Find(&store.StoreOpeningHours).Error; err != nil {
-		return err
-	}
-
-	fmt.Println(store)
-
-	return nil
-}
-
-func (*RepoTools) CheckUserStoreExist(tx *gorm.DB, userId string, storeId string, store *domain.Store) error {
-	// 沒有傳入指針時，代表外部不需要使用到
-	if store == nil {
-		store = &domain.Store{}
-	}
-
-	if err := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// userId避免print在log上
-			return fmt.Errorf("no store found with id %s for this user id", storeId)
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) CheckUserMenuExist(tx *gorm.DB, userId string, menuId string, menu *domain.Menu) error {
-	// 沒有傳入指針時，代表外部不需要使用到
-	if menu == nil {
-		menu = &domain.Menu{}
-	}
-
-	if err := tx.Where("user_id = ? AND id = ?", userId, menuId).First(&menu).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// userId避免print在log上
-			return fmt.Errorf("no menu found with id %s for this user id", menuId)
-		}
-		return err
-	}
-
-	return nil
 }
 
 func NewRepositories(db *gorm.DB) *Repositories {

@@ -136,20 +136,10 @@ func (r *CategoriesRepo) GetAllByUserId(ctx context.Context, userId string, lang
 	var categoryUserMappings []domain.CategoryUserMapping
 	db := r.db.WithContext(ctx)
 
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserExist(tx, userId); err != nil {
-			return err
-		}
-
-		if err := tx.Preload("Category").
-			Preload("Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
-			Where("user_id = ?", userId).
-			Find(&categoryUserMappings).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
+	if err := db.Preload("Category").
+		Preload("Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
+		Where("user_id = ?", userId).
+		Find(&categoryUserMappings).Error; err != nil {
 		return categoryUserMappings, err
 	}
 

@@ -19,6 +19,7 @@ func NewStoresRepo(db *gorm.DB) *StoresRepo {
 	}
 }
 
+// 用來給Update和Delete使用，需要確保userId和storeId有權限
 func (r *StoresRepo) getStoreWithStoreOwnerId(tx *gorm.DB, userId string, storeId string) (domain.Store, error) {
 	var store domain.Store
 
@@ -30,6 +31,24 @@ func (r *StoresRepo) getStoreWithStoreOwnerId(tx *gorm.DB, userId string, storeI
 		return store, err
 	}
 
+	return store, nil
+}
+
+func (r *StoresRepo) getStoreWithoutStoreOwnerId(tx *gorm.DB, storeId string) (domain.Store, error) {
+	var store domain.Store
+
+	if err := tx.Where("id = ?", storeId).First(&store).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return store, fmt.Errorf("no store found with id %s", storeId)
+		}
+		return store, err
+	}
+
+	if err := tx.Where("store_id = ?", storeId).Find(&store.StoreOpeningHours).Error; err != nil {
+		return store, err
+	}
+
+	fmt.Println(store)
 	return store, nil
 }
 
@@ -133,12 +152,12 @@ func (r *StoresRepo) GetAllByUserId(ctx context.Context, userId string) ([]domai
 	return stores, nil
 }
 
-func (r *StoresRepo) GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error) {
+func (r *StoresRepo) GetByStoreId(ctx context.Context, storeId string) (domain.Store, error) {
 	var store domain.Store
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		store, err := r.getStoreWithStoreOwnerId(tx, userId, storeId)
+		store, err := r.getStoreWithoutStoreOwnerId(tx, storeId)
 		if err != nil {
 			return err
 		}
@@ -153,16 +172,4 @@ func (r *StoresRepo) GetByStoreId(ctx context.Context, userId string, storeId st
 	}
 
 	return store, nil
-}
-
-func (r *StoresRepo) GetAll(ctx context.Context) ([]domain.Store, error) {
-	var stores []domain.Store
-	db := r.db.WithContext(ctx)
-
-	// 使用 Preload 一次載入所有的OpeningHours，避免N+1問題
-	if err := db.Preload("StoreOpeningHours").Find(&stores).Error; err != nil {
-		return nil, err
-	}
-
-	return stores, nil
 }

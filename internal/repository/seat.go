@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -37,10 +38,21 @@ func (r *SeatsRepo) Update(ctx context.Context, seat domain.Seat) error {
 	return nil
 }
 
+func (r *SeatsRepo) checkSeatExist(tx *gorm.DB, seatId int) error {
+	if err := tx.Where("id = ?", seatId).First(&domain.Seat{}).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("seat id not found")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (r *SeatsRepo) Delete(ctx context.Context, storeId string, seatId int) error {
 	db := r.db.WithContext(ctx)
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckStoreSeatExist(tx, storeId, seatId); err != nil {
+		if err := r.checkSeatExist(tx, seatId); err != nil {
 			return err
 		}
 

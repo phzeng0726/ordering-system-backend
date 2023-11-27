@@ -7,11 +7,15 @@ import (
 )
 
 type StoreMenusService struct {
-	repo repository.StoreMenus
+	repo          repository.StoreMenus
+	storesService StoresService
 }
 
-func NewStoreMenusService(repo repository.StoreMenus) *StoreMenusService {
-	return &StoreMenusService{repo: repo}
+func NewStoreMenusService(repo repository.StoreMenus, storesService StoresService) *StoreMenusService {
+	return &StoreMenusService{
+		repo:          repo,
+		storesService: storesService,
+	}
 }
 
 func (s *StoreMenusService) CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error {
@@ -47,9 +51,18 @@ func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId stri
 }
 
 func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
-	menu, err := s.repo.GetMenuByStoreId(ctx, userId, storeId, languageId, userType)
+	menu, err := s.repo.GetMenuByStoreId(ctx, userId, storeId, languageId)
 	if err != nil {
 		return menu, err
+	}
+
+	// 撈取商店資訊，供客戶端使用
+	if userType == 1 {
+		store, err := s.storesService.GetByStoreId(ctx, storeId)
+		if err != nil {
+			return menu, err
+		}
+		menu.Store = &store
 	}
 
 	return menu, nil

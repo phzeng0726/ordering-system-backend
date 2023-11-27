@@ -7,11 +7,15 @@ import (
 )
 
 type CategoriesService struct {
-	repo repository.Categories
+	repo         repository.Categories
+	usersService UsersService
 }
 
-func NewCategoriesService(repo repository.Categories) *CategoriesService {
-	return &CategoriesService{repo: repo}
+func NewCategoriesService(repo repository.Categories, usersService UsersService) *CategoriesService {
+	return &CategoriesService{
+		repo:         repo,
+		usersService: usersService,
+	}
 }
 
 func (s *CategoriesService) Create(ctx context.Context, userId string, input CreateCategoryInput) error {
@@ -66,6 +70,11 @@ func (s *CategoriesService) Delete(ctx context.Context, userId string, categoryI
 
 func (s *CategoriesService) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Category, error) {
 	var categories []domain.Category
+
+	// 確認用戶存在
+	if _, err := s.usersService.GetById(ctx, userId); err != nil {
+		return categories, err
+	}
 
 	categoryUserMappings, err := s.repo.GetAllByUserId(ctx, userId, languageId)
 	if err != nil {

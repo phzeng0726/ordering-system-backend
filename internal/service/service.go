@@ -57,9 +57,7 @@ type Stores interface {
 	Update(ctx context.Context, store domain.Store) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
-	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
-	// 不含UserId
-	GetAll(ctx context.Context) ([]domain.Store, error)
+	GetByStoreId(ctx context.Context, storeId string) (domain.Store, error)
 }
 
 type Seats interface {
@@ -188,10 +186,10 @@ func NewServices(deps Deps) *Services {
 	usersService := NewUsersService(deps.Repos.Users)
 	otpService := NewOTPService(deps.Repos.OTP)
 	storesService := NewStoresService(deps.Repos.Stores, *usersService)
-	categoriesService := NewCategoriesService(deps.Repos.Categories)
+	categoriesService := NewCategoriesService(deps.Repos.Categories, *usersService)
 	menusService := NewMenusService(deps.Repos.Menus, *usersService)
 	seatsService := NewSeatsService(deps.Repos.Seats)
-	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus)
+	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, *storesService)
 	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats)
 	fcmTokensService := NewFCMTokensService(deps.Repos.FCMTokens)
 
