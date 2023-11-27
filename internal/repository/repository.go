@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"ordering-system-backend/internal/domain"
 
 	"gorm.io/gorm"
@@ -29,9 +27,7 @@ type Stores interface {
 	Update(ctx context.Context, store domain.Store) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
-	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
-	// 不含UserId
-	GetAll(ctx context.Context) ([]domain.Store, error)
+	GetByStoreId(ctx context.Context, storeId string) (domain.Store, error)
 }
 
 type Categories interface {
@@ -54,16 +50,15 @@ type Menus interface {
 	Create(ctx context.Context, menu domain.Menu) error
 	Update(ctx context.Context, menu domain.Menu) error
 	Delete(ctx context.Context, userId string, menuId string) error
-	TempGetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error)
-	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.MenuItemMapping, error)
-	GetById(ctx context.Context, userId string, menuId string, languageId int) ([]domain.MenuItemMapping, error)
+	GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error)
+	GetByMenuId(ctx context.Context, menuId string, languageId int) (domain.Menu, error)
+	GetByStoreId(ctx context.Context, storeId string, languageId int) (domain.Menu, error)
 }
 
 type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 	UpdateMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
-	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
+	DeleteMenuReference(ctx context.Context, userId string, storeMenuMapping domain.StoreMenuMapping) error
 }
 
 type OrderTickets interface {
@@ -83,6 +78,11 @@ type FCMTokens interface {
 
 }
 
+type Images interface {
+	Create(tx *gorm.DB, imageBytes []byte) error
+	GetById(tx *gorm.DB, imageId int) (domain.Image, error)
+}
+
 type Repositories struct {
 	Users        Users
 	OTP          OTP
@@ -93,135 +93,20 @@ type Repositories struct {
 	StoreMenus   StoreMenus
 	OrderTickets OrderTickets
 	FCMTokens    FCMTokens
+	Images       Images
 }
 
-type RepoTools struct{}
-
-func (*RepoTools) CheckUserExist(tx *gorm.DB, userId string) error {
-	if err := tx.Where("id = ?", userId).First(&domain.User{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("user id not found")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) CheckStoreSeatExist(tx *gorm.DB, storeId string, seatId int) error {
-	if err := tx.Where("id = ?", seatId).First(&domain.Seat{}).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("seat id not found")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) GetStoreInfo(tx *gorm.DB, storeId string, store *domain.Store) error {
-	// 沒有傳入指針時，代表外部不需要使用到
-	if store == nil {
-		store = &domain.Store{}
-	}
-
-	if err := tx.Where("id = ?", storeId).First(&store).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// userId避免print在log上
-			return fmt.Errorf("no store found with id %s", storeId)
-		}
-		return err
-	}
-
-	if err := tx.Where("store_id = ?", storeId).Find(&store.StoreOpeningHours).Error; err != nil {
-		return err
-	}
-
-	fmt.Println(store)
-
-	return nil
-}
-
-func (*RepoTools) CheckUserStoreExist(tx *gorm.DB, userId string, storeId string, store *domain.Store) error {
-	// 沒有傳入指針時，代表外部不需要使用到
-	if store == nil {
-		store = &domain.Store{}
-	}
-
-	if err := tx.Where("user_id = ? AND id = ?", userId, storeId).First(&store).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// userId避免print在log上
-			return fmt.Errorf("no store found with id %s for this user id", storeId)
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) CheckUserMenuExist(tx *gorm.DB, userId string, menuId string, menu *domain.Menu) error {
-	// 沒有傳入指針時，代表外部不需要使用到
-	if menu == nil {
-		menu = &domain.Menu{}
-	}
-
-	if err := tx.Where("user_id = ? AND id = ?", userId, menuId).First(&menu).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// userId避免print在log上
-			return fmt.Errorf("no menu found with id %s for this user id", menuId)
-		}
-		return err
-	}
-
-	return nil
-}
-func (*RepoTools) CheckUserAccountExist(tx *gorm.DB, userId string, userAccount *domain.UserAccount) error {
-	// 沒有傳入指針時，代表外部不需要使用到
-	if userAccount == nil {
-		userAccount = &domain.UserAccount{}
-	}
-
-	if err := tx.Where("id = ?", userId).First(&userAccount).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("user id not found")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) UploadImage(tx *gorm.DB, imageBytes []byte) error {
-	var data domain.Image
-	data.BytesData = imageBytes
-
-	if err := tx.Create(&data).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*RepoTools) LoadImage(tx *gorm.DB, imageId int) (domain.Image, error) {
-	var data domain.Image
-
-	if err := tx.Where("id = ?", imageId).First(&data).Error; err != nil {
-		return data, err
-	}
-
-	return data, nil
-}
-
-func NewRepositories(db *gorm.DB, rt *RepoTools) *Repositories {
+func NewRepositories(db *gorm.DB) *Repositories {
 	return &Repositories{
 		OTP:          NewOTPRepo(db),
-		Users:        NewUsersRepo(db, rt),
-		Stores:       NewStoresRepo(db, rt),
-		Seats:        NewSeatsRepo(db, rt),
-		Categories:   NewCategoriesRepo(db, rt),
-		Menus:        NewMenusRepo(db, rt),
-		StoreMenus:   NewStoreMenusRepo(db, rt),
-		OrderTickets: NewOrderTicketsRepo(db, rt),
-		FCMTokens:    NewFCMTokensRepo(db, rt),
+		Users:        NewUsersRepo(db),
+		Stores:       NewStoresRepo(db),
+		Seats:        NewSeatsRepo(db),
+		Categories:   NewCategoriesRepo(db),
+		Menus:        NewMenusRepo(db),
+		StoreMenus:   NewStoreMenusRepo(db),
+		OrderTickets: NewOrderTicketsRepo(db),
+		FCMTokens:    NewFCMTokensRepo(db),
+		Images:       NewImagesRepo(db),
 	}
 }

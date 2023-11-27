@@ -57,9 +57,7 @@ type Stores interface {
 	Update(ctx context.Context, store domain.Store) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
-	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
-	// 不含UserId
-	GetAll(ctx context.Context) ([]domain.Store, error)
+	GetByStoreId(ctx context.Context, storeId string) (domain.Store, error)
 }
 
 type Seats interface {
@@ -123,8 +121,8 @@ type Menus interface {
 type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
 	UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
-	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
+	DeleteMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
+	GetStoreMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
 }
 
 type CreateOrderTicketInput struct {
@@ -185,15 +183,25 @@ type Deps struct {
 }
 
 func NewServices(deps Deps) *Services {
+	usersService := NewUsersService(deps.Repos.Users)
+	otpService := NewOTPService(deps.Repos.OTP)
+	storesService := NewStoresService(deps.Repos.Stores, deps.Repos.Users)
+	categoriesService := NewCategoriesService(deps.Repos.Categories, deps.Repos.Users)
+	menusService := NewMenusService(deps.Repos.Menus, deps.Repos.Users)
+	seatsService := NewSeatsService(deps.Repos.Seats)
+	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, deps.Repos.Stores, deps.Repos.Menus)
+	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats)
+	fcmTokensService := NewFCMTokensService(deps.Repos.FCMTokens)
+
 	return &Services{
-		Users:        NewUsersService(deps.Repos.Users),
-		OTP:          NewOTPService(deps.Repos.OTP),
-		Stores:       NewStoresService(deps.Repos.Stores),
-		Categories:   NewCategoriesService(deps.Repos.Categories),
-		Menus:        NewMenusService(deps.Repos.Menus),
-		Seats:        NewSeatsService(deps.Repos.Seats),
-		StoreMenus:   NewStoreMenusService(deps.Repos.StoreMenus),
-		OrderTickets: NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats),
-		FCMTokens:    NewFCMTokensService(deps.Repos.FCMTokens),
+		Users:        usersService,
+		OTP:          otpService,
+		Stores:       storesService,
+		Categories:   categoriesService,
+		Menus:        menusService,
+		Seats:        seatsService,
+		StoreMenus:   storeMenusService,
+		OrderTickets: orderTicketsService,
+		FCMTokens:    fcmTokensService,
 	}
 }

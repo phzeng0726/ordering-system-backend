@@ -12,7 +12,7 @@ func (h *Handler) initFCMTokensRoutes(api *gin.RouterGroup) {
 	{
 		fcmTokens.POST("", h.createToken)
 		fcmTokens.DELETE("", h.deleteToken)
-		fcmTokens.GET("", h.getToken)
+		fcmTokens.GET("", h.getToken) // App沒有實際使用，只是用來方便開發測試用
 
 	}
 }

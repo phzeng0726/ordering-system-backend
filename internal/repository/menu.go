@@ -9,13 +9,11 @@ import (
 
 type MenusRepo struct {
 	db *gorm.DB
-	rt *RepoTools
 }
 
-func NewMenusRepo(db *gorm.DB, rt *RepoTools) *MenusRepo {
+func NewMenusRepo(db *gorm.DB) *MenusRepo {
 	return &MenusRepo{
 		db: db,
-		rt: rt,
 	}
 }
 
@@ -70,10 +68,6 @@ func (r *MenusRepo) Create(ctx context.Context, menu domain.Menu) error {
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserExist(tx, menu.UserId); err != nil {
-			return err
-		}
-
 		if err := tx.Create(&menu).Error; err != nil {
 			return err
 		}
@@ -138,65 +132,56 @@ func (r *MenusRepo) Delete(ctx context.Context, userId string, menuId string) er
 	return nil
 }
 
-func (r *MenusRepo) TempGetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
+func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.Menu, error) {
 	var menus []domain.Menu
 	db := r.db.WithContext(ctx)
 
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserExist(tx, userId); err != nil {
-			return err
-		}
-
-		if err := tx.Where("user_id = ?", userId).
-			Find(&menus).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
+	if err := db.Preload("MenuItemMappings.MenuItem.Image").
+		Preload("MenuItemMappings.MenuItem.Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
+		Where("user_id = ?", userId).
+		Find(&menus).Error; err != nil {
 		return menus, err
 	}
 
 	return menus, nil
 }
 
-func (r *MenusRepo) GetAllByUserId(ctx context.Context, userId string, languageId int) ([]domain.MenuItemMapping, error) {
-	var menuItemMappings []domain.MenuItemMapping
+func (r *MenusRepo) GetByMenuId(ctx context.Context, menuId string, languageId int) (domain.Menu, error) {
+	var menu domain.Menu
+	db := r.db.WithContext(ctx)
+
+	if err := db.Preload("MenuItemMappings.MenuItem.Image").
+		Preload("MenuItemMappings.MenuItem.Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
+		Where("id = ?", menuId).
+		Find(&menu).Error; err != nil {
+		return menu, err
+	}
+
+	return menu, nil
+}
+
+func (r *MenusRepo) GetByStoreId(ctx context.Context, storeId string, languageId int) (domain.Menu, error) {
+	var menu domain.Menu
+	var storeMenuMapping domain.StoreMenuMapping
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserExist(tx, userId); err != nil {
+		if err := tx.Where("store_id = ?", storeId).First(&storeMenuMapping).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Preload("Menu").
-			Preload("MenuItem.Image").
-			Preload("MenuItem.Category").
-			Preload("MenuItem.Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
-			Where("menu_id IN (SELECT id FROM menus WHERE user_id = ?)", userId).
-			Find(&menuItemMappings).Error; err != nil {
+		// 以menuId下去撈menuItems
+		if err := tx.Preload("MenuItemMappings.MenuItem.Image").
+			Preload("MenuItemMappings.MenuItem.Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
+			Where("id = ?", storeMenuMapping.MenuId).Find(&menu).Error; err != nil {
 			return err
+
 		}
 
 		return nil
 	}); err != nil {
-		return menuItemMappings, err
+		return menu, err
 	}
 
-	return menuItemMappings, nil
-}
-
-func (r *MenusRepo) GetById(ctx context.Context, userId string, menuId string, languageId int) ([]domain.MenuItemMapping, error) {
-	var menuItemMappings []domain.MenuItemMapping
-	db := r.db.WithContext(ctx)
-
-	if err := db.Preload("Menu").
-		Preload("MenuItem.Image").
-		Preload("MenuItem.Category").
-		Preload("MenuItem.Category.CategoryLanguage", "language_id IS NULL OR language_id = ?", languageId).
-		Where("menu_id = ?", menuId).Find(&menuItemMappings).Error; err != nil {
-		return menuItemMappings, err
-	}
-
-	return menuItemMappings, nil
+	return menu, nil
 }

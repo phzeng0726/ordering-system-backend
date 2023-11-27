@@ -9,13 +9,11 @@ import (
 
 type FCMTokensRepo struct {
 	db *gorm.DB
-	rt *RepoTools
 }
 
-func NewFCMTokensRepo(db *gorm.DB, rt *RepoTools) *FCMTokensRepo {
+func NewFCMTokensRepo(db *gorm.DB) *FCMTokensRepo {
 	return &FCMTokensRepo{
 		db: db,
-		rt: rt,
 	}
 }
 
