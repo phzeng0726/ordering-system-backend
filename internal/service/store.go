@@ -9,14 +9,14 @@ import (
 )
 
 type StoresService struct {
-	repo         repository.Stores
-	usersService UsersService
+	storesRepo repository.Stores
+	usersRepo  repository.Users
 }
 
-func NewStoresService(repo repository.Stores, usersService UsersService) *StoresService {
+func NewStoresService(storesRepo repository.Stores, usersRepo repository.Users) *StoresService {
 	return &StoresService{
-		repo:         repo,
-		usersService: usersService,
+		storesRepo: storesRepo,
+		usersRepo:  usersRepo,
 	}
 }
 
@@ -24,11 +24,11 @@ func (s *StoresService) Create(ctx context.Context, store domain.Store) (string,
 	store.Id = uuid.New().String()
 
 	// 確認該User存在，才可新增Store
-	if _, err := s.usersService.GetById(ctx, store.UserId); err != nil {
+	if _, err := s.usersRepo.GetById(ctx, store.UserId); err != nil {
 		return store.Id, err
 	}
 
-	if err := s.repo.Create(ctx, store); err != nil {
+	if err := s.storesRepo.Create(ctx, store); err != nil {
 		return store.Id, err
 	}
 
@@ -36,7 +36,7 @@ func (s *StoresService) Create(ctx context.Context, store domain.Store) (string,
 }
 
 func (s *StoresService) Update(ctx context.Context, store domain.Store) error {
-	if err := s.repo.Update(ctx, store); err != nil {
+	if err := s.storesRepo.Update(ctx, store); err != nil {
 		return err
 	}
 
@@ -44,14 +44,14 @@ func (s *StoresService) Update(ctx context.Context, store domain.Store) error {
 }
 
 func (s *StoresService) Delete(ctx context.Context, userId string, storeId string) error {
-	if err := s.repo.Delete(ctx, userId, storeId); err != nil {
+	if err := s.storesRepo.Delete(ctx, userId, storeId); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *StoresService) GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error) {
-	stores, err := s.repo.GetAllByUserId(ctx, userId)
+	stores, err := s.storesRepo.GetAllByUserId(ctx, userId)
 	if err != nil {
 		return stores, err
 	}
@@ -59,7 +59,7 @@ func (s *StoresService) GetAllByUserId(ctx context.Context, userId string) ([]do
 }
 
 func (s *StoresService) GetByStoreId(ctx context.Context, storeId string) (domain.Store, error) {
-	store, err := s.repo.GetByStoreId(ctx, storeId)
+	store, err := s.storesRepo.GetByStoreId(ctx, storeId)
 	if err != nil {
 		return store, err
 	}

@@ -7,14 +7,14 @@ import (
 )
 
 type StoreMenusService struct {
-	repo          repository.StoreMenus
-	storesService StoresService
+	storeMenusRepo repository.StoreMenus
+	storesRepo     repository.Stores
 }
 
-func NewStoreMenusService(repo repository.StoreMenus, storesService StoresService) *StoreMenusService {
+func NewStoreMenusService(storeMenusRepo repository.StoreMenus, storesRepo repository.Stores) *StoreMenusService {
 	return &StoreMenusService{
-		repo:          repo,
-		storesService: storesService,
+		storeMenusRepo: storeMenusRepo,
+		storesRepo:     storesRepo,
 	}
 }
 
@@ -23,7 +23,7 @@ func (s *StoreMenusService) CreateMenuReference(ctx context.Context, userId stri
 	storeMenuMapping.StoreId = storeId
 	storeMenuMapping.MenuId = menuId
 
-	if err := s.repo.CreateMenuReference(ctx, userId, storeMenuMapping); err != nil {
+	if err := s.storeMenusRepo.CreateMenuReference(ctx, userId, storeMenuMapping); err != nil {
 		return err
 	}
 
@@ -35,7 +35,7 @@ func (s *StoreMenusService) UpdateMenuReference(ctx context.Context, userId stri
 	storeMenuMapping.StoreId = storeId
 	storeMenuMapping.MenuId = menuId
 
-	if err := s.repo.UpdateMenuReference(ctx, userId, storeMenuMapping); err != nil {
+	if err := s.storeMenusRepo.UpdateMenuReference(ctx, userId, storeMenuMapping); err != nil {
 		return err
 	}
 
@@ -43,7 +43,7 @@ func (s *StoreMenusService) UpdateMenuReference(ctx context.Context, userId stri
 }
 
 func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId string, storeId string) error {
-	if err := s.repo.DeleteMenuReference(ctx, userId, storeId); err != nil {
+	if err := s.storeMenusRepo.DeleteMenuReference(ctx, userId, storeId); err != nil {
 		return err
 	}
 
@@ -51,14 +51,14 @@ func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId stri
 }
 
 func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
-	menu, err := s.repo.GetMenuByStoreId(ctx, userId, storeId, languageId)
+	menu, err := s.storeMenusRepo.GetMenuByStoreId(ctx, userId, storeId, languageId)
 	if err != nil {
 		return menu, err
 	}
 
 	// 撈取商店資訊，供客戶端使用
 	if userType == 1 {
-		store, err := s.storesService.GetByStoreId(ctx, storeId)
+		store, err := s.storesRepo.GetByStoreId(ctx, storeId)
 		if err != nil {
 			return menu, err
 		}

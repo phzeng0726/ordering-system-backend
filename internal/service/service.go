@@ -185,11 +185,11 @@ type Deps struct {
 func NewServices(deps Deps) *Services {
 	usersService := NewUsersService(deps.Repos.Users)
 	otpService := NewOTPService(deps.Repos.OTP)
-	storesService := NewStoresService(deps.Repos.Stores, *usersService)
-	categoriesService := NewCategoriesService(deps.Repos.Categories, *usersService)
-	menusService := NewMenusService(deps.Repos.Menus, *usersService)
+	storesService := NewStoresService(deps.Repos.Stores, deps.Repos.Users)
+	categoriesService := NewCategoriesService(deps.Repos.Categories, deps.Repos.Users)
+	menusService := NewMenusService(deps.Repos.Menus, deps.Repos.Users)
 	seatsService := NewSeatsService(deps.Repos.Seats)
-	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, *storesService)
+	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, deps.Repos.Stores)
 	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats)
 	fcmTokensService := NewFCMTokensService(deps.Repos.FCMTokens)
 

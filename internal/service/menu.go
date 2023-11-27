@@ -10,14 +10,14 @@ import (
 )
 
 type MenusService struct {
-	repo         repository.Menus
-	usersService UsersService
+	menusRepo repository.Menus
+	usersRepo repository.Users
 }
 
-func NewMenusService(repo repository.Menus, usersService UsersService) *MenusService {
+func NewMenusService(menusRepo repository.Menus, usersRepo repository.Users) *MenusService {
 	return &MenusService{
-		repo:         repo,
-		usersService: usersService,
+		menusRepo: menusRepo,
+		usersRepo: usersRepo,
 	}
 }
 
@@ -26,7 +26,7 @@ func (s *MenusService) Create(ctx context.Context, input CreateMenuInput) (strin
 	newMenuId := uuid.New().String()
 
 	// 確認使用者是否存在
-	if _, err := s.usersService.GetById(ctx, input.UserId); err != nil {
+	if _, err := s.usersRepo.GetById(ctx, input.UserId); err != nil {
 		return newMenuId, err
 	}
 
@@ -54,7 +54,7 @@ func (s *MenusService) Create(ctx context.Context, input CreateMenuInput) (strin
 		MenuItems:   menuItems,
 	}
 
-	if err := s.repo.Create(ctx, menu); err != nil {
+	if err := s.menusRepo.Create(ctx, menu); err != nil {
 		return newMenuId, err
 	}
 
@@ -87,14 +87,14 @@ func (s *MenusService) Update(ctx context.Context, input UpdateMenuInput) error 
 		MenuItems:   menuItems,
 	}
 
-	if err := s.repo.Update(ctx, menu); err != nil {
+	if err := s.menusRepo.Update(ctx, menu); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *MenusService) Delete(ctx context.Context, userId string, menuId string) error {
-	if err := s.repo.Delete(ctx, userId, menuId); err != nil {
+	if err := s.menusRepo.Delete(ctx, userId, menuId); err != nil {
 		return err
 	}
 	return nil
@@ -105,11 +105,11 @@ func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, langua
 	menus := make([]domain.Menu, 0)
 
 	// 確認使用者是否存在
-	if _, err := s.usersService.GetById(ctx, userId); err != nil {
+	if _, err := s.usersRepo.GetById(ctx, userId); err != nil {
 		return menus, err
 	}
 
-	menuItemMappings, err := s.repo.GetAllByUserId(ctx, userId, languageId)
+	menuItemMappings, err := s.menusRepo.GetAllByUserId(ctx, userId, languageId)
 	if err != nil {
 		return menus, err
 	}
@@ -136,7 +136,7 @@ func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, langua
 	}
 
 	// 撈出所有
-	tempMenus, err := s.repo.TempGetAllByUserId(ctx, userId, languageId)
+	tempMenus, err := s.menusRepo.TempGetAllByUserId(ctx, userId, languageId)
 	if err != nil {
 		return menus, err
 	}
@@ -155,7 +155,7 @@ func (s *MenusService) GetAllByUserId(ctx context.Context, userId string, langua
 // TODO Refactor
 func (s *MenusService) GetById(ctx context.Context, userId string, menuId string, languageId int) (domain.Menu, error) {
 	var menu domain.Menu
-	menuItemMappings, err := s.repo.GetById(ctx, userId, menuId, languageId)
+	menuItemMappings, err := s.menusRepo.GetById(ctx, userId, menuId, languageId)
 	if err != nil {
 		return menu, err
 	}
@@ -172,12 +172,12 @@ func (s *MenusService) GetById(ctx context.Context, userId string, menuId string
 
 	// TODO 重構
 	// 確認使用者是否存在
-	if _, err := s.usersService.GetById(ctx, userId); err != nil {
+	if _, err := s.usersRepo.GetById(ctx, userId); err != nil {
 		return menu, err
 	}
 
 	// 撈出所有
-	tempMenus, err := s.repo.TempGetAllByUserId(ctx, userId, languageId)
+	tempMenus, err := s.menusRepo.TempGetAllByUserId(ctx, userId, languageId)
 	if err != nil {
 		return menu, err
 	}

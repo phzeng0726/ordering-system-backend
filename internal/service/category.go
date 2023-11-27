@@ -7,14 +7,14 @@ import (
 )
 
 type CategoriesService struct {
-	repo         repository.Categories
-	usersService UsersService
+	categoriesRepo repository.Categories
+	usersRepo      repository.Users
 }
 
-func NewCategoriesService(repo repository.Categories, usersService UsersService) *CategoriesService {
+func NewCategoriesService(categoriesRepo repository.Categories, usersRepo repository.Users) *CategoriesService {
 	return &CategoriesService{
-		repo:         repo,
-		usersService: usersService,
+		categoriesRepo: categoriesRepo,
+		usersRepo:      usersRepo,
 	}
 }
 
@@ -35,7 +35,7 @@ func (s *CategoriesService) Create(ctx context.Context, userId string, input Cre
 		UserId: userId,
 	}
 
-	if err := s.repo.Create(ctx, category, categoryLanguage, categoryUserMapping); err != nil {
+	if err := s.categoriesRepo.Create(ctx, category, categoryLanguage, categoryUserMapping); err != nil {
 		return err
 	}
 
@@ -53,7 +53,7 @@ func (s *CategoriesService) Update(ctx context.Context, userId string, input Upd
 		Title:      input.Title,
 	}
 
-	if err := s.repo.Update(ctx, userId, category, categoryLanguage); err != nil {
+	if err := s.categoriesRepo.Update(ctx, userId, category, categoryLanguage); err != nil {
 		return err
 	}
 
@@ -61,7 +61,7 @@ func (s *CategoriesService) Update(ctx context.Context, userId string, input Upd
 }
 
 func (s *CategoriesService) Delete(ctx context.Context, userId string, categoryId int) error {
-	if err := s.repo.Delete(ctx, userId, categoryId); err != nil {
+	if err := s.categoriesRepo.Delete(ctx, userId, categoryId); err != nil {
 		return err
 	}
 
@@ -72,11 +72,11 @@ func (s *CategoriesService) GetAllByUserId(ctx context.Context, userId string, l
 	var categories []domain.Category
 
 	// 確認用戶存在
-	if _, err := s.usersService.GetById(ctx, userId); err != nil {
+	if _, err := s.usersRepo.GetById(ctx, userId); err != nil {
 		return categories, err
 	}
 
-	categoryUserMappings, err := s.repo.GetAllByUserId(ctx, userId, languageId)
+	categoryUserMappings, err := s.categoriesRepo.GetAllByUserId(ctx, userId, languageId)
 	if err != nil {
 		return categories, err
 	}

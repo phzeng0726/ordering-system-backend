@@ -20,7 +20,11 @@ type OrderTicketsService struct {
 }
 
 func NewOrderTicketsService(orderRepo repository.OrderTickets, fcmRepo repository.FCMTokens, seatRepo repository.Seats) *OrderTicketsService {
-	return &OrderTicketsService{orderRepo: orderRepo, fcmRepo: fcmRepo, seatRepo: seatRepo}
+	return &OrderTicketsService{
+		orderRepo: orderRepo,
+		fcmRepo:   fcmRepo,
+		seatRepo:  seatRepo,
+	}
 }
 
 func (s *OrderTicketsService) pushFirebaseNotification(userType int, deviceTokens []string, notification *messaging.Notification) error {
