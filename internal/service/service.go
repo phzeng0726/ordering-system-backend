@@ -122,7 +122,7 @@ type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
 	UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
 	DeleteMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
+	GetStoreMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
 }
 
 type CreateOrderTicketInput struct {

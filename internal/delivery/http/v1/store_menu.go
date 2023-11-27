@@ -77,7 +77,7 @@ func (h *Handler) getMenuByStoreId(c *gin.Context) {
 		return
 	}
 
-	menu, err := h.services.StoreMenus.GetMenuByStoreId(c.Request.Context(), userId, storeId, languageId, userType)
+	menu, err := h.services.StoreMenus.GetStoreMenuByStoreId(c.Request.Context(), userId, storeId, languageId, userType)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

@@ -55,7 +55,8 @@ func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId stri
 
 	return nil
 }
-func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
+
+func (s *StoreMenusService) GetStoreMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
 	menu, err := s.menusRepo.GetByStoreId(ctx, storeId, languageId)
 	if err != nil {
 		return menu, err
