@@ -11,9 +11,8 @@ import (
 func main() {
 	config.InitConfig()
 	conn := database.Connect()
-	rt := repository.RepoTools{}
 
-	repos := repository.NewRepositories(conn, &rt)
+	repos := repository.NewRepositories(conn)
 	services := service.NewServices(service.Deps{
 		Repos: repos,
 	})
@@ -25,5 +24,6 @@ func main() {
 		config.Env.Port = "8080"
 	}
 
+	// Host沒有填的時候就是Cloud (GCP上不需要填Host)
 	router.Run(config.Env.Host + ":" + config.Env.Port)
 }

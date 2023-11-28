@@ -7,11 +7,19 @@ import (
 )
 
 type StoreMenusService struct {
-	repo repository.StoreMenus
+	storeMenusRepo repository.StoreMenus
+	storesRepo     repository.Stores
+	menusRepo      repository.Menus
+	tools          ServiceTools
 }
 
-func NewStoreMenusService(repo repository.StoreMenus) *StoreMenusService {
-	return &StoreMenusService{repo: repo}
+func NewStoreMenusService(storeMenusRepo repository.StoreMenus, storesRepo repository.Stores, menusRepo repository.Menus, tools ServiceTools) *StoreMenusService {
+	return &StoreMenusService{
+		storeMenusRepo: storeMenusRepo,
+		storesRepo:     storesRepo,
+		menusRepo:      menusRepo,
+		tools:          tools,
+	}
 }
 
 func (s *StoreMenusService) CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error {
@@ -19,7 +27,7 @@ func (s *StoreMenusService) CreateMenuReference(ctx context.Context, userId stri
 	storeMenuMapping.StoreId = storeId
 	storeMenuMapping.MenuId = menuId
 
-	if err := s.repo.CreateMenuReference(ctx, userId, storeMenuMapping); err != nil {
+	if err := s.storeMenusRepo.CreateMenuReference(ctx, userId, storeMenuMapping); err != nil {
 		return err
 	}
 
@@ -31,25 +39,41 @@ func (s *StoreMenusService) UpdateMenuReference(ctx context.Context, userId stri
 	storeMenuMapping.StoreId = storeId
 	storeMenuMapping.MenuId = menuId
 
-	if err := s.repo.UpdateMenuReference(ctx, userId, storeMenuMapping); err != nil {
+	if err := s.storeMenusRepo.UpdateMenuReference(ctx, userId, storeMenuMapping); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId string, storeId string) error {
-	if err := s.repo.DeleteMenuReference(ctx, userId, storeId); err != nil {
+func (s *StoreMenusService) DeleteMenuReference(ctx context.Context, userId string, storeId string, menuId string) error {
+	var storeMenuMapping domain.StoreMenuMapping
+	storeMenuMapping.StoreId = storeId
+	storeMenuMapping.MenuId = menuId
+
+	if err := s.storeMenusRepo.DeleteMenuReference(ctx, userId, storeMenuMapping); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *StoreMenusService) GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
-	menu, err := s.repo.GetMenuByStoreId(ctx, userId, storeId, languageId, userType)
+func (s *StoreMenusService) GetStoreMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error) {
+	menu, err := s.menusRepo.GetByStoreId(ctx, storeId, languageId)
 	if err != nil {
 		return menu, err
+	}
+
+	s.tools.cleanMenuData(&menu)
+
+	// 撈取商店資訊，供客戶端使用
+	if userType == 1 {
+		store, err := s.storesRepo.GetByStoreId(ctx, storeId)
+		if err != nil {
+			return menu, err
+		}
+
+		menu.Store = &store
 	}
 
 	return menu, nil

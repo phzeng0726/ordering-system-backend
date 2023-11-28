@@ -10,13 +10,11 @@ import (
 
 type OrderTicketsRepo struct {
 	db *gorm.DB
-	rt *RepoTools
 }
 
-func NewOrderTicketsRepo(db *gorm.DB, rt *RepoTools) *OrderTicketsRepo {
+func NewOrderTicketsRepo(db *gorm.DB) *OrderTicketsRepo {
 	return &OrderTicketsRepo{
 		db: db,
-		rt: rt,
 	}
 }
 

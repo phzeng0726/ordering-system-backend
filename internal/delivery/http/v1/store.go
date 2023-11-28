@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 	"ordering-system-backend/internal/domain"
 
@@ -86,7 +87,9 @@ func (h *Handler) getStoreByStoreId(c *gin.Context) {
 	userId := c.Param("user_id")
 	storeId := c.Param("store_id")
 
-	store, err := h.services.Stores.GetByStoreId(c.Request.Context(), userId, storeId)
+	// TODO 裡面沒使用到userId，考慮拿掉
+	fmt.Println(userId)
+	store, err := h.services.Stores.GetByStoreId(c.Request.Context(), storeId)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

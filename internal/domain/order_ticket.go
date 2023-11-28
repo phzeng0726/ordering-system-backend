@@ -6,7 +6,7 @@ import (
 
 type OrderTicket struct {
 	Id               int               `gorm:"column:id;not null;primaryKey;autoIncrement;" json:"id"`
-	SeatId           *int              `gorm:"column:seat_id;" json:"seatId,omitempty"`
+	SeatId           *int              `gorm:"column:seat_id;" json:"seatId,omitempty"` // 如果Seat被Store刪掉的話，就會變空的(為了段開連接)
 	SeatTitle        string            `gorm:"-" json:"seatTitle,omitempty"`
 	StoreName        string            `gorm:"-" json:"storeName"` // GetAllByUserId時抓的資料欄位
 	UserId           string            `gorm:"column:user_id;" json:"userId,omitempty"`

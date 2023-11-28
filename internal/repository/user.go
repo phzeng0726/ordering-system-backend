@@ -14,14 +14,26 @@ import (
 
 type UsersRepo struct {
 	db *gorm.DB
-	rt *RepoTools
 }
 
-func NewUsersRepo(db *gorm.DB, rt *RepoTools) *UsersRepo {
+func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	return &UsersRepo{
 		db: db,
-		rt: rt,
 	}
+}
+
+// 只有這個file會用到，所以用private就夠了
+func (r *UsersRepo) getUserAccountById(tx *gorm.DB, userId string) (domain.UserAccount, error) {
+	var userAccount domain.UserAccount
+
+	if err := tx.Where("id = ?", userId).First(&userAccount).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return userAccount, errors.New("user id not found")
+		}
+		return userAccount, err
+	}
+
+	return userAccount, nil
 }
 
 func (r *UsersRepo) createUser(tx *gorm.DB, userAccount *domain.UserAccount, user *domain.User) error {
@@ -94,7 +106,7 @@ func (r *UsersRepo) Create(ctx context.Context, userAccount domain.UserAccount, 
 func (r *UsersRepo) Update(ctx context.Context, user domain.User) error {
 	db := r.db.WithContext(ctx)
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserAccountExist(tx, user.Id, nil); err != nil {
+		if _, err := r.getUserAccountById(tx, user.Id); err != nil {
 			return err
 		}
 
@@ -208,11 +220,11 @@ func (r *UsersRepo) deleteUser(tx *gorm.DB, client *auth.Client, userAccount dom
 }
 
 func (r *UsersRepo) Delete(ctx context.Context, userId string) error {
-	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserAccountExist(tx, userId, &userAccount); err != nil {
+		userAccount, err := r.getUserAccountById(tx, userId)
+		if err != nil {
 			return err
 		}
 
@@ -268,6 +280,7 @@ func (r *UsersRepo) GetByEmail(ctx context.Context, email string, userType int) 
 	return userAccount.Id, nil
 }
 
+// By firebase uid
 func (r *UsersRepo) GetByUid(ctx context.Context, uid string, userType int) (string, error) {
 	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
@@ -282,11 +295,15 @@ func (r *UsersRepo) GetByUid(ctx context.Context, uid string, userType int) (str
 	return userAccount.Id, nil
 }
 
+// User
 func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, error) {
 	var user domain.User
 	db := r.db.WithContext(ctx)
 
 	if err := db.Where("id = ?", userId).Preload("UserAccount").First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return user, errors.New("user id not found")
+		}
 		return user, err
 	}
 
@@ -295,11 +312,11 @@ func (r *UsersRepo) GetById(ctx context.Context, userId string) (domain.User, er
 }
 
 func (r *UsersRepo) ResetPassword(ctx context.Context, userId string, newPassword string) error {
-	var userAccount domain.UserAccount
 	db := r.db.WithContext(ctx)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := r.rt.CheckUserAccountExist(tx, userId, &userAccount); err != nil {
+		userAccount, err := r.getUserAccountById(tx, userId)
+		if err != nil {
 			return err
 		}
 

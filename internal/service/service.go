@@ -57,9 +57,7 @@ type Stores interface {
 	Update(ctx context.Context, store domain.Store) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
-	GetByStoreId(ctx context.Context, userId string, storeId string) (domain.Store, error)
-	// 不含UserId
-	GetAll(ctx context.Context) ([]domain.Store, error)
+	GetByStoreId(ctx context.Context, storeId string) (domain.Store, error)
 }
 
 type Seats interface {
@@ -123,8 +121,8 @@ type Menus interface {
 type StoreMenus interface {
 	CreateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
 	UpdateMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
-	DeleteMenuReference(ctx context.Context, userId string, storeId string) error
-	GetMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
+	DeleteMenuReference(ctx context.Context, userId string, storeId string, menuId string) error
+	GetStoreMenuByStoreId(ctx context.Context, userId string, storeId string, languageId int, userType int) (domain.Menu, error)
 }
 
 type CreateOrderTicketInput struct {
@@ -180,20 +178,53 @@ type Services struct {
 	FCMTokens    FCMTokens
 }
 
+type ServiceTools struct {
+}
+
+func (*ServiceTools) cleanMenuData(menu *domain.Menu) {
+	// 沒有menuItems的時候，回傳空的slice
+	if len(menu.MenuItemMappings) == 0 {
+		menu.MenuItems = []domain.MenuItem{}
+	} else {
+		// 否則將MenuItem資料Preload的各個項目，撈出需要的變數，處理成需要的格式
+		var menuItems []domain.MenuItem
+		for j, mim := range menu.MenuItemMappings {
+			tempItem := menu.MenuItemMappings[j].MenuItem
+			tempItem.ImageBytes = mim.MenuItem.Image.BytesData
+			tempItem.Category.Title = mim.MenuItem.Category.CategoryLanguage.Title
+			menuItems = append(menuItems, tempItem)
+		}
+
+		// 將該menu的menuItems取代為處理過的資料
+		menu.MenuItems = menuItems
+	}
+}
+
 type Deps struct {
 	Repos *repository.Repositories
+	Tools ServiceTools
 }
 
 func NewServices(deps Deps) *Services {
+	usersService := NewUsersService(deps.Repos.Users)
+	otpService := NewOTPService(deps.Repos.OTP)
+	storesService := NewStoresService(deps.Repos.Stores, deps.Repos.Users)
+	categoriesService := NewCategoriesService(deps.Repos.Categories, deps.Repos.Users)
+	menusService := NewMenusService(deps.Repos.Menus, deps.Repos.Users, deps.Tools)
+	seatsService := NewSeatsService(deps.Repos.Seats)
+	storeMenusService := NewStoreMenusService(deps.Repos.StoreMenus, deps.Repos.Stores, deps.Repos.Menus, deps.Tools)
+	orderTicketsService := NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats)
+	fcmTokensService := NewFCMTokensService(deps.Repos.FCMTokens)
+
 	return &Services{
-		Users:        NewUsersService(deps.Repos.Users),
-		OTP:          NewOTPService(deps.Repos.OTP),
-		Stores:       NewStoresService(deps.Repos.Stores),
-		Categories:   NewCategoriesService(deps.Repos.Categories),
-		Menus:        NewMenusService(deps.Repos.Menus),
-		Seats:        NewSeatsService(deps.Repos.Seats),
-		StoreMenus:   NewStoreMenusService(deps.Repos.StoreMenus),
-		OrderTickets: NewOrderTicketsService(deps.Repos.OrderTickets, deps.Repos.FCMTokens, deps.Repos.Seats),
-		FCMTokens:    NewFCMTokensService(deps.Repos.FCMTokens),
+		Users:        usersService,
+		OTP:          otpService,
+		Stores:       storesService,
+		Categories:   categoriesService,
+		Menus:        menusService,
+		Seats:        seatsService,
+		StoreMenus:   storeMenusService,
+		OrderTickets: orderTicketsService,
+		FCMTokens:    fcmTokensService,
 	}
 }
