@@ -1,0 +1,6 @@
+*.exe
+firebase_credential.json
+client_firebase_credential.json
+*.bat
+.env
+deploy.sh
