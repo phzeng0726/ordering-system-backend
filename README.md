@@ -30,8 +30,10 @@
 
 ## 負責項目
 
+![Ordering System v1.0 Database Structure](screenshots/ordering_system_database_structure.png)
+
 - Scrum 專案管理
-- 資料庫與系統架構設計
+- 具彈性化的資料庫與系統架構設計
 - Gmail SMTP 設置
 - 與前端工程師溝通，設計並製作所有 RESTful APIs
   - 多國語言資料管理切換
@@ -57,7 +59,7 @@
 
   - **All Dependencies**
 
-    ![Alt text](screenshots/dependencies.png)
+    ![All dependencies in backend system](screenshots/dependencies.png)
 
 ### Cloud Services
 
