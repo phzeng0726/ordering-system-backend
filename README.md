@@ -1,70 +1,79 @@
-# ordering-system
+# Ordering System (Backend)
 
-https://drawsql.app/teams/pipis-team/diagrams/ordering-db
+---
 
-## 商家
+## 作品介紹
 
-- 註冊
-- 登入
-- 商家資料(RU)
-- 菜單管理(CRUD)
-- 歷史紀錄(U)
-- 報表統計
+### 簡介
 
-## 客戶
+這個作品是我設計並開發的一款餐廳點餐系統，分為 **商店管理系統（商店輕鬆理）** 與 **快速點餐系統（餐點輕鬆訂）** 兩部份。
 
-- 註冊
-- 登入
-- 獲取商家列表(R)
-- 獲取商家資料(R)
-- 獲取菜單列表(R)
-- 訂單管理(CRUD)
-- 歷史紀錄(R)
+- **商店輕鬆理**
+  - 功能特色：
+    - 帳戶管理： 以 E-Mail 註冊，並於後續更改使用者資訊或刪除用戶
+    - 商店管理： 輕鬆管理多個商店資訊、菜單和座位配置。
+    - 訂單管理： 生成 QRCode 提供給客戶，讓他們可以快速點餐，並實時接收訂單信息。
+    - 即時通訊： 透過 FCM，在客戶點餐時即時接收訂單資訊，
+  - 未來展望：
+    整合理財系統，進行營業額統計與視覺化呈現。
+- **餐點輕鬆訂**
+  - 功能特色：
+    - 帳戶管理： 可以 E-Mail 實名或匿名註冊，並於後續更改使用者資訊或刪除用戶
+    - 快速點餐： 掃描商店生成的 QRCode，即時獲取商店菜單並快速點餐。
+    - 訂單即時更新： 透過 FCM，在商店有任何訂單狀態更新時及時回饋給客戶。
+    - 訂單紀錄： 紀錄所有的訂單歷史
+  - 未來展望： 整合理財系統，實現預算控管與視覺化呈現。也可將訂單歷史的商家地理位置做成地圖，讓點餐也能紀錄用戶的行徑軌跡，增添趣味性。
 
-## 專案情境
+### 開發時長
 
-<!-- - As a [type of user], I want [an action] so that [a benefit/a value] -->
-<!-- - 作為一名註冊用戶，我希望可以重設我的密碼，這樣當我忘記密碼時可以重新訪問我的賬戶。 -->
+- 後端系統（:file_folder: `app`）包含設計規劃與溝通，從無到建立，開發總時長**為 8 週**。
 
-### Sprint 1
-<!-- 兩隻APP的Firebase不該共用 -->
-<!-- 避免Firebase Auth帳號亂掉 -->
+## 負責項目
 
-<!-- 在firebase創帳號 -->
-<!-- 拿firebase uid在DB創帳號 -->
+- Scrum 專案管理
+- 資料庫與系統架構設計
+- Gmail SMTP 設置
+- 與前端工程師溝通，設計並製作所有 RESTful APIs
+  - 多國語言資料管理切換
+  - 圖片上傳
+  - OTP 寄送、驗證
+  - 新增/讀取/編輯/刪除 **用戶**資訊（搭配 Firebase Auth）
+  - 新增/讀取/編輯/刪除 **商店**、**菜單**、**類別**、**座位**、**訂單**資訊
+  - 串接 FCM，即時發送與回傳**訂單狀態資訊**
+- 雲端專案佈署
+  - Google Cloud Run
+  - MySQL (Railway)
 
-<!-- 1. 沒有帳號，使用者可註冊 -->
-<!-- 2. db 有帳號，使用者已存在 -->
-<!-- 3. firebase 有但 db 沒有帳號
-<!-- (1) 刪除+重創firebase再註冊 -->
-<!-- (2) 無法刪除的話報錯 -->
-<!-- 3.(2) 可在使用者創帳號的時候，如果firebase成功，但db失敗時，立刻將firebase刪除，減少該錯誤發生機率-->
+## 技術清單
 
+### Language
 
-- 作為一名商家用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID、Last Name、First Name），才能讓客戶方便認識我。後續可填（Address、OpeningHours、Description）
-<!-- - 作為一名顧客用戶，我希望可以註冊帳號與透過驗證，並且填寫我的註冊資訊（Email、Password）、基本資訊（ID、UID Code、Name），才能進行點餐。 -->
-```
-UI順序
-Email（按下登入，確認Firebase帳號有沒有註冊過、沒有註冊的話要發驗證6碼OTP信） -> 驗證碼 -> Password + 基本資訊（Name、Phone、Address）
-```
-- 作為一名商家用戶，我希望可以填寫Email、Password登入帳號，才能使用這個App
-```
-UI順序
-Email（按下登入，確認Firebase帳號有沒有註冊過、有註冊過才會進到下一個頁面） -> Password
-```
+- **Golang** `v1.20` |
 
-### Sprint 2
-- 作為一名商家用戶，我希望可以新增一筆 menu，包含菜單的標題與描述、有哪些多少商品、價格多少，這樣我才能讓使用者看見我的菜單並執行後續的操作
-- 作為一名商家用戶，我希望可以獲取自己的 menu 列表，這樣我才能清楚的看見我目前擁有的所有菜單
-- 作為一名商家用戶，我希望可以在我新增完 menu 後點進去看到細節描述，包含這個菜單的標題與描述、裡面有多少商品、價格多少，這樣我才能確認資訊是否正確
-- 作為一名商家用戶，我希望我的 menu 可以修改，這樣我才能在有錯誤發生時或有活動時更新我的菜單
-- 作為一名商家用戶，我希望我的 menu 可以刪除，這樣我才能避免存在過多已經沒在使用的菜單
-<!-- - 作為一名顧客用戶，我希望我可以看見所有的店家列表，好讓我挑選我要的餐廳
-- 作為一名顧客用戶，我希望我可以看見指定的店家資訊，好讓我挑選我要的餐點 -->
+  - **Main Dependencies**
 
-### Sprint 3
+    - **Gin-Gonic** (`github.com/gin-gonic/gin` v1.9.1)
+    - **MySQL** & **GORM** (`gorm.io/driver/mysql` v1.5.1, `gorm.io/datatypes` v1.2.0, `gorm.io/gorm` v1.25.4)
 
-<!-- - 作為一名顧客用戶，我希望我可以對喜歡的餐點進行點餐，這樣商家才能收到我的訂購資訊
-- 作為一名顧客用戶，我希望我可以刪除我的訂單，這樣在我誤觸送單的時候才可以挽回 -->
-- 作為一名商家用戶，我希望在顧客下訂單後，我可以即時收到顧客下訂的資訊，這樣我才能開始製作我的餐點
-- 作為一名商家用戶，我希望在開始製作餐點前，可以將製作狀態更改為製作中，這樣顧客才能看見自己餐點的進度，並且避免顧客取消訂單
+  - **All Dependencies**
+
+    ![Alt text](image.png)
+
+### Cloud Services
+
+- **Server**
+  - **Google Cloud Run**
+- **Database**
+  - **MySQL** (Deploy on **Railway**)
+- **Others**
+  - **Gmail SMTP** (OTP mail sender)
+  - **Firebase Auth**
+  - **Firebase Cloud Messaging (FCM)**
+
+### Other Tools
+
+- **Git** (Version control)
+- **Docker** (Container)
+- **Postman** (API tool)
+- **Trello** (Scrum pattern)
+- **DrawSQL** (Database design tool)
