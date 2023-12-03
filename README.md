@@ -52,23 +52,23 @@
 
   - **Main Dependencies**
 
-    - **Gin-Gonic** (`github.com/gin-gonic/gin` v1.9.1)
-    - **MySQL** & **GORM** (`gorm.io/driver/mysql` v1.5.1, `gorm.io/datatypes` v1.2.0, `gorm.io/gorm` v1.25.4)
+    - Gin-Gonic (`github.com/gin-gonic/gin` v1.9.1)
+    - MySQL & GORM (`gorm.io/driver/mysql` v1.5.1, `gorm.io/datatypes` v1.2.0, `gorm.io/gorm` v1.25.4)
 
   - **All Dependencies**
 
-    ![Alt text](image.png)
+    ![Alt text](screenshots/dependencies.png)
 
 ### Cloud Services
 
 - **Server**
-  - **Google Cloud Run**
+  - Google Cloud Run
 - **Database**
-  - **MySQL** (Deploy on **Railway**)
+  - MySQL (Deploy on **Railway**)
 - **Others**
-  - **Gmail SMTP** (OTP mail sender)
-  - **Firebase Auth**
-  - **Firebase Cloud Messaging (FCM)**
+  - Gmail SMTP (OTP mail sender)
+  - Firebase Auth
+  - Firebase Cloud Messaging (FCM)
 
 ### Other Tools
 
