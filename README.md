@@ -95,7 +95,7 @@
 
 ### 資料庫架構
 
-綜合了 [規劃考量](#規劃考量) 後，截至目前`v1.0.0`為止，資料庫中共有 20 張表格。
+截至目前`v1.0.0`為止，資料庫中共有 20 張表格。
 
 ![Ordering System v1.0 Database Structure](screenshots/ordering_system_database_structure.png)
 
