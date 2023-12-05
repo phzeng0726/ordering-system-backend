@@ -3,20 +3,19 @@ module ordering-system-backend
 go 1.20
 
 require (
+	// Firebase Auth & Firebase Cloud Messaging (FCM)
+	firebase.google.com/go v3.13.0+incompatible
 	// RESTful APIs Framework
 	github.com/gin-gonic/gin v1.9.1
 
-	// Database & ORM
-	gorm.io/driver/mysql v1.5.1
-	gorm.io/datatypes v1.2.0
-	gorm.io/gorm v1.25.4
-
-	// Firebase Auth & Firebase Cloud Messaging (FCM)
-	firebase.google.com/go v3.13.0+incompatible
-	google.golang.org/api v0.142.0
-
 	// Others
 	github.com/google/uuid v1.3.1
+	google.golang.org/api v0.142.0
+	gorm.io/datatypes v1.2.0
+
+	// Database & ORM
+	gorm.io/driver/mysql v1.5.1
+	gorm.io/gorm v1.25.4
 )
 
 require (
@@ -68,7 +67,7 @@ require (
 	google.golang.org/genproto v0.0.0-20230913181813-007df8e322eb // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230913181813-007df8e322eb // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230913181813-007df8e322eb // indirect
-	google.golang.org/grpc v1.58.1 // indirect
+	google.golang.org/grpc v1.58.3 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
