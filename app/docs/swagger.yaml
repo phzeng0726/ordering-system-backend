@@ -1,4 +1,17 @@
 definitions:
+  domain.User:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      languageId:
+        type: integer
+      lastName:
+        type: string
+    type: object
   v1.createOTPInput:
     properties:
       email:
@@ -19,6 +32,28 @@ definitions:
     - token
     - userId
     type: object
+  v1.createUserInput:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      languageId:
+        type: integer
+      lastName:
+        type: string
+      password:
+        type: string
+      userType:
+        type: integer
+    required:
+    - email
+    - firstName
+    - languageId
+    - lastName
+    - password
+    - userType
+    type: object
   v1.deleteTokenInput:
     properties:
       token:
@@ -28,6 +63,29 @@ definitions:
     required:
     - token
     - userId
+    type: object
+  v1.resetPasswordInput:
+    properties:
+      password:
+        type: string
+      userId:
+        type: string
+    required:
+    - password
+    - userId
+    type: object
+  v1.updateUserInput:
+    properties:
+      firstName:
+        type: string
+      languageId:
+        type: integer
+      lastName:
+        type: string
+    required:
+    - firstName
+    - languageId
+    - lastName
     type: object
   v1.verifyOTPInput:
     properties:
@@ -154,4 +212,133 @@ paths:
             type: string
       tags:
       - Get Started
+  /users:
+    patch:
+      consumes:
+      - application/json
+      description: Update User
+      parameters:
+      - description: 'languageId: 區分多語系，en為1, zh為2<br><br>'
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.updateUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      parameters:
+      - description: 'userType: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1<br><br>languageId:
+          區分多語系，en為1, zh為2<br><br>'
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Users
+  /users/{userId}:
+    delete:
+      description: Delete User
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Users
+    get:
+      description: Get user's data by id
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+      tags:
+      - Users
+  /users/login:
+    get:
+      description: 以Firebase uid或Email獲取UserId，可在使用者登入前就使用來區分頁面要跳轉到登入或註冊
+      parameters:
+      - description: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1
+        in: query
+        name: userType
+        required: true
+        type: integer
+      - description: 可選擇以 uid 或 email 進行query
+        in: query
+        name: method
+        required: true
+        type: string
+      - description: method為uid時不可為空
+        in: query
+        name: uid
+        type: string
+      - description: method為email時不可為空
+        in: query
+        name: email
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Users
+  /users/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset user's password
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.resetPasswordInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Users
 swagger: "2.0"

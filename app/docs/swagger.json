@@ -178,9 +178,227 @@
                     }
                 }
             }
+        },
+        "/users": {
+            "post": {
+                "description": "Create User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "description": "userType: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1\u003cbr\u003e\u003cbr\u003elanguageId: 區分多語系，en為1, zh為2\u003cbr\u003e\u003cbr\u003e",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "description": "languageId: 區分多語系，en為1, zh為2\u003cbr\u003e\u003cbr\u003e",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.updateUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "get": {
+                "description": "以Firebase uid或Email獲取UserId，可在使用者登入前就使用來區分頁面要跳轉到登入或註冊",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1",
+                        "name": "userType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "可選擇以 uid 或 email 進行query",
+                        "name": "method",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "method為uid時不可為空",
+                        "name": "uid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "method為email時不可為空",
+                        "name": "email",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/reset-password": {
+            "post": {
+                "description": "Reset user's password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.resetPasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{userId}": {
+            "get": {
+                "description": "Get user's data by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.User"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete User",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "languageId": {
+                    "type": "integer"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.createOTPInput": {
             "type": "object",
             "required": [
@@ -211,6 +429,37 @@
                 }
             }
         },
+        "v1.createUserInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "firstName",
+                "languageId",
+                "lastName",
+                "password",
+                "userType"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "languageId": {
+                    "type": "integer"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "userType": {
+                    "type": "integer"
+                }
+            }
+        },
         "v1.deleteTokenInput": {
             "type": "object",
             "required": [
@@ -222,6 +471,40 @@
                     "type": "string"
                 },
                 "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.resetPasswordInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "userId"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.updateUserInput": {
+            "type": "object",
+            "required": [
+                "firstName",
+                "languageId",
+                "lastName"
+            ],
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "languageId": {
+                    "type": "integer"
+                },
+                "lastName": {
                     "type": "string"
                 }
             }
