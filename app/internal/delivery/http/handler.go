@@ -43,21 +43,18 @@ func (h *Handler) initAPI(router *gin.Engine) {
 		handlerV1.Init(api)
 	}
 
+	// 唯一一個在 Swagger 文件上不可使用，因為BasePath非/api/v1
 	router.GET("/ping", h.ping)
 
 	// Swagger 文件
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }
 
-// PingExample
 // @Tags Get Started
-// @Summary Get user by ID
-// @Description Get a user by its ID
-// @ID get-user-by-id
+// @Description 測試API是否成功運作
 // @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {string} User
-// @Router /users/{id} [get]
+// @Success 200 {string} Pong
+// @Router /ping [get]
 func (h *Handler) ping(g *gin.Context) {
 	g.JSON(http.StatusOK, "pong")
 }

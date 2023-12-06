@@ -27,6 +27,13 @@ type deleteTokenInput struct {
 	DeviceToken string `json:"token" binding:"required"`
 }
 
+// @Tags FCM Token
+// @Description Insert FCM Token with UserId
+// @Accept json
+// @Param data body createTokenInput true "JSON data"
+// @Produce json
+// @Success 200 {string} string FCM_Token
+// @Router /fcm-tokens [post]
 func (h *Handler) createToken(c *gin.Context) {
 	var inp createTokenInput
 
@@ -46,6 +53,12 @@ func (h *Handler) createToken(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+// @Tags FCM Token
+// @Description Get FCM Token by UserId
+// @Produce json
+// @Param userId query string true "userId"
+// @Success 200 {string} string FCM_Token
+// @Router /fcm-tokens [get]
 func (h *Handler) getToken(c *gin.Context) {
 	userId := c.Query("userId")
 
@@ -58,6 +71,13 @@ func (h *Handler) getToken(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, token)
 }
 
+// @Tags FCM Token
+// @Description Delete FCM Token with UserId and token
+// @Accept json
+// @Param data body deleteTokenInput true "JSON data"
+// @Produce json
+// @Success 200 {string} string deletedResult
+// @Router /fcm-tokens [delete]
 func (h *Handler) deleteToken(c *gin.Context) {
 	var inp deleteTokenInput
 

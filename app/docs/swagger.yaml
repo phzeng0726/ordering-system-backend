@@ -1,17 +1,59 @@
-basePath: /api/v1
+definitions:
+  v1.createOTPInput:
+    properties:
+      email:
+        type: string
+      token:
+        type: string
+    required:
+    - email
+    - token
+    type: object
+  v1.createTokenInput:
+    properties:
+      token:
+        type: string
+      userId:
+        type: string
+    required:
+    - token
+    - userId
+    type: object
+  v1.deleteTokenInput:
+    properties:
+      token:
+        type: string
+      userId:
+        type: string
+    required:
+    - token
+    - userId
+    type: object
+  v1.verifyOTPInput:
+    properties:
+      password:
+        type: string
+      token:
+        type: string
+    required:
+    - password
+    - token
+    type: object
 info:
   contact: {}
 paths:
-  /users/{id}:
-    get:
-      description: Get a user by its ID
-      operationId: get-user-by-id
+  /fcm-tokens:
+    delete:
+      consumes:
+      - application/json
+      description: Delete FCM Token with UserId and token
       parameters:
-      - description: User ID
-        in: path
-        name: id
+      - description: JSON data
+        in: body
+        name: data
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/v1.deleteTokenInput'
       produces:
       - application/json
       responses:
@@ -19,7 +61,97 @@ paths:
           description: OK
           schema:
             type: string
-      summary: Get user by ID
+      tags:
+      - FCM Token
+    get:
+      description: Get FCM Token by UserId
+      parameters:
+      - description: userId
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - FCM Token
+    post:
+      consumes:
+      - application/json
+      description: Insert FCM Token with UserId
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createTokenInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - FCM Token
+  /otp/create:
+    post:
+      consumes:
+      - application/json
+      description: Create OTP
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createOTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - OTP
+  /otp/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.verifyOTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - OTP
+  /ping:
+    get:
+      description: 測試API是否成功運作
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
       tags:
       - Get Started
 swagger: "2.0"
