@@ -26,7 +26,6 @@ func main() {
 		config.Env.Port = "8080"
 	}
 
-	// @BasePath /api/v1
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	// Host沒有填的時候就是Cloud (GCP上不需要填Host)
