@@ -6,6 +6,9 @@ import (
 	"ordering-system-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -28,11 +31,6 @@ func (h *Handler) Init() *gin.Engine {
 		corsMiddleware,
 	)
 
-	// router.Use(Middleware(conn))
-	router.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
-	})
-
 	h.initAPI(router)
 
 	return router
@@ -44,4 +42,22 @@ func (h *Handler) initAPI(router *gin.Engine) {
 	{
 		handlerV1.Init(api)
 	}
+
+	router.GET("/ping", h.ping)
+
+	// Swagger 文件
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+}
+
+// PingExample
+// @Tags Get Started
+// @Summary Get user by ID
+// @Description Get a user by its ID
+// @ID get-user-by-id
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {string} User
+// @Router /users/{id} [get]
+func (h *Handler) ping(g *gin.Context) {
+	g.JSON(http.StatusOK, "pong")
 }

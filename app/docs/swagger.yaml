@@ -1,0 +1,25 @@
+basePath: /api/v1
+info:
+  contact: {}
+paths:
+  /users/{id}:
+    get:
+      description: Get a user by its ID
+      operationId: get-user-by-id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get user by ID
+      tags:
+      - Get Started
+swagger: "2.0"
