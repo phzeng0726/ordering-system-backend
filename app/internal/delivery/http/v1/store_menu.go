@@ -21,6 +21,14 @@ func (h *Handler) initStoreMenusRoutes(api *gin.RouterGroup) {
 	}
 }
 
+// @Tags Store Menus
+// @Description Create the reference between store and menu
+// @Param user_id path string true "User Id"
+// @Param store_id path string true "Store Id"
+// @Param menu_id path string true "Menu Id"
+// @Produce json
+// @Success 200 {boolean} result
+// @Router /users/{user_id}/stores/{store_id}/menus/{menu_id} [post]
 func (h *Handler) createStoreMenuReference(c *gin.Context) {
 	userId := c.Param("user_id")
 	storeId := c.Param("store_id")
@@ -34,6 +42,14 @@ func (h *Handler) createStoreMenuReference(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+// @Tags Store Menus
+// @Description Update the reference between store and menu
+// @Param user_id path string true "User Id"
+// @Param store_id path string true "Store Id"
+// @Param menu_id path string true "Menu Id"
+// @Produce json
+// @Success 200 {boolean} result
+// @Router /users/{user_id}/stores/{store_id}/menus/{menu_id} [patch]
 func (h *Handler) updateStoreMenuReference(c *gin.Context) {
 	userId := c.Param("user_id")
 	storeId := c.Param("store_id")
@@ -47,6 +63,14 @@ func (h *Handler) updateStoreMenuReference(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+// @Tags Store Menus
+// @Description Delete the reference between store and menu
+// @Param user_id path string true "User Id"
+// @Param store_id path string true "Store Id"
+// @Param menu_id path string true "Menu Id"
+// @Produce json
+// @Success 200 {boolean} result
+// @Router /users/{user_id}/stores/{store_id}/menus/{menu_id} [delete]
 func (h *Handler) deleteStoreMenuReference(c *gin.Context) {
 	userId := c.Param("user_id")
 	storeId := c.Param("store_id")

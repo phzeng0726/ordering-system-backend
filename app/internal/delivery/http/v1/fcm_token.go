@@ -32,7 +32,7 @@ type deleteTokenInput struct {
 // @Accept json
 // @Param data body createTokenInput true "JSON data"
 // @Produce json
-// @Success 200 {string} string FCM_Token
+// @Success 200 {string} fcmToken
 // @Router /fcm-tokens [post]
 func (h *Handler) createToken(c *gin.Context) {
 	var inp createTokenInput
@@ -57,7 +57,7 @@ func (h *Handler) createToken(c *gin.Context) {
 // @Description Get FCM Token by UserId
 // @Produce json
 // @Param userId query string true "userId"
-// @Success 200 {string} string FCM_Token
+// @Success 200 {string} fcmToken
 // @Router /fcm-tokens [get]
 func (h *Handler) getToken(c *gin.Context) {
 	userId := c.Query("userId")
@@ -76,7 +76,7 @@ func (h *Handler) getToken(c *gin.Context) {
 // @Accept json
 // @Param data body deleteTokenInput true "JSON data"
 // @Produce json
-// @Success 200 {string} string deletedResult
+// @Success 200 {boolean} result
 // @Router /fcm-tokens [delete]
 func (h *Handler) deleteToken(c *gin.Context) {
 	var inp deleteTokenInput

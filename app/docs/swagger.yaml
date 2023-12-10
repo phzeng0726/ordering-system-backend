@@ -1,4 +1,45 @@
 definitions:
+  domain.Seat:
+    properties:
+      id:
+        type: integer
+      store:
+        $ref: '#/definitions/domain.Store'
+      title:
+        type: string
+    type: object
+  domain.Store:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isBreak:
+        type: boolean
+      name:
+        type: string
+      phone:
+        type: string
+      storeOpeningHours:
+        items:
+          $ref: '#/definitions/domain.StoreOpeningHour'
+        type: array
+      timezone:
+        type: string
+      userId:
+        type: string
+    type: object
+  domain.StoreOpeningHour:
+    properties:
+      closeTime:
+        type: string
+      dayOfWeek:
+        type: integer
+      openTime:
+        type: string
+    type: object
   domain.User:
     properties:
       email:
@@ -21,6 +62,13 @@ definitions:
     required:
     - email
     - token
+    type: object
+  v1.createSeatInput:
+    properties:
+      title:
+        type: string
+    required:
+    - title
     type: object
   v1.createTokenInput:
     properties:
@@ -74,6 +122,13 @@ definitions:
     - password
     - userId
     type: object
+  v1.updateSeatInput:
+    properties:
+      title:
+        type: string
+    required:
+    - title
+    type: object
   v1.updateUserInput:
     properties:
       firstName:
@@ -118,7 +173,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            type: boolean
       tags:
       - FCM Token
     get:
@@ -176,7 +231,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            type: boolean
       tags:
       - OTP
   /otp/verify:
@@ -197,7 +252,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            type: boolean
       tags:
       - OTP
   /ping:
@@ -212,6 +267,109 @@ paths:
             type: string
       tags:
       - Get Started
+  /stores/{store_id}/seats:
+    get:
+      description: Get all seats by store id
+      parameters:
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Seat Id
+        in: path
+        name: seat_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Seat'
+            type: array
+      tags:
+      - Store Seats
+    post:
+      consumes:
+      - application/json
+      description: Create seat
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createSeatInput'
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Seats
+  /stores/{store_id}/seats/{seat_id}:
+    delete:
+      description: Delete seat
+      parameters:
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Seat Id
+        in: path
+        name: seat_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Seats
+    patch:
+      consumes:
+      - application/json
+      description: Update seat
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.updateSeatInput'
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Seat Id
+        in: path
+        name: seat_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Seats
   /users:
     patch:
       consumes:
@@ -230,7 +388,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            type: boolean
       tags:
       - Users
     post:
@@ -254,7 +412,7 @@ paths:
             type: string
       tags:
       - Users
-  /users/{userId}:
+  /users/{user_id}:
     delete:
       description: Delete User
       parameters:
@@ -269,7 +427,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            type: boolean
       tags:
       - Users
     get:
@@ -289,6 +447,88 @@ paths:
             $ref: '#/definitions/domain.User'
       tags:
       - Users
+  /users/{user_id}/stores/{store_id}/menus/{menu_id}:
+    delete:
+      description: Delete the reference between store and menu
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Menu Id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Menus
+    patch:
+      description: Update the reference between store and menu
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Menu Id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Menus
+    post:
+      description: Create the reference between store and menu
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Menu Id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Menus
   /users/login:
     get:
       description: 以Firebase uid或Email獲取UserId，可在使用者登入前就使用來區分頁面要跳轉到登入或註冊
@@ -338,7 +578,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            type: boolean
       tags:
       - Users
 swagger: "2.0"

@@ -30,7 +30,7 @@ type verifyOTPInput struct {
 // @Accept json
 // @Param data body createOTPInput true "JSON data"
 // @Produce json
-// @Success 200 {string} string result
+// @Success 200 {boolean} result
 // @Router /otp/create [post]
 func (h *Handler) create(c *gin.Context) {
 	var inp createOTPInput
@@ -55,7 +55,7 @@ func (h *Handler) create(c *gin.Context) {
 // @Accept json
 // @Param data body verifyOTPInput true "JSON data"
 // @Produce json
-// @Success 200 {string} string result
+// @Success 200 {boolean} result
 // @Router /otp/verify [post]
 func (h *Handler) verify(c *gin.Context) {
 	var inp verifyOTPInput

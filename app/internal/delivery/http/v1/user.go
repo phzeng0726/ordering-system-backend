@@ -49,7 +49,7 @@ type resetPasswordInput struct {
 // @Accept json
 // @Param data body createUserInput true "userType: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1<br><br>languageId: 區分多語系，en為1, zh為2<br><br>"
 // @Produce json
-// @Success 200 {string} string userId
+// @Success 200 {string} userId
 // @Router /users [post]
 func (h *Handler) createUser(c *gin.Context) {
 	var inp createUserInput
@@ -80,7 +80,7 @@ func (h *Handler) createUser(c *gin.Context) {
 // @Accept json
 // @Param data body updateUserInput true "languageId: 區分多語系，en為1, zh為2<br><br>"
 // @Produce json
-// @Success 200 {string} string userId
+// @Success 200 {boolean} result
 // @Router /users [patch]
 func (h *Handler) updateUser(c *gin.Context) {
 	var inp updateUserInput
@@ -107,8 +107,8 @@ func (h *Handler) updateUser(c *gin.Context) {
 // @Description Delete User
 // @Param user_id path string true "User Id"
 // @Produce json
-// @Success 200 {string} string userId
-// @Router /users/{userId} [delete]
+// @Success 200 {boolean} result
+// @Router /users/{user_id} [delete]
 func (h *Handler) deleteUser(c *gin.Context) {
 	userId := c.Param("user_id")
 	if err := h.services.Users.Delete(c.Request.Context(), userId); err != nil {
@@ -126,7 +126,7 @@ func (h *Handler) deleteUser(c *gin.Context) {
 // @Param uid query string false "method為uid時不可為空"
 // @Param email query string false "method為email時不可為空"
 // @Produce json
-// @Success 200 {string} string userId
+// @Success 200 {string} userId
 // @Router /users/login [get]
 func (h *Handler) login(c *gin.Context) {
 	userTypeStr := c.Query("userType")
@@ -179,7 +179,7 @@ func (h *Handler) login(c *gin.Context) {
 // @Param user_id path string true "User Id"
 // @Produce json
 // @Success 200 {object} domain.User
-// @Router /users/{userId} [get]
+// @Router /users/{user_id} [get]
 func (h *Handler) getUserById(c *gin.Context) {
 	userId := c.Param("user_id")
 	user, err := h.services.Users.GetById(c.Request.Context(), userId)
@@ -196,7 +196,7 @@ func (h *Handler) getUserById(c *gin.Context) {
 // @Accept json
 // @Param data body resetPasswordInput true "JSON data"
 // @Produce json
-// @Success 200 {string} string userId
+// @Success 200 {boolean} result
 // @Router /users/reset-password [post]
 func (h *Handler) resetPassword(c *gin.Context) {
 	var inp resetPasswordInput
