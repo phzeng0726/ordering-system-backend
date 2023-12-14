@@ -140,6 +140,29 @@ definitions:
       lastName:
         type: string
     type: object
+  v1.createCategoryInput:
+    properties:
+      identifier:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  v1.createMenuInput:
+    properties:
+      description:
+        type: string
+      menuItems:
+        items:
+          $ref: '#/definitions/v1.menuItemInput'
+        type: array
+      title:
+        type: string
+    required:
+    - menuItems
+    - title
+    type: object
   v1.createOTPInput:
     properties:
       email:
@@ -230,6 +253,28 @@ definitions:
     - token
     - userId
     type: object
+  v1.menuItemInput:
+    properties:
+      categoryId:
+        type: integer
+      description:
+        type: string
+      imageBytes:
+        items:
+          type: integer
+        type: array
+      price:
+        type: integer
+      quantity:
+        type: integer
+      title:
+        type: string
+    required:
+    - categoryId
+    - price
+    - quantity
+    - title
+    type: object
   v1.resetPasswordInput:
     properties:
       password:
@@ -239,6 +284,15 @@ definitions:
     required:
     - password
     - userId
+    type: object
+  v1.updateCategoryInput:
+    properties:
+      identifier:
+        type: string
+      title:
+        type: string
+    required:
+    - title
     type: object
   v1.updateOrderTicketInput:
     properties:
@@ -708,6 +762,239 @@ paths:
             $ref: '#/definitions/domain.User'
       tags:
       - Users
+  /users/{user_id}/categories:
+    get:
+      description: Get all categories by user id
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Language
+        in: query
+        name: language
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Category'
+            type: array
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Create category
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createCategoryInput'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Categories
+  /users/{user_id}/categories/{category_id}:
+    delete:
+      description: Delete category
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Category id
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Categories
+    patch:
+      consumes:
+      - application/json
+      description: Update category
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.updateCategoryInput'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Category id
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Categories
+  /users/{user_id}/menus:
+    get:
+      description: Get all menus by user id
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Language
+        in: query
+        name: language
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Menu'
+            type: array
+      tags:
+      - Menus
+    post:
+      consumes:
+      - application/json
+      description: Create menu
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createMenuInput'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Menus
+  /users/{user_id}/menus/{menu_id}:
+    delete:
+      description: Delete menu
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Menu id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Menus
+    get:
+      description: Get menu menu id with menu owner
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Menu id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      - description: Language
+        in: query
+        name: language
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Menu'
+      tags:
+      - Menus
+    patch:
+      consumes:
+      - application/json
+      description: Update menu
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createMenuInput'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Menu id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Menus
   /users/{user_id}/stores/{store_id}/menus/{menu_id}:
     delete:
       description: Delete the reference between store and menu
