@@ -1,4 +1,91 @@
 definitions:
+  domain.Category:
+    properties:
+      id:
+        type: integer
+      identifier:
+        type: string
+      isDefault:
+        type: boolean
+      title:
+        type: string
+    type: object
+  domain.Menu:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      menuItems:
+        items:
+          $ref: '#/definitions/domain.MenuItem'
+        type: array
+      store:
+        $ref: '#/definitions/domain.Store'
+      title:
+        type: string
+      userId:
+        type: string
+    type: object
+  domain.MenuItem:
+    properties:
+      category:
+        $ref: '#/definitions/domain.Category'
+      description:
+        type: string
+      id:
+        type: integer
+      imageBytes:
+        items:
+          type: integer
+        type: array
+      price:
+        type: integer
+      quantity:
+        type: integer
+      title:
+        type: string
+    type: object
+  domain.OrderTicket:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      orderItems:
+        items:
+          $ref: '#/definitions/domain.OrderTicketItem'
+        type: array
+      orderStatus:
+        type: string
+      seatId:
+        description: 如果Seat被Store刪掉的話，就會變空的(為了段開連接)
+        type: integer
+      seatTitle:
+        type: string
+      storeName:
+        description: GetAllByUserId時抓的資料欄位
+        type: string
+      totalPrice:
+        type: number
+      userId:
+        type: string
+    type: object
+  domain.OrderTicketItem:
+    properties:
+      id:
+        type: integer
+      productId:
+        type: integer
+      productName:
+        type: string
+      productPrice:
+        type: number
+      quantity:
+        type: integer
+    type: object
   domain.Seat:
     properties:
       id:
@@ -63,6 +150,37 @@ definitions:
     - email
     - token
     type: object
+  v1.createOrderTicketInput:
+    properties:
+      orderItems:
+        items:
+          $ref: '#/definitions/v1.createOrderTicketItemInput'
+        type: array
+      seatId:
+        type: integer
+      userId:
+        type: string
+    required:
+    - orderItems
+    - seatId
+    - userId
+    type: object
+  v1.createOrderTicketItemInput:
+    properties:
+      productId:
+        type: integer
+      productName:
+        type: string
+      productPrice:
+        type: number
+      quantity:
+        type: integer
+    required:
+    - productId
+    - productName
+    - productPrice
+    - quantity
+    type: object
   v1.createSeatInput:
     properties:
       title:
@@ -121,6 +239,13 @@ definitions:
     required:
     - password
     - userId
+    type: object
+  v1.updateOrderTicketInput:
+    properties:
+      orderStatus:
+        type: string
+    required:
+    - orderStatus
     type: object
   v1.updateSeatInput:
     properties:
@@ -213,6 +338,46 @@ paths:
             type: string
       tags:
       - FCM Token
+  /order-tickets:
+    get:
+      description: Get all order tickets by user id
+      parameters:
+      - description: User id
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.OrderTicket'
+            type: array
+      tags:
+      - Order Tickets(Client)
+    post:
+      consumes:
+      - application/json
+      description: Create order ticket
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createOrderTicketInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Order Tickets(Client)
   /otp/create:
     post:
       consumes:
@@ -267,6 +432,102 @@ paths:
             type: string
       tags:
       - Get Started
+  /stores/{store_id}/menus:
+    get:
+      description: Get menu by store id
+      parameters:
+      - description: 區分多語系，en為1, zh為2
+        in: query
+        name: language
+        required: true
+        type: integer
+      - description: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1
+        in: query
+        name: userType
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Menu'
+      tags:
+      - Store Menus
+  /stores/{store_id}/order-tickets:
+    get:
+      description: Get all order tickets by store id
+      parameters:
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.OrderTicket'
+            type: array
+      tags:
+      - Order Tickets(Store)
+  /stores/{store_id}/order-tickets/{ticket_id}:
+    delete:
+      description: Delete order ticket
+      parameters:
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Ticket Id
+        in: path
+        name: ticket_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Order Tickets(Store)
+    patch:
+      consumes:
+      - application/json
+      description: Update order ticket
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.updateOrderTicketInput'
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Ticket Id
+        in: path
+        name: ticket_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Order Tickets(Store)
   /stores/{store_id}/seats:
     get:
       description: Get all seats by store id

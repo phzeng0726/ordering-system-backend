@@ -105,6 +105,68 @@ const docTemplate = `{
                 }
             }
         },
+        "/order-tickets": {
+            "get": {
+                "description": "Get all order tickets by user id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Client)"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.OrderTicket"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create order ticket",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Client)"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createOrderTicketInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
         "/otp/create": {
             "post": {
                 "description": "Create OTP",
@@ -185,6 +247,152 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{store_id}/menus": {
+            "get": {
+                "description": "Get menu by store id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Menus"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "區分多語系，en為1, zh為2",
+                        "name": "language",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1",
+                        "name": "userType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Menu"
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{store_id}/order-tickets": {
+            "get": {
+                "description": "Get all order tickets by store id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Store)"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.OrderTicket"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{store_id}/order-tickets/{ticket_id}": {
+            "delete": {
+                "description": "Delete order ticket",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Store)"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ticket Id",
+                        "name": "ticket_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update order ticket",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Store)"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.updateOrderTicketInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ticket Id",
+                        "name": "ticket_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
                         }
                     }
                 }
@@ -668,6 +876,138 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.Category": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "identifier": {
+                    "type": "string"
+                },
+                "isDefault": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Menu": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "menuItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.MenuItem"
+                    }
+                },
+                "store": {
+                    "$ref": "#/definitions/domain.Store"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.MenuItem": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/domain.Category"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageBytes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.OrderTicket": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "orderItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderTicketItem"
+                    }
+                },
+                "orderStatus": {
+                    "type": "string"
+                },
+                "seatId": {
+                    "description": "如果Seat被Store刪掉的話，就會變空的(為了段開連接)",
+                    "type": "integer"
+                },
+                "seatTitle": {
+                    "type": "string"
+                },
+                "storeName": {
+                    "description": "GetAllByUserId時抓的資料欄位",
+                    "type": "string"
+                },
+                "totalPrice": {
+                    "type": "number"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.OrderTicketItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "productPrice": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.Seat": {
             "type": "object",
             "properties": {
@@ -766,6 +1106,51 @@ const docTemplate = `{
                 }
             }
         },
+        "v1.createOrderTicketInput": {
+            "type": "object",
+            "required": [
+                "orderItems",
+                "seatId",
+                "userId"
+            ],
+            "properties": {
+                "orderItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.createOrderTicketItemInput"
+                    }
+                },
+                "seatId": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createOrderTicketItemInput": {
+            "type": "object",
+            "required": [
+                "productId",
+                "productName",
+                "productPrice",
+                "quantity"
+            ],
+            "properties": {
+                "productId": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "productPrice": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "v1.createSeatInput": {
             "type": "object",
             "required": [
@@ -849,6 +1234,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.updateOrderTicketInput": {
+            "type": "object",
+            "required": [
+                "orderStatus"
+            ],
+            "properties": {
+                "orderStatus": {
                     "type": "string"
                 }
             }
