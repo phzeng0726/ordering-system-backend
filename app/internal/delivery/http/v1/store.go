@@ -3,9 +3,10 @@ package v1
 import (
 	"fmt"
 	"net/http"
-	"ordering-system-backend/internal/domain"
+	"ordering-system-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
+	dt "gorm.io/datatypes"
 )
 
 func (h *Handler) initUserStoresRoutes(api *gin.RouterGroup) {
@@ -19,6 +20,32 @@ func (h *Handler) initUserStoresRoutes(api *gin.RouterGroup) {
 	}
 }
 
+type createStoreInput struct {
+	Name              string                  `json:"name" binding:"required"`
+	Description       string                  `json:"description"`
+	Phone             string                  `json:"phone" binding:"required"`
+	Address           string                  `json:"address" binding:"required"`
+	Timezone          string                  `json:"timezone" binding:"required"`
+	IsBreak           *bool                   `json:"isBreak" binding:"required"`
+	StoreOpeningHours []storeOpeningHourInput `json:"storeOpeningHours" binding:"required,dive,required"`
+}
+
+type updateStoreInput struct {
+	Name              string                  `json:"name" binding:"required"`
+	Description       string                  `json:"description"`
+	Phone             string                  `json:"phone" binding:"required"`
+	Address           string                  `json:"address" binding:"required"`
+	Timezone          string                  `json:"timezone" binding:"required"`
+	IsBreak           bool                    `json:"isBreak" binding:"required"`
+	StoreOpeningHours []storeOpeningHourInput `json:"storeOpeningHours" binding:"required,dive,required"`
+}
+
+type storeOpeningHourInput struct {
+	DayOfWeek int     `json:"dayOfWeek" binding:"required"`
+	OpenTime  dt.Time `json:"openTime" binding:"required"`
+	CloseTime dt.Time `json:"closeTime" binding:"required"`
+}
+
 // @Tags Stores
 // @Description Create store
 // @Produce json
@@ -28,7 +55,7 @@ func (h *Handler) initUserStoresRoutes(api *gin.RouterGroup) {
 // @Success 200 {object} domain.Store
 // @Router /users/{user_id}/stores [post]
 func (h *Handler) createStore(c *gin.Context) {
-	var inp domain.Store
+	var inp createStoreInput
 	userId := c.Param("user_id")
 
 	if err := c.BindJSON(&inp); err != nil {
@@ -36,16 +63,30 @@ func (h *Handler) createStore(c *gin.Context) {
 		return
 	}
 
-	inp.UserId = userId
+	var openingHours []service.StoreOpeningHourInput
+	for _, oh := range inp.StoreOpeningHours {
+		openingHours = append(openingHours, service.StoreOpeningHourInput{
+			DayOfWeek: oh.DayOfWeek,
+			OpenTime:  oh.OpenTime,
+			CloseTime: oh.CloseTime,
+		})
+	}
 
-	storeId, err := h.services.Stores.Create(c.Request.Context(), inp)
+	storeId, err := h.services.Stores.Create(c.Request.Context(), userId, service.CreateStoreInput{
+		Name:              inp.Name,
+		Description:       inp.Description,
+		Phone:             inp.Phone,
+		Address:           inp.Address,
+		Timezone:          inp.Timezone,
+		IsBreak:           *inp.IsBreak,
+		StoreOpeningHours: openingHours,
+	})
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	inp.Id = storeId
-	c.IndentedJSON(http.StatusOK, inp)
+	c.IndentedJSON(http.StatusOK, storeId)
 }
 
 // @Tags Stores
@@ -58,7 +99,7 @@ func (h *Handler) createStore(c *gin.Context) {
 // @Success 200 {object} domain.Store
 // @Router /users/{user_id}/stores/{store_id} [patch]
 func (h *Handler) updateStore(c *gin.Context) {
-	var inp domain.Store
+	var inp updateStoreInput
 	userId := c.Param("user_id")
 	storeId := c.Param("store_id")
 
@@ -66,15 +107,29 @@ func (h *Handler) updateStore(c *gin.Context) {
 		return
 	}
 
-	inp.Id = storeId
-	inp.UserId = userId
+	var openingHours []service.StoreOpeningHourInput
+	for _, oh := range inp.StoreOpeningHours {
+		openingHours = append(openingHours, service.StoreOpeningHourInput{
+			DayOfWeek: oh.DayOfWeek,
+			OpenTime:  oh.OpenTime,
+			CloseTime: oh.CloseTime,
+		})
+	}
 
-	if err := h.services.Stores.Update(c.Request.Context(), inp); err != nil {
+	if err := h.services.Stores.Update(c.Request.Context(), userId, storeId, service.UpdateStoreInput{
+		Name:              inp.Name,
+		Description:       inp.Description,
+		Phone:             inp.Phone,
+		Address:           inp.Address,
+		Timezone:          inp.Timezone,
+		IsBreak:           inp.IsBreak,
+		StoreOpeningHours: openingHours,
+	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, inp)
+	c.IndentedJSON(http.StatusOK, storeId)
 }
 
 // @Tags Stores

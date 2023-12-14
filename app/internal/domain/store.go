@@ -9,7 +9,7 @@ import dt "gorm.io/datatypes"
 // primaryKey;
 type Store struct {
 	Id                string             `gorm:"column:id;not null;primaryKey;" json:"id"`
-	UserId            string             `gorm:"column:user_id;" json:"userId,omitempty"`
+	UserId            string             `gorm:"column:user_id;" json:"-"`
 	Name              string             `gorm:"column:name;" json:"name"`
 	Description       string             `gorm:"column:description;" json:"description"`
 	Email             string             `gorm:"-" json:"-"` // 從User那來
@@ -18,7 +18,6 @@ type Store struct {
 	Timezone          string             `gorm:"column:timezone;" json:"timezone"`
 	IsBreak           *bool              `gorm:"column:is_break;" json:"isBreak"`
 	StoreOpeningHours []StoreOpeningHour `gorm:"foreignKey:StoreId;references:id;" json:"storeOpeningHours"`
-	// Seats             []Seat             `gorm:"foreignKey:StoreId;references:id;" json:"seats"`
 }
 
 // NOTE:

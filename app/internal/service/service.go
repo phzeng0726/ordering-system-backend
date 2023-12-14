@@ -4,6 +4,8 @@ import (
 	"context"
 	"ordering-system-backend/internal/domain"
 	"ordering-system-backend/internal/repository"
+
+	dt "gorm.io/datatypes"
 )
 
 // 不同層之間可能需要做資料轉換，所以delivery和service分開
@@ -52,9 +54,35 @@ type Users interface {
 	ResetPassword(ctx context.Context, input ResetPasswordInput) error
 }
 
+type CreateStoreInput struct {
+	Name              string
+	Description       string
+	Phone             string
+	Address           string
+	Timezone          string
+	IsBreak           bool
+	StoreOpeningHours []StoreOpeningHourInput
+}
+
+type UpdateStoreInput struct {
+	Name              string
+	Description       string
+	Phone             string
+	Address           string
+	Timezone          string
+	IsBreak           bool
+	StoreOpeningHours []StoreOpeningHourInput
+}
+
+type StoreOpeningHourInput struct {
+	DayOfWeek int
+	OpenTime  dt.Time
+	CloseTime dt.Time
+}
+
 type Stores interface {
-	Create(ctx context.Context, store domain.Store) (string, error)
-	Update(ctx context.Context, store domain.Store) error
+	Create(ctx context.Context, userId string, input CreateStoreInput) (string, error)
+	Update(ctx context.Context, userId string, storeId string, input UpdateStoreInput) error
 	Delete(ctx context.Context, userId string, storeId string) error
 	GetAllByUserId(ctx context.Context, userId string) ([]domain.Store, error)
 	GetByStoreId(ctx context.Context, storeId string) (domain.Store, error)
