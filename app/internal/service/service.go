@@ -88,9 +88,17 @@ type Stores interface {
 	GetByStoreId(ctx context.Context, storeId string) (domain.Store, error)
 }
 
+type CreateSeatInput struct {
+	Title string
+}
+
+type UpdateSeatInput struct {
+	Title string
+}
+
 type Seats interface {
-	Create(ctx context.Context, seat domain.Seat) error
-	Update(ctx context.Context, seat domain.Seat) error
+	Create(ctx context.Context, storeId string, input CreateSeatInput) error
+	Update(ctx context.Context, storeId string, seatId int, input UpdateSeatInput) error
 	Delete(ctx context.Context, storeId string, seatId int) error
 	GetAllByStoreId(ctx context.Context, storeId string) ([]domain.Seat, error)
 	GetById(ctx context.Context, storeId string, seatId int) (domain.Seat, error)

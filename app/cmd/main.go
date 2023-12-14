@@ -9,7 +9,7 @@ import (
 	"ordering-system-backend/internal/service"
 )
 
-// swag init -g ./app/main.go -o ./docs
+// swag init -g ./cmd/main.go -o ./docs
 func main() {
 	config.InitConfig()
 	conn := database.Connect()

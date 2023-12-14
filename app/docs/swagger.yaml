@@ -115,8 +115,6 @@ definitions:
         type: array
       timezone:
         type: string
-      userId:
-        type: string
     type: object
   domain.StoreOpeningHour:
     properties:

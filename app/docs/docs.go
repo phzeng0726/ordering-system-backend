@@ -1585,9 +1585,6 @@ const docTemplate = `{
                 },
                 "timezone": {
                     "type": "string"
-                },
-                "userId": {
-                    "type": "string"
                 }
             }
         },

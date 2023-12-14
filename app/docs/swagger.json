@@ -1574,9 +1574,6 @@
                 },
                 "timezone": {
                     "type": "string"
-                },
-                "userId": {
-                    "type": "string"
                 }
             }
         },

@@ -2,7 +2,7 @@ package v1
 
 import (
 	"net/http"
-	"ordering-system-backend/internal/domain"
+	"ordering-system-backend/internal/service"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -44,12 +44,9 @@ func (h *Handler) createSeat(c *gin.Context) {
 		return
 	}
 
-	seat := domain.Seat{
-		StoreId: storeId,
-		Title:   inp.Title,
-	}
-
-	if err := h.services.Seats.Create(c.Request.Context(), seat); err != nil {
+	if err := h.services.Seats.Create(c.Request.Context(), storeId, service.CreateSeatInput{
+		Title: inp.Title,
+	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
@@ -81,13 +78,9 @@ func (h *Handler) updateSeat(c *gin.Context) {
 		return
 	}
 
-	seat := domain.Seat{
-		Id:      seatId,
-		StoreId: storeId,
-		Title:   inp.Title,
-	}
-
-	if err := h.services.Seats.Update(c.Request.Context(), seat); err != nil {
+	if err := h.services.Seats.Update(c.Request.Context(), storeId, seatId, service.UpdateSeatInput{
+		Title: inp.Title,
+	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
