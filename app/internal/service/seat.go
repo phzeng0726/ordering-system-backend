@@ -14,7 +14,12 @@ func NewSeatsService(repo repository.Seats) *SeatsService {
 	return &SeatsService{repo: repo}
 }
 
-func (s *SeatsService) Create(ctx context.Context, seat domain.Seat) error {
+func (s *SeatsService) Create(ctx context.Context, storeId string, input CreateSeatInput) error {
+	seat := domain.Seat{
+		StoreId: storeId,
+		Title:   input.Title,
+	}
+
 	if err := s.repo.Create(ctx, seat); err != nil {
 		return err
 	}
@@ -22,7 +27,13 @@ func (s *SeatsService) Create(ctx context.Context, seat domain.Seat) error {
 	return nil
 }
 
-func (s *SeatsService) Update(ctx context.Context, seat domain.Seat) error {
+func (s *SeatsService) Update(ctx context.Context, storeId string, seatId int, input UpdateSeatInput) error {
+	seat := domain.Seat{
+		Id:      seatId,
+		StoreId: storeId,
+		Title:   input.Title,
+	}
+
 	if err := s.repo.Update(ctx, seat); err != nil {
 		return err
 	}

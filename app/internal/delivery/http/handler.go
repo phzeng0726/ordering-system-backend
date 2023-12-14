@@ -6,6 +6,9 @@ import (
 	"ordering-system-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -28,11 +31,6 @@ func (h *Handler) Init() *gin.Engine {
 		corsMiddleware,
 	)
 
-	// router.Use(Middleware(conn))
-	router.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
-	})
-
 	h.initAPI(router)
 
 	return router
@@ -44,4 +42,19 @@ func (h *Handler) initAPI(router *gin.Engine) {
 	{
 		handlerV1.Init(api)
 	}
+
+	// 唯一一個在 Swagger 文件上不可使用，因為BasePath非/api/v1
+	router.GET("/ping", h.ping)
+
+	// Swagger 文件
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+}
+
+// @Tags Get Started
+// @Description 測試API是否成功運作
+// @Produce json
+// @Success 200 {string} Pong
+// @Router /ping [get]
+func (h *Handler) ping(g *gin.Context) {
+	g.JSON(http.StatusOK, "pong")
 }

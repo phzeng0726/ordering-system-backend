@@ -1,0 +1,1250 @@
+definitions:
+  domain.Category:
+    properties:
+      id:
+        type: integer
+      identifier:
+        type: string
+      isDefault:
+        type: boolean
+      title:
+        type: string
+    type: object
+  domain.Menu:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      menuItems:
+        items:
+          $ref: '#/definitions/domain.MenuItem'
+        type: array
+      store:
+        $ref: '#/definitions/domain.Store'
+      title:
+        type: string
+      userId:
+        type: string
+    type: object
+  domain.MenuItem:
+    properties:
+      category:
+        $ref: '#/definitions/domain.Category'
+      description:
+        type: string
+      id:
+        type: integer
+      imageBytes:
+        items:
+          type: integer
+        type: array
+      price:
+        type: integer
+      quantity:
+        type: integer
+      title:
+        type: string
+    type: object
+  domain.OrderTicket:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      orderItems:
+        items:
+          $ref: '#/definitions/domain.OrderTicketItem'
+        type: array
+      orderStatus:
+        type: string
+      seatId:
+        description: 如果Seat被Store刪掉的話，就會變空的(為了段開連接)
+        type: integer
+      seatTitle:
+        type: string
+      storeName:
+        description: GetAllByUserId時抓的資料欄位
+        type: string
+      totalPrice:
+        type: number
+      userId:
+        type: string
+    type: object
+  domain.OrderTicketItem:
+    properties:
+      id:
+        type: integer
+      productId:
+        type: integer
+      productName:
+        type: string
+      productPrice:
+        type: number
+      quantity:
+        type: integer
+    type: object
+  domain.Seat:
+    properties:
+      id:
+        type: integer
+      store:
+        $ref: '#/definitions/domain.Store'
+      title:
+        type: string
+    type: object
+  domain.Store:
+    properties:
+      address:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isBreak:
+        type: boolean
+      name:
+        type: string
+      phone:
+        type: string
+      storeOpeningHours:
+        items:
+          $ref: '#/definitions/domain.StoreOpeningHour'
+        type: array
+      timezone:
+        type: string
+    type: object
+  domain.StoreOpeningHour:
+    properties:
+      closeTime:
+        type: string
+      dayOfWeek:
+        type: integer
+      openTime:
+        type: string
+    type: object
+  domain.User:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      languageId:
+        type: integer
+      lastName:
+        type: string
+    type: object
+  v1.createCategoryInput:
+    properties:
+      identifier:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  v1.createMenuInput:
+    properties:
+      description:
+        type: string
+      menuItems:
+        items:
+          $ref: '#/definitions/v1.menuItemInput'
+        type: array
+      title:
+        type: string
+    required:
+    - menuItems
+    - title
+    type: object
+  v1.createOTPInput:
+    properties:
+      email:
+        type: string
+      token:
+        type: string
+    required:
+    - email
+    - token
+    type: object
+  v1.createOrderTicketInput:
+    properties:
+      orderItems:
+        items:
+          $ref: '#/definitions/v1.createOrderTicketItemInput'
+        type: array
+      seatId:
+        type: integer
+      userId:
+        type: string
+    required:
+    - orderItems
+    - seatId
+    - userId
+    type: object
+  v1.createOrderTicketItemInput:
+    properties:
+      productId:
+        type: integer
+      productName:
+        type: string
+      productPrice:
+        type: number
+      quantity:
+        type: integer
+    required:
+    - productId
+    - productName
+    - productPrice
+    - quantity
+    type: object
+  v1.createSeatInput:
+    properties:
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  v1.createTokenInput:
+    properties:
+      token:
+        type: string
+      userId:
+        type: string
+    required:
+    - token
+    - userId
+    type: object
+  v1.createUserInput:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      languageId:
+        type: integer
+      lastName:
+        type: string
+      password:
+        type: string
+      userType:
+        type: integer
+    required:
+    - email
+    - firstName
+    - languageId
+    - lastName
+    - password
+    - userType
+    type: object
+  v1.deleteTokenInput:
+    properties:
+      token:
+        type: string
+      userId:
+        type: string
+    required:
+    - token
+    - userId
+    type: object
+  v1.menuItemInput:
+    properties:
+      categoryId:
+        type: integer
+      description:
+        type: string
+      imageBytes:
+        items:
+          type: integer
+        type: array
+      price:
+        type: integer
+      quantity:
+        type: integer
+      title:
+        type: string
+    required:
+    - categoryId
+    - price
+    - quantity
+    - title
+    type: object
+  v1.resetPasswordInput:
+    properties:
+      password:
+        type: string
+      userId:
+        type: string
+    required:
+    - password
+    - userId
+    type: object
+  v1.updateCategoryInput:
+    properties:
+      identifier:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  v1.updateOrderTicketInput:
+    properties:
+      orderStatus:
+        type: string
+    required:
+    - orderStatus
+    type: object
+  v1.updateSeatInput:
+    properties:
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  v1.updateUserInput:
+    properties:
+      firstName:
+        type: string
+      languageId:
+        type: integer
+      lastName:
+        type: string
+    required:
+    - firstName
+    - languageId
+    - lastName
+    type: object
+  v1.verifyOTPInput:
+    properties:
+      password:
+        type: string
+      token:
+        type: string
+    required:
+    - password
+    - token
+    type: object
+info:
+  contact: {}
+paths:
+  /fcm-tokens:
+    delete:
+      consumes:
+      - application/json
+      description: Delete FCM Token with UserId and token
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.deleteTokenInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - FCM Token
+    get:
+      description: Get FCM Token by UserId
+      parameters:
+      - description: userId
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - FCM Token
+    post:
+      consumes:
+      - application/json
+      description: Insert FCM Token with UserId
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createTokenInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - FCM Token
+  /order-tickets:
+    get:
+      description: Get all order tickets by user id
+      parameters:
+      - description: User id
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.OrderTicket'
+            type: array
+      tags:
+      - Order Tickets(Client)
+    post:
+      consumes:
+      - application/json
+      description: Create order ticket
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createOrderTicketInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Order Tickets(Client)
+  /otp/create:
+    post:
+      consumes:
+      - application/json
+      description: Create OTP
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createOTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - OTP
+  /otp/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.verifyOTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - OTP
+  /ping:
+    get:
+      description: 測試API是否成功運作
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Get Started
+  /stores/{store_id}/menus:
+    get:
+      description: Get menu by store id
+      parameters:
+      - description: 區分多語系，en為1, zh為2
+        in: query
+        name: language
+        required: true
+        type: integer
+      - description: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1
+        in: query
+        name: userType
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Menu'
+      tags:
+      - Store Menus
+  /stores/{store_id}/order-tickets:
+    get:
+      description: Get all order tickets by store id
+      parameters:
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.OrderTicket'
+            type: array
+      tags:
+      - Order Tickets(Store)
+  /stores/{store_id}/order-tickets/{ticket_id}:
+    delete:
+      description: Delete order ticket
+      parameters:
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Ticket Id
+        in: path
+        name: ticket_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Order Tickets(Store)
+    patch:
+      consumes:
+      - application/json
+      description: Update order ticket
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.updateOrderTicketInput'
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Ticket Id
+        in: path
+        name: ticket_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Order Tickets(Store)
+  /stores/{store_id}/seats:
+    get:
+      description: Get all seats by store id
+      parameters:
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Seat Id
+        in: path
+        name: seat_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Seat'
+            type: array
+      tags:
+      - Store Seats
+    post:
+      consumes:
+      - application/json
+      description: Create seat
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createSeatInput'
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Seats
+  /stores/{store_id}/seats/{seat_id}:
+    delete:
+      description: Delete seat
+      parameters:
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Seat Id
+        in: path
+        name: seat_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Seats
+    patch:
+      consumes:
+      - application/json
+      description: Update seat
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.updateSeatInput'
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Seat Id
+        in: path
+        name: seat_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Seats
+  /users:
+    patch:
+      consumes:
+      - application/json
+      description: Update User
+      parameters:
+      - description: 'languageId: 區分多語系，en為1, zh為2<br><br>'
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.updateUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      parameters:
+      - description: 'userType: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1<br><br>languageId:
+          區分多語系，en為1, zh為2<br><br>'
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Users
+  /users/{user_id}:
+    delete:
+      description: Delete User
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Users
+    get:
+      description: Get user's data by id
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+      tags:
+      - Users
+  /users/{user_id}/categories:
+    get:
+      description: Get all categories by user id
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Language
+        in: query
+        name: language
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Category'
+            type: array
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Create category
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createCategoryInput'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Categories
+  /users/{user_id}/categories/{category_id}:
+    delete:
+      description: Delete category
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Category id
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Categories
+    patch:
+      consumes:
+      - application/json
+      description: Update category
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.updateCategoryInput'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Category id
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Categories
+  /users/{user_id}/menus:
+    get:
+      description: Get all menus by user id
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Language
+        in: query
+        name: language
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Menu'
+            type: array
+      tags:
+      - Menus
+    post:
+      consumes:
+      - application/json
+      description: Create menu
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createMenuInput'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Menus
+  /users/{user_id}/menus/{menu_id}:
+    delete:
+      description: Delete menu
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Menu id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Menus
+    get:
+      description: Get menu menu id with menu owner
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Menu id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      - description: Language
+        in: query
+        name: language
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Menu'
+      tags:
+      - Menus
+    patch:
+      consumes:
+      - application/json
+      description: Update menu
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createMenuInput'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Menu id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Menus
+  /users/{user_id}/stores:
+    get:
+      description: Get all store by user id
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Store'
+            type: array
+      tags:
+      - Stores
+    post:
+      consumes:
+      - application/json
+      description: Create store
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Store'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Store'
+      tags:
+      - Stores
+  /users/{user_id}/stores/{store_id}:
+    delete:
+      description: Delete store
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Stores
+    get:
+      description: Get store by store id with store owner
+      parameters:
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Store'
+      tags:
+      - Stores
+    patch:
+      consumes:
+      - application/json
+      description: Update store
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Store'
+      - description: User id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Store'
+      tags:
+      - Stores
+  /users/{user_id}/stores/{store_id}/menus/{menu_id}:
+    delete:
+      description: Delete the reference between store and menu
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Menu Id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Menus
+    patch:
+      description: Update the reference between store and menu
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Menu Id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Menus
+    post:
+      description: Create the reference between store and menu
+      parameters:
+      - description: User Id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Store Id
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Menu Id
+        in: path
+        name: menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Store Menus
+  /users/login:
+    get:
+      description: 以Firebase uid或Email獲取UserId，可在使用者登入前就使用來區分頁面要跳轉到登入或註冊
+      parameters:
+      - description: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1
+        in: query
+        name: userType
+        required: true
+        type: integer
+      - description: 可選擇以 uid 或 email 進行query
+        in: query
+        name: method
+        required: true
+        type: string
+      - description: method為uid時不可為空
+        in: query
+        name: uid
+        type: string
+      - description: method為email時不可為空
+        in: query
+        name: email
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - Users
+  /users/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset user's password
+      parameters:
+      - description: JSON data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/v1.resetPasswordInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      tags:
+      - Users
+swagger: "2.0"

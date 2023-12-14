@@ -18,6 +18,7 @@
 與另一名前端工程師合作並設計開發一款餐廳點餐系統，分為 **快速點餐系統（Order Ease 餐點輕鬆訂）** 與 **商店管理系統（Store Ease 商店輕鬆理）** 兩部份；**而這個 Repository 是整個系統的後端架構。**
 
 - **餐點輕鬆訂** （ :bell:可參考我的另外一個 Repository -> [Order Ease App](https://github.com/phzeng0726/order-ease-app-demo)）
+
   - 功能特色：
     - 帳戶管理： 提供 E-Mail 或匿名註冊，並可於後續更改或刪除用戶資訊
     - 快速點餐： 掃描商家 QRCode，即時獲取商店菜單並快速點餐

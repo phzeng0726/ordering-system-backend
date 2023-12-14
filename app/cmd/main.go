@@ -1,6 +1,7 @@
 package main
 
 import (
+	docs "ordering-system-backend/docs"
 	"ordering-system-backend/internal/config"
 	"ordering-system-backend/internal/database"
 	delivery "ordering-system-backend/internal/delivery/http"
@@ -8,6 +9,7 @@ import (
 	"ordering-system-backend/internal/service"
 )
 
+// swag init -g ./cmd/main.go -o ./docs
 func main() {
 	config.InitConfig()
 	conn := database.Connect()
@@ -23,6 +25,8 @@ func main() {
 	if config.Env.Port == "" {
 		config.Env.Port = "8080"
 	}
+
+	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	// Host沒有填的時候就是Cloud (GCP上不需要填Host)
 	router.Run(config.Env.Host + ":" + config.Env.Port)

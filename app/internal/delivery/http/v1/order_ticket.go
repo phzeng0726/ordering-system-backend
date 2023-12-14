@@ -41,6 +41,13 @@ type updateOrderTicketInput struct {
 	OrderStatus string `json:"orderStatus" binding:"required"`
 }
 
+// @Tags Order Tickets(Client)
+// @Description Create order ticket
+// @Produce json
+// @Accept json
+// @Param data body createOrderTicketInput true "JSON data"
+// @Success 200 {boolean} result
+// @Router /order-tickets [post]
 func (h *Handler) createTicket(c *gin.Context) {
 	var inp createOrderTicketInput
 
@@ -71,6 +78,15 @@ func (h *Handler) createTicket(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+// @Tags Order Tickets(Store)
+// @Description Update order ticket
+// @Produce json
+// @Accept json
+// @Param data body updateOrderTicketInput true "JSON data"
+// @Param store_id path string true "Store Id"
+// @Param ticket_id path int true "Ticket Id"
+// @Success 200 {boolean} result
+// @Router /stores/{store_id}/order-tickets/{ticket_id} [patch]
 func (h *Handler) updateTicket(c *gin.Context) {
 	var inp updateOrderTicketInput
 	storeId := c.Param("store_id")
@@ -96,6 +112,13 @@ func (h *Handler) updateTicket(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+// @Tags Order Tickets(Store)
+// @Description Delete order ticket
+// @Produce json
+// @Param store_id path string true "Store Id"
+// @Param ticket_id path int true "Ticket Id"
+// @Success 200 {boolean} result
+// @Router /stores/{store_id}/order-tickets/{ticket_id} [delete]
 func (h *Handler) deleteTicket(c *gin.Context) {
 	storeId := c.Param("store_id")
 	ticketIdStr := c.Param("ticket_id")
@@ -113,6 +136,12 @@ func (h *Handler) deleteTicket(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+// @Tags Order Tickets(Store)
+// @Description Get all order tickets by store id
+// @Produce json
+// @Param store_id path string true "Store Id"
+// @Success 200 {array} domain.OrderTicket
+// @Router /stores/{store_id}/order-tickets [get]
 func (h *Handler) getAllTicketsByStoreId(c *gin.Context) {
 	storeId := c.Param("store_id")
 
@@ -125,6 +154,12 @@ func (h *Handler) getAllTicketsByStoreId(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, orderTickets)
 }
 
+// @Tags Order Tickets(Client)
+// @Description Get all order tickets by user id
+// @Produce json
+// @Param userId query string true "User id"
+// @Success 200 {array} domain.OrderTicket
+// @Router /order-tickets [get]
 func (h *Handler) getAllTicketsByUserId(c *gin.Context) {
 	userId := c.Query("userId")
 
