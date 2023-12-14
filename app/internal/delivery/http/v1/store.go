@@ -19,6 +19,14 @@ func (h *Handler) initUserStoresRoutes(api *gin.RouterGroup) {
 	}
 }
 
+// @Tags Stores
+// @Description Create store
+// @Produce json
+// @Accept json
+// @Param data body domain.Store true "JSON data"
+// @Param user_id path string true "User id"
+// @Success 200 {object} domain.Store
+// @Router /users/{user_id}/stores [post]
 func (h *Handler) createStore(c *gin.Context) {
 	var inp domain.Store
 	userId := c.Param("user_id")
@@ -40,6 +48,15 @@ func (h *Handler) createStore(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, inp)
 }
 
+// @Tags Stores
+// @Description Update store
+// @Produce json
+// @Accept json
+// @Param data body domain.Store true "JSON data"
+// @Param user_id path string true "User id"
+// @Param store_id path string true "Store id"
+// @Success 200 {object} domain.Store
+// @Router /users/{user_id}/stores/{store_id} [patch]
 func (h *Handler) updateStore(c *gin.Context) {
 	var inp domain.Store
 	userId := c.Param("user_id")
@@ -60,6 +77,13 @@ func (h *Handler) updateStore(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, inp)
 }
 
+// @Tags Stores
+// @Description Delete store
+// @Produce json
+// @Param user_id path string true "User id"
+// @Param store_id path string true "Store id"
+// @Success 200 {boolean} result
+// @Router /users/{user_id}/stores/{store_id} [delete]
 func (h *Handler) deleteStore(c *gin.Context) {
 	userId := c.Param("user_id")
 	storeId := c.Param("store_id")
@@ -72,6 +96,12 @@ func (h *Handler) deleteStore(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+// @Tags Stores
+// @Description Get all store by user id
+// @Produce json
+// @Param user_id path string true "User id"
+// @Success 200 {array} domain.Store
+// @Router /users/{user_id}/stores [get]
 func (h *Handler) getAllStoresByUserId(c *gin.Context) {
 	userId := c.Param("user_id")
 
@@ -83,6 +113,13 @@ func (h *Handler) getAllStoresByUserId(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, stores)
 }
 
+// @Tags Stores
+// @Description Get store by store id with store owner
+// @Produce json
+// @Param user_id path string true "User id"
+// @Param store_id path string true "Store id"
+// @Success 200 {object} domain.Store
+// @Router /users/{user_id}/stores/{store_id} [get]
 func (h *Handler) getStoreByStoreId(c *gin.Context) {
 	userId := c.Param("user_id")
 	storeId := c.Param("store_id")
