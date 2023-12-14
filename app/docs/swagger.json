@@ -1,0 +1,1899 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/fcm-tokens": {
+            "get": {
+                "description": "Get FCM Token by UserId",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FCM Token"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "userId",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Insert FCM Token with UserId",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FCM Token"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createTokenInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete FCM Token with UserId and token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FCM Token"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.deleteTokenInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/order-tickets": {
+            "get": {
+                "description": "Get all order tickets by user id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Client)"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.OrderTicket"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create order ticket",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Client)"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createOrderTicketInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/otp/create": {
+            "post": {
+                "description": "Create OTP",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTP"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createOTPInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/otp/verify": {
+            "post": {
+                "description": "Verify OTP",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTP"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.verifyOTPInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/ping": {
+            "get": {
+                "description": "測試API是否成功運作",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Get Started"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{store_id}/menus": {
+            "get": {
+                "description": "Get menu by store id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Menus"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "區分多語系，en為1, zh為2",
+                        "name": "language",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1",
+                        "name": "userType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Menu"
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{store_id}/order-tickets": {
+            "get": {
+                "description": "Get all order tickets by store id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Store)"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.OrderTicket"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{store_id}/order-tickets/{ticket_id}": {
+            "delete": {
+                "description": "Delete order ticket",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Store)"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ticket Id",
+                        "name": "ticket_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update order ticket",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order Tickets(Store)"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.updateOrderTicketInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ticket Id",
+                        "name": "ticket_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{store_id}/seats": {
+            "get": {
+                "description": "Get all seats by store id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Seats"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Seat Id",
+                        "name": "seat_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Seat"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create seat",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Seats"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createSeatInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{store_id}/seats/{seat_id}": {
+            "delete": {
+                "description": "Delete seat",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Seats"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Seat Id",
+                        "name": "seat_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update seat",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Seats"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.updateSeatInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Seat Id",
+                        "name": "seat_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "description": "Create User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "description": "userType: 用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1\u003cbr\u003e\u003cbr\u003elanguageId: 區分多語系，en為1, zh為2\u003cbr\u003e\u003cbr\u003e",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "description": "languageId: 區分多語系，en為1, zh為2\u003cbr\u003e\u003cbr\u003e",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.updateUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "get": {
+                "description": "以Firebase uid或Email獲取UserId，可在使用者登入前就使用來區分頁面要跳轉到登入或註冊",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用來區分用戶類別，StoreEase商家為0, OrderEase客戶為1",
+                        "name": "userType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "可選擇以 uid 或 email 進行query",
+                        "name": "method",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "method為uid時不可為空",
+                        "name": "uid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "method為email時不可為空",
+                        "name": "email",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/reset-password": {
+            "post": {
+                "description": "Reset user's password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.resetPasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}": {
+            "get": {
+                "description": "Get user's data by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.User"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete User",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/categories": {
+            "get": {
+                "description": "Get all categories by user id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Language",
+                        "name": "language",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Category"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createCategoryInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/categories/{category_id}": {
+            "delete": {
+                "description": "Delete category",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category id",
+                        "name": "category_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.updateCategoryInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category id",
+                        "name": "category_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/menus": {
+            "get": {
+                "description": "Get all menus by user id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menus"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Language",
+                        "name": "language",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Menu"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create menu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menus"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createMenuInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/menus/{menu_id}": {
+            "get": {
+                "description": "Get menu menu id with menu owner",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menus"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Menu id",
+                        "name": "menu_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Language",
+                        "name": "language",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Menu"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete menu",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menus"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Menu id",
+                        "name": "menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update menu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menus"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createMenuInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Menu id",
+                        "name": "menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/stores": {
+            "get": {
+                "description": "Get all store by user id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Store"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create store",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/stores/{store_id}": {
+            "get": {
+                "description": "Get store by store id with store owner",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete store",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update store",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "parameters": [
+                    {
+                        "description": "JSON data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Store"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/stores/{store_id}/menus/{menu_id}": {
+            "post": {
+                "description": "Create the reference between store and menu",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Menus"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Menu Id",
+                        "name": "menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the reference between store and menu",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Menus"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Menu Id",
+                        "name": "menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update the reference between store and menu",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store Menus"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store Id",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Menu Id",
+                        "name": "menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.Category": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "identifier": {
+                    "type": "string"
+                },
+                "isDefault": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Menu": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "menuItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.MenuItem"
+                    }
+                },
+                "store": {
+                    "$ref": "#/definitions/domain.Store"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.MenuItem": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/domain.Category"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageBytes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.OrderTicket": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "orderItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.OrderTicketItem"
+                    }
+                },
+                "orderStatus": {
+                    "type": "string"
+                },
+                "seatId": {
+                    "description": "如果Seat被Store刪掉的話，就會變空的(為了段開連接)",
+                    "type": "integer"
+                },
+                "seatTitle": {
+                    "type": "string"
+                },
+                "storeName": {
+                    "description": "GetAllByUserId時抓的資料欄位",
+                    "type": "string"
+                },
+                "totalPrice": {
+                    "type": "number"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.OrderTicketItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "productPrice": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.Seat": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "store": {
+                    "$ref": "#/definitions/domain.Store"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Store": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isBreak": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "storeOpeningHours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoreOpeningHour"
+                    }
+                },
+                "timezone": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StoreOpeningHour": {
+            "type": "object",
+            "properties": {
+                "closeTime": {
+                    "type": "string"
+                },
+                "dayOfWeek": {
+                    "type": "integer"
+                },
+                "openTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "languageId": {
+                    "type": "integer"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createCategoryInput": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "identifier": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createMenuInput": {
+            "type": "object",
+            "required": [
+                "menuItems",
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "menuItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.menuItemInput"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createOTPInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "token"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createOrderTicketInput": {
+            "type": "object",
+            "required": [
+                "orderItems",
+                "seatId",
+                "userId"
+            ],
+            "properties": {
+                "orderItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.createOrderTicketItemInput"
+                    }
+                },
+                "seatId": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createOrderTicketItemInput": {
+            "type": "object",
+            "required": [
+                "productId",
+                "productName",
+                "productPrice",
+                "quantity"
+            ],
+            "properties": {
+                "productId": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "productPrice": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.createSeatInput": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createTokenInput": {
+            "type": "object",
+            "required": [
+                "token",
+                "userId"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createUserInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "firstName",
+                "languageId",
+                "lastName",
+                "password",
+                "userType"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "languageId": {
+                    "type": "integer"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "userType": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.deleteTokenInput": {
+            "type": "object",
+            "required": [
+                "token",
+                "userId"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.menuItemInput": {
+            "type": "object",
+            "required": [
+                "categoryId",
+                "price",
+                "quantity",
+                "title"
+            ],
+            "properties": {
+                "categoryId": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "imageBytes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.resetPasswordInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "userId"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.updateCategoryInput": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "identifier": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.updateOrderTicketInput": {
+            "type": "object",
+            "required": [
+                "orderStatus"
+            ],
+            "properties": {
+                "orderStatus": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.updateSeatInput": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.updateUserInput": {
+            "type": "object",
+            "required": [
+                "firstName",
+                "languageId",
+                "lastName"
+            ],
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "languageId": {
+                    "type": "integer"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.verifyOTPInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "token"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

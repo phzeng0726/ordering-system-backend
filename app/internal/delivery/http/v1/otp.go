@@ -25,7 +25,13 @@ type verifyOTPInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
-// token, email
+// @Tags OTP
+// @Description Create OTP
+// @Accept json
+// @Param data body createOTPInput true "JSON data"
+// @Produce json
+// @Success 200 {boolean} result
+// @Router /otp/create [post]
 func (h *Handler) create(c *gin.Context) {
 	var inp createOTPInput
 	if err := c.BindJSON(&inp); err != nil {
@@ -44,6 +50,13 @@ func (h *Handler) create(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, true)
 }
 
+// @Tags OTP
+// @Description Verify OTP
+// @Accept json
+// @Param data body verifyOTPInput true "JSON data"
+// @Produce json
+// @Success 200 {boolean} result
+// @Router /otp/verify [post]
 func (h *Handler) verify(c *gin.Context) {
 	var inp verifyOTPInput
 	if err := c.BindJSON(&inp); err != nil {

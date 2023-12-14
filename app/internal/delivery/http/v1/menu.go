@@ -41,6 +41,14 @@ type updateMenuInput struct {
 	MenuItems   []menuItemInput `json:"menuItems" binding:"required,dive,required"`
 }
 
+// @Tags Menus
+// @Description Create menu
+// @Produce json
+// @Accept json
+// @Param data body createMenuInput true "JSON data"
+// @Param user_id path string true "User id"
+// @Success 200 {boolean} result
+// @Router /users/{user_id}/menus [post]
 func (h *Handler) createMenu(c *gin.Context) {
 	var inp createMenuInput
 	userId := c.Param("user_id")
@@ -77,6 +85,15 @@ func (h *Handler) createMenu(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menuId)
 }
 
+// @Tags Menus
+// @Description Update menu
+// @Produce json
+// @Accept json
+// @Param data body createMenuInput true "JSON data"
+// @Param user_id path string true "User id"
+// @Param menu_id path string true "Menu id"
+// @Success 200 {boolean} result
+// @Router /users/{user_id}/menus/{menu_id} [patch]
 func (h *Handler) updateMenu(c *gin.Context) {
 	var inp updateMenuInput
 	userId := c.Param("user_id")
@@ -115,6 +132,13 @@ func (h *Handler) updateMenu(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menuId)
 }
 
+// @Tags Menus
+// @Description Delete menu
+// @Produce json
+// @Param user_id path string true "User id"
+// @Param menu_id path string true "Menu id"
+// @Success 200 {boolean} result
+// @Router /users/{user_id}/menus/{menu_id} [delete]
 func (h *Handler) deleteMenu(c *gin.Context) {
 	userId := c.Param("user_id")
 	menuId := c.Param("menu_id")
@@ -127,6 +151,13 @@ func (h *Handler) deleteMenu(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menuId)
 }
 
+// @Tags Menus
+// @Description Get all menus by user id
+// @Produce json
+// @Param user_id path string true "User id"
+// @Param language query int true "Language"
+// @Success 200 {array} domain.Menu
+// @Router /users/{user_id}/menus [get]
 func (h *Handler) getAllMenusByUserId(c *gin.Context) {
 	userId := c.Param("user_id")
 	languageIdStr := c.Query("language")
@@ -145,6 +176,14 @@ func (h *Handler) getAllMenusByUserId(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, menus)
 }
 
+// @Tags Menus
+// @Description Get menu menu id with menu owner
+// @Produce json
+// @Param user_id path string true "User id"
+// @Param menu_id path string true "Menu id"
+// @Param language query int true "Language"
+// @Success 200 {object} domain.Menu
+// @Router /users/{user_id}/menus/{menu_id} [get]
 func (h *Handler) getMenuById(c *gin.Context) {
 	userId := c.Param("user_id")
 	menuId := c.Param("menu_id")
