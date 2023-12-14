@@ -20,10 +20,10 @@ func NewStoresService(storesRepo repository.Stores, usersRepo repository.Users) 
 	}
 }
 
-func (s *StoresService) Create(ctx context.Context, userId string, input CreateStoreInput) (string, error) {
+func convertOpeningHourToDomainInput(storeOpeningHours []StoreOpeningHourInput) []domain.StoreOpeningHour {
 	var openingHours []domain.StoreOpeningHour
 
-	for _, oh := range input.StoreOpeningHours {
+	for _, oh := range storeOpeningHours {
 		openingHours = append(openingHours, domain.StoreOpeningHour{
 			DayOfWeek: oh.DayOfWeek,
 			OpenTime:  oh.OpenTime,
@@ -31,6 +31,11 @@ func (s *StoresService) Create(ctx context.Context, userId string, input CreateS
 		})
 	}
 
+	return openingHours
+}
+
+func (s *StoresService) Create(ctx context.Context, userId string, input CreateStoreInput) (string, error) {
+	openingHours := convertOpeningHourToDomainInput(input.StoreOpeningHours)
 	store := domain.Store{
 		Id:                uuid.New().String(),
 		UserId:            userId,
@@ -56,16 +61,7 @@ func (s *StoresService) Create(ctx context.Context, userId string, input CreateS
 }
 
 func (s *StoresService) Update(ctx context.Context, userId string, storeId string, input UpdateStoreInput) error {
-	var openingHours []domain.StoreOpeningHour
-
-	for _, oh := range input.StoreOpeningHours {
-		openingHours = append(openingHours, domain.StoreOpeningHour{
-			DayOfWeek: oh.DayOfWeek,
-			OpenTime:  oh.OpenTime,
-			CloseTime: oh.CloseTime,
-		})
-	}
-
+	openingHours := convertOpeningHourToDomainInput(input.StoreOpeningHours)
 	store := domain.Store{
 		Id:                storeId,
 		UserId:            userId,

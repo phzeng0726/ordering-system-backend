@@ -36,7 +36,7 @@ type updateStoreInput struct {
 	Phone             string                  `json:"phone" binding:"required"`
 	Address           string                  `json:"address" binding:"required"`
 	Timezone          string                  `json:"timezone" binding:"required"`
-	IsBreak           bool                    `json:"isBreak" binding:"required"`
+	IsBreak           *bool                   `json:"isBreak" binding:"required"`
 	StoreOpeningHours []storeOpeningHourInput `json:"storeOpeningHours" binding:"required,dive,required"`
 }
 
@@ -44,6 +44,18 @@ type storeOpeningHourInput struct {
 	DayOfWeek int     `json:"dayOfWeek" binding:"required"`
 	OpenTime  dt.Time `json:"openTime" binding:"required"`
 	CloseTime dt.Time `json:"closeTime" binding:"required"`
+}
+
+func convertOpeningHourToServiceInput(storeOpeningHours []storeOpeningHourInput) []service.StoreOpeningHourInput {
+	var openingHours []service.StoreOpeningHourInput
+	for _, oh := range storeOpeningHours {
+		openingHours = append(openingHours, service.StoreOpeningHourInput{
+			DayOfWeek: oh.DayOfWeek,
+			OpenTime:  oh.OpenTime,
+			CloseTime: oh.CloseTime,
+		})
+	}
+	return openingHours
 }
 
 // @Tags Stores
@@ -63,15 +75,7 @@ func (h *Handler) createStore(c *gin.Context) {
 		return
 	}
 
-	var openingHours []service.StoreOpeningHourInput
-	for _, oh := range inp.StoreOpeningHours {
-		openingHours = append(openingHours, service.StoreOpeningHourInput{
-			DayOfWeek: oh.DayOfWeek,
-			OpenTime:  oh.OpenTime,
-			CloseTime: oh.CloseTime,
-		})
-	}
-
+	openingHours := convertOpeningHourToServiceInput(inp.StoreOpeningHours)
 	storeId, err := h.services.Stores.Create(c.Request.Context(), userId, service.CreateStoreInput{
 		Name:              inp.Name,
 		Description:       inp.Description,
@@ -107,22 +111,14 @@ func (h *Handler) updateStore(c *gin.Context) {
 		return
 	}
 
-	var openingHours []service.StoreOpeningHourInput
-	for _, oh := range inp.StoreOpeningHours {
-		openingHours = append(openingHours, service.StoreOpeningHourInput{
-			DayOfWeek: oh.DayOfWeek,
-			OpenTime:  oh.OpenTime,
-			CloseTime: oh.CloseTime,
-		})
-	}
-
+	openingHours := convertOpeningHourToServiceInput(inp.StoreOpeningHours)
 	if err := h.services.Stores.Update(c.Request.Context(), userId, storeId, service.UpdateStoreInput{
 		Name:              inp.Name,
 		Description:       inp.Description,
 		Phone:             inp.Phone,
 		Address:           inp.Address,
 		Timezone:          inp.Timezone,
-		IsBreak:           inp.IsBreak,
+		IsBreak:           *inp.IsBreak,
 		StoreOpeningHours: openingHours,
 	}); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
