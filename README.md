@@ -105,22 +105,25 @@
 - 訂單: order_tickets, order_ticket_items
 - 其他: images, language, otp_mail, otp, fcm_token, fcm_messages
 
-### API 列表 (Swagger 文件待更新)
+### API 列表
 
-截至目前`v1.0.0`為止，共有 40 支 RESTful API，架構為`https://<Endpoint>/api/v1/<Path>`。
+![Sample RESTful APIs Swagger](screenshots/api_swagger.png)
 
-![Sample RESTful APIs](screenshots/postman.png)
+截至目前`v1.0.0`為止，共有 40 支 RESTful API，架構為`https://<Endpoint>/api/v1/<Path>`，可參考 [Swagger 文件連結](https://app.swaggerhub.com/apis/phzeng0726/ordering-system/1.0.0#/)。
+
+![Sample RESTful APIs Postman](screenshots/api_postman.png)
 
 ## 技術清單
 
 ### Language
 
-- **Golang** `v1.20` |
+- **Golang** `v1.21` |
 
   - **Main Dependencies**
 
     - Gin-Gonic (`github.com/gin-gonic/gin` v1.9.1)
     - MySQL & GORM (`gorm.io/driver/mysql` v1.5.1, `gorm.io/datatypes` v1.2.0, `gorm.io/gorm` v1.25.4)
+    - Swaggo (Supporting an API document for front-end engineer)
 
   - **All Dependencies**
 
@@ -141,6 +144,7 @@
 
 - **Git** (Version control)
 - **Docker** (Container)
-- **Postman** (API tool)
+- **Swagger** (API document)
+- **Postman** (API testing tool)
 - **Trello** (Scrum pattern)
 - **DrawSQL** (Database design tool)
